@@ -4,7 +4,7 @@ import type { FC } from 'react';
 
 const Header: FC = () => {
   return (
-    <header className="flex items-center justify-start bg-[rgba(0,175,234,255)] h-16 px-4 shadow-md">
+    <header className="flex items-center justify-between bg-[rgba(0,175,234,255)] h-16 px-4 shadow-md">
       <Link href="/" className="flex items-center">
         <Image
           src="/images/BytefestWhite.png"
@@ -14,6 +14,17 @@ const Header: FC = () => {
           className="opacity-100 cursor-pointer"
         />
       </Link>
+      <nav className="space-x-4">
+        <Link href="/program" className="text-white hover:underline">
+          Program
+        </Link>
+        <Link href="/speakers" className="text-white hover:underline">
+          Speakers
+        </Link>
+        <Link href="/about" className="text-white hover:underline">
+          About
+        </Link>
+      </nav>
     </header>
   );
 };
