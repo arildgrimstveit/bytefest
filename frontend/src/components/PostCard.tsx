@@ -1,7 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { FC } from "react";
 
-const PostCard = ({ post }) => {
+interface Post {
+  title: string;
+  image: string;
+  slug: { current: string };
+}
+
+interface PostCardProps {
+  post: Post;
+}
+
+const PostCard: FC<PostCardProps> = ({ post }) => {
   return (
     <Link href={`/post/${post.slug.current}`} className="block">
       <div className="max-w-lg mx-auto rounded-xl overflow-hidden shadow-lg bg-white hover:shadow-2xl transform hover:scale-[1.02] transition duration-300">
