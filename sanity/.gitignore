@@ -5,6 +5,7 @@
 /coverage
 
 # Production
+.sanity
 /build
 
 # Misc
