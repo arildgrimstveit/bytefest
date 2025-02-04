@@ -1,12 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
-
-interface Talk {
-  title: string;
-  image: string;
-  slug: { current: string };
-}
+import type { Talk } from '@/types/talk';
 
 interface TalkCardProps {
   talk: Talk;

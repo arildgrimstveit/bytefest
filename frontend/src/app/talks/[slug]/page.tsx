@@ -2,19 +2,10 @@ import client from "@/sanityClient";
 import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
-import { PortableTextBlock } from "@sanity/types";
+import type { Talk } from '@/types/talk';
 
 interface TalkProps {
   params: { slug: string };
-}
-
-interface Talk {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  image: string;
-  publishedAt: string;
-  body: PortableTextBlock[];
 }
 
 export default async function TalkDetail(props: TalkProps) {

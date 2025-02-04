@@ -3,14 +3,7 @@
 import { useState, useMemo } from 'react';
 import TalkCard from './TalkCard';
 import type { FC } from 'react';
-
-interface Talk {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  image: string;
-  publishedAt: string;
-}
+import type { Talk } from '@/types/talk';
 
 interface TalkSearchProps {
   talks: Talk[];

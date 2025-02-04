@@ -1,13 +1,6 @@
 import client from '@/sanityClient';
 import TalkSearch from '@/components/TalkSearch';
-
-interface Talk {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  image: string;
-  publishedAt: string;
-}
+import type { Talk } from '@/types/talk';
 
 export default async function TalksPage() {
   const query = `*[_type == "talk"] | order(publishedAt desc) {

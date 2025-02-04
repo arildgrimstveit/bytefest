@@ -1,14 +1,6 @@
 import client from '@/sanityClient';
 import Link from 'next/link';
-
-interface ProgramTalk {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  talkTime: string;
-  speaker: { name: string };
-  location: string;
-}
+import type { TalkProgram } from '@/types/talkProgram';
 
 export default async function Program() {
   const query = `*[_type == "talk"] | order(publishedAt desc) {
@@ -20,7 +12,7 @@ export default async function Program() {
     location
   }`;
 
-  const talks: ProgramTalk[] = await client.fetch(query);
+  const talks: TalkProgram[] = await client.fetch(query);
 
   return (
     <div className="container mx-auto px-4 py-6">
