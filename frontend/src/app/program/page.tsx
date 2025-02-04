@@ -1,26 +1,26 @@
 import client from '@/sanityClient';
 import Link from 'next/link';
 
-interface ProgramPost {
+interface ProgramTalk {
   _id: string;
   title: string;
   slug: { current: string };
   talkTime: string;
-  presenter: string;
+  speaker: { name: string };
   location: string;
 }
 
 export default async function Program() {
-  const query = `*[_type == "post"] | order(publishedAt desc) {
+  const query = `*[_type == "talk"] | order(publishedAt desc) {
     _id,
     title,
     slug,
     talkTime,
-    presenter,
+    speaker->{name},
     location
   }`;
 
-  const posts: ProgramPost[] = await client.fetch(query);
+  const talks: ProgramTalk[] = await client.fetch(query);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -28,25 +28,43 @@ export default async function Program() {
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr>
+            <th className="py-2 px-4 border-b">Date</th>
             <th className="py-2 px-4 border-b">Time</th>
             <th className="py-2 px-4 border-b">Talk</th>
-            <th className="py-2 px-4 border-b">Presenter</th>
+            <th className="py-2 px-4 border-b">Speaker</th>
             <th className="py-2 px-4 border-b">Location</th>
           </tr>
         </thead>
         <tbody>
-          {posts.map((post) => (
-            <tr key={post._id} className="text-center">
-              <td className="py-2 px-4 border-b">{post.talkTime}</td>
-              <td className="py-2 px-4 border-b">
-                <Link href={`/post/${post.slug.current}`} className="text-blue-500 hover:underline">
-                  {post.title}
-                </Link>
-              </td>
-              <td className="py-2 px-4 border-b">{post.presenter}</td>
-              <td className="py-2 px-4 border-b">{post.location}</td>
-            </tr>
-          ))}
+          {talks.map((talk) => {
+            const dateObj = new Date(talk.talkTime);
+            const formattedDate = dateObj.toLocaleDateString("en-US", {
+              weekday: "short",
+              month: "short",
+              day: "2-digit",
+              year: "numeric",
+            });
+
+            const formattedTime = dateObj.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            });
+
+            return (
+              <tr key={talk._id} className="text-center">
+                <td className="py-2 px-4 border-b">{formattedDate}</td>
+                <td className="py-2 px-4 border-b">{formattedTime}</td>
+                <td className="py-2 px-4 border-b">
+                  <Link href={`/talks/${talk.slug.current}`} className="text-blue-500 hover:underline">
+                    {talk.title}
+                  </Link>
+                </td>
+                <td className="py-2 px-4 border-b">{talk.speaker?.name || "Unknown Speaker"}</td>
+                <td className="py-2 px-4 border-b">{talk.location}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

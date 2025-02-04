@@ -1,18 +1,12 @@
 import client from '@/sanityClient';
 import SpeakerCard from '@/components/SpeakerCard';
+import type { Speaker } from '@/types/speaker';
 
-interface Speaker {
-  _id: string;
-  name: string;
-  summary: string;
-  "picture": string; // URL to the speaker's image
-}
-
-export default async function Speakers() {
+export default async function SpeakersPage() {
   const query = `*[_type == "speaker"] | order(name asc) {
     _id,
     name,
-    summary,
+    slug,
     "picture": picture.asset->url
   }`;
 
@@ -21,11 +15,16 @@ export default async function Speakers() {
   return (
     <div className="container mx-auto px-4 py-6">
       <h1 className="text-3xl font-bold text-center mb-6">Speakers</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {speakers.map((speaker) => (
-          <SpeakerCard key={speaker._id} speaker={speaker} />
-        ))}
-      </div>
+
+      {speakers.length === 0 ? (
+        <p className="text-center text-gray-500">No speakers found.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {speakers.map((speaker) => (
+            <SpeakerCard key={speaker._id} speaker={speaker} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

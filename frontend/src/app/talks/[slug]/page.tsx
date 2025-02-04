@@ -4,11 +4,11 @@ import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import { PortableTextBlock } from "@sanity/types";
 
-interface PostProps {
+interface TalkProps {
   params: { slug: string };
 }
 
-interface Post {
+interface Talk {
   _id: string;
   title: string;
   slug: { current: string };
@@ -17,11 +17,11 @@ interface Post {
   body: PortableTextBlock[];
 }
 
-export default async function PostDetail(props: PostProps) {
+export default async function TalkDetail(props: TalkProps) {
   const resolvedParams = await Promise.resolve(props.params);
   const slug = resolvedParams.slug;
 
-  const query = `*[_type == "post" && slug.current == $slug][0]{
+  const query = `*[_type == "talk" && slug.current == $slug][0]{
     _id,
     title,
     slug,
@@ -30,40 +30,40 @@ export default async function PostDetail(props: PostProps) {
     body
   }`;
 
-  const post: Post | null = await client.fetch(query, { slug });
-  
-  if (!post) {
-    return <p className="text-center text-gray-500">Post not found</p>;
+  const talk: Talk | null = await client.fetch(query, { slug });
+
+  if (!talk) {
+    return <p className="text-center text-gray-500">Talk not found</p>;
   }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+      <h1 className="text-3xl font-bold mb-4">{talk.title}</h1>
       <Image
-        src={post.image}
-        alt={post.title}
+        src={talk.image}
+        alt={talk.title}
         width={800}
         height={400}
         className="object-cover w-full h-64 rounded-lg"
       />
       <div className="mt-4 text-gray-700">
-        <PortableText value={post.body} />
+        <PortableText value={talk.body} />
       </div>
       <p className="mt-6 text-gray-500 text-sm">
-        Published on {new Date(post.publishedAt).toLocaleDateString()}
+        Published on {new Date(talk.publishedAt).toLocaleDateString()}
       </p>
-      <Link href="/" className="block mt-4 text-blue-500 hover:underline">
-        ← Back to Home
+      <Link href="/talks" className="block mt-4 text-blue-500 hover:underline">
+        ← Back to Talks
       </Link>
     </div>
   );
 }
 
 export async function generateStaticParams() {
-  const query = `*[_type == "post"]{ slug }`;
-  const posts: { slug: { current: string } }[] = await client.fetch(query);
+  const query = `*[_type == "talk"]{ slug }`;
+  const talks: { slug: { current: string } }[] = await client.fetch(query);
 
-  return posts.map((post) => ({
-    slug: post.slug.current,
+  return talks.map((talk) => ({
+    slug: talk.slug.current,
   }));
 }

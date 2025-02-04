@@ -1,3 +1,4 @@
-import {postType} from './postType'
+import {talkType} from './talkType'
+import {speakerType} from './speakerType'
 
-export const schemaTypes = [postType]
+export const schemaTypes = [talkType, speakerType]

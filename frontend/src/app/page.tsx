@@ -1,31 +1,18 @@
-import client from '@/sanityClient';
-import PostSearch from '@/components/PostSearch';
+import Image from 'next/image';
 
-interface Post {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  image: string;
-  publishedAt: string;
-}
-
-export default async function Home() {
-  const query = `*[_type == "post"] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    "image": image.asset->url,
-    publishedAt
-  }`;
-
-  const posts: Post[] = await client.fetch(query);
-
+export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold font-sans text-center my-6">
-        Hva skjer på Bytefest?
-      </h1>
-      <PostSearch posts={posts} />
+    <div className="container mx-auto px-4 py-6 flex justify-center">
+      <div className="w-full max-w-4xl px-4">
+        <Image
+          src="/images/BytefestBanner.png"
+          alt="Bytefest Logo"
+          width={1200}
+          height={400}
+          className="w-full h-auto"
+          priority
+        />
+      </div>
     </div>
   );
 }

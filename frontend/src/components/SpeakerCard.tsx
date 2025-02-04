@@ -1,33 +1,27 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { FC } from 'react';
-
-interface Speaker {
-  _id: string;
-  name: string;
-  summary: string;
-  picture: string;
-}
+import type { Speaker } from '@/types/speaker';
 
 interface SpeakerCardProps {
   speaker: Speaker;
 }
 
 const SpeakerCard: FC<SpeakerCardProps> = ({ speaker }) => {
+  const speakerSlug = speaker.slug?.current || '#';
+
   return (
-    <div className="max-w-sm mx-auto bg-white rounded-xl shadow-md overflow-hidden transform hover:scale-[1.02] transition duration-300">
-      <div className="relative h-48 w-full">
-        <Image
-          src={speaker.picture}
-          alt={speaker.name}
-          fill
-          className="object-cover"
-        />
+    <Link
+      href={speakerSlug !== '#' ? `/speakers/${speakerSlug}` : '#'}
+      className={`block max-w-xs mx-auto bg-white rounded-lg shadow-md p-4 flex flex-col items-center text-center transform ${
+        speakerSlug !== '#' ? 'hover:scale-[1.05] transition duration-300' : ''
+      }`}
+    >
+      <div className="h-24 w-24 relative rounded-full overflow-hidden border-2 border-gray-300">
+        <Image src={speaker.picture} alt={speaker.name} fill className="object-cover" />
       </div>
-      <div className="p-4">
-        <h2 className="text-xl font-semibold text-gray-800">{speaker.name}</h2>
-        <p className="mt-2 text-gray-600">{speaker.summary}</p>
-      </div>
-    </div>
+      <h2 className="mt-3 text-lg font-semibold text-gray-800">{speaker.name}</h2>
+    </Link>
   );
 };
 

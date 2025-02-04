@@ -1,35 +1,34 @@
 import {defineField, defineType} from 'sanity'
 
-export const postType = defineType({
-  name: 'post',
-  title: 'Post',
+export const speakerType = defineType({
+  name: 'speaker',
+  title: 'Speaker',
   type: 'document',
   fields: [
     defineField({
-      name: 'title',
+      name: 'name',
       type: 'string',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
       type: 'slug',
-      options: {source: 'title'},
+      options: {source: 'name', maxLength: 96},
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'publishedAt',
-      type: 'datetime',
-      initialValue: () => new Date().toISOString(),
+      name: 'summary',
+      type: 'text',
+      description: 'A short summary about the speaker',
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: 'image',
+      name: 'picture',
       type: 'image',
-    }),
-    defineField({
-      name: 'body',
-      type: 'array',
-      of: [{type: 'block'}],
+      options: {
+        hotspot: true,
+      },
+      validation: (rule) => rule.required(),
     }),
   ],
 })
