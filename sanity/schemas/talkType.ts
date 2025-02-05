@@ -25,6 +25,7 @@ export const talkType = defineType({
     defineField({
       name: 'image',
       type: 'image',
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'talkTime',
@@ -55,6 +56,7 @@ export const talkType = defineType({
       name: 'body',
       type: 'array',
       of: [{type: 'block'}],
+      validation: (rule) => rule.required(),
     }),
   ],
 })
