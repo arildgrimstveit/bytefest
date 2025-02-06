@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import Image from 'next/image';
+import Tiptap from './Tiptap';
 
 interface Speaker {
   _id: string;
@@ -9,25 +10,43 @@ interface Speaker {
 }
 
 const NewTalkForm = () => {
-  const [title, setTitle] = useState('');
-  const [talkTime, setTalkTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [body, setBody] = useState('');
-  const [speakerId, setSpeakerId] = useState('');
+  const [form, setForm] = useState({
+    title: '',
+    talkTime: '',
+    location: '',
+    body: '',
+    speakerId: '',
+  });
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
+  const { title, talkTime, location, body, speakerId } = form;
+
   useEffect(() => {
-    fetch('/api/getSpeakers')
-      .then((res) => res.json())
-      .then((data) => setSpeakers(data.speakers))
-      .catch((err) => console.error('Error fetching speakers:', err));
+    const fetchSpeakers = async () => {
+      try {
+        const res = await fetch('/api/getSpeakers');
+        const data = await res.json();
+        setSpeakers(data.speakers);
+      } catch (error) {
+        console.error('Error fetching speakers:', error);
+      }
+    };
+
+    fetchSpeakers();
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
@@ -37,82 +56,90 @@ const NewTalkForm = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setMessage('');
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('talkTime', talkTime);
-    formData.append('location', location);
-    formData.append('body', body);
-    formData.append('speakerId', speakerId);
-    if (imageFile) {
-      formData.append('image', imageFile);
-    }
+    try {
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
+      if (imageFile) formData.append('image', imageFile);
 
-    const response = await fetch('/api/createTalk', {
-      method: 'POST',
-      body: formData,
-    });
+      const response = await fetch('/api/createTalk', {
+        method: 'POST',
+        body: formData,
+      });
 
-    const data = await response.json();
-    if (response.ok) {
-      setMessage('Talk submitted as a draft!');
-      setTitle('');
-      setTalkTime('');
-      setLocation('');
-      setBody('');
-      setSpeakerId('');
-      setImageFile(null);
-      setPreviewUrl(null);
-    } else {
-      setMessage(`Error: ${data.error}`);
+      const data = await response.json();
+      if (response.ok) {
+        setMessage('Talk submitted as a draft!');
+        setForm({
+          title: '',
+          talkTime: '',
+          location: '',
+          body: '',
+          speakerId: '',
+        });
+        setImageFile(null);
+        setPreviewUrl(null);
+      } else {
+        setMessage(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      setMessage('An unexpected error occurred.' + error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Submit a New Talk</h2>
+    <div className="max-w-lg mx-auto p-6 bg-white shadow rounded">
+      <h2 className="text-2xl font-semibold mb-6">Submit a New Talk</h2>
       {message && <p className="text-center mb-4 text-green-600">{message}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
+          name="title"
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleChange}
           placeholder="Talk Title"
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
         <input
+          name="talkTime"
           type="datetime-local"
           value={talkTime}
-          onChange={(e) => setTalkTime(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md"
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
         <input
+          name="location"
           type="text"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={handleChange}
           placeholder="Talk Location"
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-300 rounded"
           required
         />
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Talk description..."
-          className="w-full p-2 border border-gray-300 rounded-md"
-          required
-        />
+        <div>
+          <label className="block mb-2 font-medium">Talk Description</label>
+          <Tiptap
+            content={body || ''}
+            onUpdate={(content) =>
+              setForm((prev) => ({ ...prev, body: content }))
+            }
+          />
+        </div>
         <input
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-300 rounded"
         />
         {previewUrl && (
           <div className="relative w-full h-40">
@@ -120,15 +147,16 @@ const NewTalkForm = () => {
               src={previewUrl}
               alt="Image preview"
               fill
-              className="object-cover rounded-md"
+              className="object-cover rounded"
               unoptimized
             />
           </div>
         )}
         <select
+          name="speakerId"
           value={speakerId}
-          onChange={(e) => setSpeakerId(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md"
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
           required
         >
           <option value="">Select a Speaker</option>
@@ -140,7 +168,7 @@ const NewTalkForm = () => {
         </select>
         <button
           type="submit"
-          className="w-full p-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
+          className="w-full p-2 bg-blue-600 text-white rounded disabled:opacity-50"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Talk'}
