@@ -31,6 +31,9 @@ const Header: FC = () => {
           <Link href="/submit-talk" className="text-white hover:underline">
             Submit Talk
           </Link>
+          <Link href="/login" className="text-white hover:underline">
+            Login
+          </Link>
         </nav>
       </div>
     </header>
