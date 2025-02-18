@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/talk/v2")
+@RequestMapping("/talk/v4")
 @RequiredArgsConstructor
 @Validated
 public class TalkController {
@@ -19,7 +19,7 @@ public class TalkController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/talk/v1/
+     * URL: localhost:8080/talk/v4/
      * Purpose: Fetches all the talks in the talk table
      * @return List of Talks
      */
@@ -30,20 +30,20 @@ public class TalkController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/Talk/v1/{id}
-     * Purpose: Fetches employee with the given id
-     * @param id - user id
+     * URL: localhost:8080/talk/v4/{id}
+     * Purpose: Fetches talk with the given id
+     * @param id - talk id
      * @return Talk with the given id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Talk> getUserById(@PathVariable Integer id)
+    public ResponseEntity<Talk> getTalkById(@PathVariable Integer id)
     {
         return ResponseEntity.ok().body(talkService.getTalkById(id));
     }
 
     /**
      * This method is called when a POST request is made
-     * URL: localhost:8080/Talk/v1/
+     * URL: localhost:8080/talk/v4/
      * Purpose: Save a Talk
      * @param talk - Request body is a Talk
      * @return Saved Talk
@@ -56,30 +56,29 @@ public class TalkController {
 
     /**
      * This method is called when a PUT request is made
-     * URL: localhost:8080/Talk/v1/
+     * URL: localhost:8080/talk/v4/
      * Purpose: Update a Talk
      * @param talk - Talk to be updated
-     * @return Updated User
+     * @return Updated Talk
      */
     @PutMapping("/")
-    public ResponseEntity<Talk> updateUser(@RequestBody Talk talk)
+    public ResponseEntity<Talk> updateTalk(@RequestBody Talk talk)
     {
         return ResponseEntity.ok().body(talkService.updateTalk(talk));
     }
 
     /**
-     * This method is called when a PUT request is made
-     * URL: localhost:8080/Talk/v1/{id}
+     * This method is called when a DELETE request is made
+     * URL: localhost:8080/talk/v4/{id}
      * Purpose: Delete a Talk
-     * @param id - talks's id to be deleted
+     * @param id - talk's id to be deleted
      * @return a String message indicating talk record has been deleted successfully
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable Integer id)
+    public ResponseEntity<String> deleteTalkById(@PathVariable Integer id)
     {
-        talkService.deleteUserById(id);
+        talkService.deleteTalkById(id);
         return ResponseEntity.ok().body("Deleted talk successfully");
     }
-
 
 }
