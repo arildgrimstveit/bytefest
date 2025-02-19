@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/event/v3")
+@RequestMapping("/event/v1")
 @RequiredArgsConstructor
 @Validated
 public class EventController {
@@ -19,7 +19,7 @@ public class EventController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/event/v3/
+     * URL: localhost:8080/event/v1/
      * Purpose: Fetches all the Events in the Event table
      * @return List of Events
      */
@@ -30,7 +30,7 @@ public class EventController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/event/v3/{id}
+     * URL: localhost:8080/event/v1/{id}
      * Purpose: Fetches Event with the given id
      * @param id - Event id
      * @return Event with the given id
@@ -43,7 +43,7 @@ public class EventController {
 
     /**
      * This method is called when a POST request is made
-     * URL: localhost:8080/event/v3/
+     * URL: localhost:8080/event/v1/
      * Purpose: Save an Event
      * @param Event - Request body is an Event
      * @return Saved Event
@@ -56,7 +56,7 @@ public class EventController {
 
     /**
      * This method is called when a PUT request is made
-     * URL: localhost:8080/event/v3/
+     * URL: localhost:8080/event/v1/
      * Purpose: Update an Event
      * @param Event - Event to be updated
      * @return Updated Event
@@ -69,7 +69,7 @@ public class EventController {
 
     /**
      * This method is called when a DELETE request is made
-     * URL: localhost:8080/event/v3/{id}
+     * URL: localhost:8080/event/v1/{id}
      * Purpose: Delete an Event
      * @param id - Event's id to be deleted
      * @return a String message indicating Event record has been deleted successfully

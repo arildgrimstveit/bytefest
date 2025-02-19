@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/room/v2")
+@RequestMapping("/room/v1")
 @RequiredArgsConstructor
 public class RoomController {
 
@@ -17,7 +17,7 @@ public class RoomController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/rooms/v2/
+     * URL: localhost:8080/rooms/v1/
      * Purpose: Fetches all the rooms in the room table
      * @return List of Rooms
      */
@@ -29,7 +29,7 @@ public class RoomController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/rooms/v2/{id}
+     * URL: localhost:8080/rooms/v1/{id}
      * Purpose: Fetches a room with the given id
      * @param id - room id
      * @return Room with the given id
@@ -43,7 +43,7 @@ public class RoomController {
 
     /**
      * This method is called when a POST request is made
-     * URL: localhost:8080/rooms/v2/
+     * URL: localhost:8080/rooms/v1/
      * Purpose: Save a new Room
      * @param room - Request body is a Room
      * @return Saved Room
@@ -56,7 +56,7 @@ public class RoomController {
 
     /**
      * This method is called when a PUT request is made
-     * URL: localhost:8080/room/v2/
+     * URL: localhost:8080/room/v1/
      * Purpose: Update a Room
      * @param room - Room to be updated
      * @return Updated Room
@@ -71,7 +71,7 @@ public class RoomController {
 
     /**
      * This method is called when a DELETE request is made
-     * URL: localhost:8080/rooms/v2/{id}
+     * URL: localhost:8080/rooms/v1/{id}
      * Purpose: Delete a room with the given id
      * @param id - room id to be deleted
      * @return a String message indicating room record has been deleted successfully

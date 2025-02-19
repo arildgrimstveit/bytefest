@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/talk/v4")
+@RequestMapping("/talk/v1")
 @RequiredArgsConstructor
 @Validated
 public class TalkController {
@@ -19,7 +19,7 @@ public class TalkController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/talk/v4/
+     * URL: localhost:8080/talk/v1/
      * Purpose: Fetches all the talks in the talk table
      * @return List of Talks
      */
@@ -30,7 +30,7 @@ public class TalkController {
 
     /**
      * This method is called when a GET request is made
-     * URL: localhost:8080/talk/v4/{id}
+     * URL: localhost:8080/talk/v1/{id}
      * Purpose: Fetches talk with the given id
      * @param id - talk id
      * @return Talk with the given id
@@ -43,7 +43,7 @@ public class TalkController {
 
     /**
      * This method is called when a POST request is made
-     * URL: localhost:8080/talk/v4/
+     * URL: localhost:8080/talk/v1/
      * Purpose: Save a Talk
      * @param talk - Request body is a Talk
      * @return Saved Talk
@@ -56,7 +56,7 @@ public class TalkController {
 
     /**
      * This method is called when a PUT request is made
-     * URL: localhost:8080/talk/v4/
+     * URL: localhost:8080/talk/v1/
      * Purpose: Update a Talk
      * @param talk - Talk to be updated
      * @return Updated Talk
@@ -69,7 +69,7 @@ public class TalkController {
 
     /**
      * This method is called when a DELETE request is made
-     * URL: localhost:8080/talk/v4/{id}
+     * URL: localhost:8080/talk/v1/{id}
      * Purpose: Delete a Talk
      * @param id - talk's id to be deleted
      * @return a String message indicating talk record has been deleted successfully
