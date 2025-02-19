@@ -20,11 +20,8 @@ public class Talk {
     private String title;
     private String description;
     private LocalDate date;
-    private String room;
     private Integer attendees;
-    private boolean isPublic;
     private ContentType contentType;
-    private boolean isExternal;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

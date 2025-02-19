@@ -22,9 +22,9 @@ public class TalkService {
     }
 
     public Talk getTalkById(Integer id){
-        Optional<Talk> optionalUser = talkRepo.findById(id);
-        if(optionalUser.isPresent()){
-            return optionalUser.get();
+        Optional<Talk> optionalTalk = talkRepo.findById(id);
+        if(optionalTalk.isPresent()){
+            return optionalTalk.get();
         }
         log.info("Talk with id: {} doesn't exist", id);
         return null;
@@ -40,8 +40,8 @@ public class TalkService {
     }
 
     public Talk updateTalk (Talk talk) {
-        Optional<Talk> existingUser = talkRepo.findById(talk.getId());
-        talk.setCreatedAt(existingUser.get().getCreatedAt());
+        Optional<Talk> existingTalk = talkRepo.findById(talk.getId());
+        existingTalk.ifPresent(value -> talk.setCreatedAt(value.getCreatedAt()));
         talk.setUpdatedAt(LocalDateTime.now());
 
         Talk updatedUser = talkRepo.save(talk);
@@ -50,7 +50,7 @@ public class TalkService {
         return updatedUser;
     }
 
-    public void deleteUserById (Integer id) {
+    public void deleteTalkById(Integer id) {
         talkRepo.deleteById(id);
     }
 
