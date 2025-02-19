@@ -2,7 +2,7 @@ export default function About() {
     return (
       <div className="container mx-auto px-4 py-6">
         <h1 className="text-3xl font-bold text-center mb-6">About</h1>
-        <div className="prose mx-auto">
+        <div className="prose mx-auto text-center">
           <p>
             Velkommen til Bytefest! Dette arrangementet er en intern systemutviklerkonferanse i Sopra Steria, for kunnskapsdeling, kompetanseheving, og alt som er gøy!
             <br/>
