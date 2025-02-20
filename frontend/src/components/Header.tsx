@@ -89,7 +89,7 @@ const Header = () => {
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
-        <div className="absolute left-1/2 transform -translate-x-1/2 top-4 z-10 lg:static lg:translate-x-0">
+        <div className="absolute left-1/2 transform -translate-x-1/2 top-4 z-20 lg:static lg:translate-x-0">
           <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <Image
               src="/images/BytefestLogo.svg"
