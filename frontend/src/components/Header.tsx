@@ -82,13 +82,19 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)] relative">
+      
+      {/* Header container */}
       <div className="max-w-7xl mx-auto px-4 lg:px-15 flex items-center justify-between py-4 pb-6 min-h-[99px] relative">
+
+        {/* Hamburger button */}
         <button
           className="lg:hidden flex items-center justify-center w-10 h-16 z-20 absolute top-4 left-4"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
+
+        {/* Logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2 top-4 z-20 lg:static lg:translate-x-0">
           <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
             <Image
@@ -101,12 +107,14 @@ const Header = () => {
             />
           </Link>
         </div>
+
         {/* Desktop Navbar */}
         <nav className="hidden lg:block">
           <div className="flex flex-col lg:flex-row lg:items-center space-y-3 lg:space-y-0 lg:space-x-8">
             {mainNavItems.map(renderNavLink)}
           </div>
         </nav>
+
         {/* Mobile Search Button */}
         <div className="lg:hidden absolute top-[34px] right-4 z-20">
           <Link href="/search" onClick={() => setIsOpen(false)}>
@@ -114,6 +122,8 @@ const Header = () => {
           </Link>
         </div>
       </div>
+
+      {/* Mobile Hamburger Menu */}
       {isOpen && (
         <nav className="lg:hidden relative z-20">
           <div className="max-w-7xl mx-auto px-4 lg:px-15 pb-4">
