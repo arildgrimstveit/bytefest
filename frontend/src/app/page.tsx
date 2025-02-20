@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#161E38] flex pt-25">
+    <div className="min-h-screen bg-[#161E38] flex pt-10 sm:pt-15 md:pt-20">
       <div className="w-full max-w-7xl mx-auto px-4 lg:px-18">
         <div className="text-left">
           <Image
@@ -12,12 +12,27 @@ export default function Home() {
             height={160}
           />
         </div>
-        <div className="text-left argent text-white pt-10 text-4xl">
+        <div className="text-left argent text-white pt-10 text-2xl sm:text-4xl">
           <a>Mikrokonferansen som dypdykker ned i systemutvikling</a>
         </div>
-        <div className="text-left iceland text-white pt-10 text-5xl">
-          <a>5. Januar 2025</a>
-          <a className="text-2xl pl-20">16.00 - 21.00</a>
+        <div className="text-left iceland text-white pt-10">
+          <a className="text-2xl md:text-4xl lg:text-5xl">5. Januar 2025</a>
+          <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 21.00</a>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-y-6 sm:gap-x-15 pt-10 sm:pt-20">
+          <Image
+            src="/images/BliForedragsholder.svg"
+            alt="BliForedragsholder"
+            width={263}
+            height={55}
+          />
+          <Image
+            src="/images/LesMer.svg"
+            alt="LesMer"
+            width={178}
+            height={55}
+          />
         </div>
       </div>
     </div>
