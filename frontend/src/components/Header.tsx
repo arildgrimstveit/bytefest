@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
@@ -19,16 +19,16 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const mainNavItems: NavItem[] = [
+  const mainNavItems: NavItem[] = useMemo(() => [
     { name: "PÅMELDING", path: "/" },
     { name: "BYTEFEST", path: "/about" },
     { name: "ALLE FOREDRAG", path: "/talks" },
     { name: "PROGRAM", path: "/program" },
     { name: "LOGG INN", path: "/login" },
     { name: "SEARCH", path: "/search", icon: true },
-  ];
+  ], []);
 
-  const renderNavLink = (item: NavItem) => {
+  const renderNavLink = useCallback((item: NavItem) => {
     const isActive = pathname === item.path;
     const linkClasses = `relative flex items-center ${item.icon ? "justify-center" : ""} py-3 pt-6 group`;
     const overlayClasses = `absolute left-0 right-0 transition-all duration-200 ${
@@ -52,9 +52,9 @@ const Header = () => {
         )}
       </Link>
     );
-  };
+  }, [pathname, isOpen]);
 
-  const renderMobileNavLink = (item: NavItem) => {
+  const renderMobileNavLink = useCallback((item: NavItem) => {
     const isActive = pathname === item.path;
     return (
       <Link
@@ -78,7 +78,7 @@ const Header = () => {
         )}
       </Link>
     );
-  };
+  }, [pathname]);
 
   return (
     <header className="bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)] relative">
