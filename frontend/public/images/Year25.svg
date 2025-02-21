@@ -1,0 +1,13 @@
+<svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="54" cy="54" r="54" fill="#F8F5D3"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M25 24H29V32H25L25 33V37H21H17V33H21L21 28L25 28V24Z" fill="#161E38"/>
+<rect width="30" height="8" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 62 41)" fill="#161E38"/>
+<rect width="21" height="8" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 67 75)" fill="#161E38"/>
+<rect width="8" height="8" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 63 71)" fill="#161E38"/>
+<rect width="8" height="17" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 84 71)" fill="#161E38"/>
+<rect width="9" height="5" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 62 46)" fill="#161E38"/>
+<rect width="8" height="4" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 80 54)" fill="#161E38"/>
+<rect width="9" height="4" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 62 54)" fill="#161E38"/>
+<rect width="22" height="4" transform="matrix(1 -8.74228e-08 -8.74228e-08 -1 62 50)" fill="#161E38"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M34 33H55V37H59V46V50H54V54H50V58H46V62H42V67H59V75H29V67V62H34V58H38V54H42V50H47V46H51V41H38V45H30V37H34V33Z" fill="#161E38"/>
+</svg>

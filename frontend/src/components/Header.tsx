@@ -21,7 +21,7 @@ const Header = () => {
 
   const mainNavItems: NavItem[] = useMemo(() => [
     { name: "PÅMELDING", path: "/" },
-    { name: "BYTEFEST", path: "/about" },
+    { name: "BYTEFEST", path: "/bytefest" },
     { name: "ALLE FOREDRAG", path: "/talks" },
     { name: "PROGRAM", path: "/program" },
     { name: "LOGG INN", path: "/login" },
