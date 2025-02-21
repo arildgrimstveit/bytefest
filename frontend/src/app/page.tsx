@@ -20,7 +20,7 @@ export default function Home() {
           <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 21.00</a>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-y-6 sm:gap-x-15 pt-10 sm:pt-20">
+        <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
           <Image
             src="/images/BliForedragsholder.svg"
             alt="BliForedragsholder"
@@ -32,6 +32,21 @@ export default function Home() {
             alt="LesMer"
             width={178}
             height={55}
+          />
+        </div>
+        <div className="flex items-end lg:mt-[-100] mt-20 gap-x-[clamp(300px,calc(300px+((100vw-768px)*400)/512),800px)]">
+          <Image
+            src="/images/LitenFisk.svg"
+            alt="LitenFisk"
+            width={78}
+            height={58}
+          />
+          <Image
+            src="/images/StorFisk.svg"
+            alt="StorFisk"
+            width={291}
+            height={281}
+            className="hidden lg:block"
           />
         </div>
       </div>
