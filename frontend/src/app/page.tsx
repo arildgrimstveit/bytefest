@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -21,12 +22,14 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
-          <Image
-            src="/images/BliForedragsholder.svg"
-            alt="BliForedragsholder"
-            width={263}
-            height={55}
-          />
+          <Link href="/bli-foredragsholder">
+            <Image
+              src="/images/BliForedragsholder.svg"
+              alt="BliForedragsholder"
+              width={263}
+              height={55}
+            />
+          </Link>
           <Image
             src="/images/LesMer.svg"
             alt="LesMer"
