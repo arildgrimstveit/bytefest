@@ -272,7 +272,7 @@ export default function Bytefest() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center pt-5 md:pt-20" />
+      <div className="flex items-center justify-center pt-100 xxs:pt-80" />
     </div>
   );
 }

@@ -27,7 +27,7 @@ const TalkSearch: FC<TalkSearchProps> = ({ talks }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Søk etter foredrag..."
-          className="w-full p-2 border border-gray-300 rounded-md"
+          className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-800"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -5,11 +5,7 @@
 
 @layer base {
   :root {
-    --radius: 0.5rem;
-    --breakpoint-xxxs: 320px;
-    --breakpoint-xxs: 375px;
-    --breakpoint-xs: 425px;
-    --breakpoint-3xl: 1400px;
+    --radius: 0.5rem
   }
 }
 
