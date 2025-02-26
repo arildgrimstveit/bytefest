@@ -7,6 +7,11 @@
   :root {
     --radius: 0.5rem
   }
+  
+  body {
+    background-color: #161E38;
+    min-height: 100vh;
+  }
 }
 
 @font-face {

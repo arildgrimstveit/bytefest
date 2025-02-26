@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#161E38] flex pt-10 sm:pt-15 md:pt-20">
-      <div className="w-full max-w-7xl mx-auto px-4 lg:px-18">
+    <div className="flex pt-10 sm:pt-15 md:pt-20">
+      <div className="w-full max-w-7xl mx-auto px-4 lg:px-18 pb-10">
         <div className="text-left">
           <Image
             src="/images/BytefestText.svg"
@@ -22,7 +22,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
-          <Link href="/bli-foredragsholder">
+          <Link href="/bli-foredragsholder" className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer">
             <Image
               src="/images/BliForedragsholder.svg"
               alt="BliForedragsholder"
@@ -30,12 +30,14 @@ export default function Home() {
               height={55}
             />
           </Link>
-          <Image
-            src="/images/LesMer.svg"
-            alt="LesMer"
-            width={178}
-            height={55}
-          />
+          <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer">
+            <Image
+              src="/images/LesMer.svg"
+              alt="LesMer"
+              width={178}
+              height={55}
+            />
+          </Link>
         </div>
         <div className="flex items-end lg:mt-[-100] mt-20 gap-x-[clamp(300px,calc(300px+((100vw-768px)*400)/512),800px)]">
           <Image

@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function ConfirmationPage() {
   return (
-    <div className="min-h-screen bg-[#161E38] flex flex-col items-center justify-center p-4">
+    <div className="bg-[#161E38] flex flex-col items-center justify-start py-16 sm:py-24 px-4">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-8 text-center">
         <div className="flex justify-center mb-6">
           <div className="relative w-20 h-20">

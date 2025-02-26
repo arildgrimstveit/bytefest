@@ -55,7 +55,7 @@ export default function Bytefest() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#161E38]">
+    <div className="py-10">
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col lg:flex-row items-center lg:items-end justify-center pt-10 lg:pt-20 space-y-8 lg:space-y-0 lg:space-x-12">
           {/* Year and Fish */}
@@ -260,12 +260,19 @@ export default function Bytefest() {
                 Gjennom historien har deling av kunnskap, erfaringer og kode vært selve motoren for utviklermiljøene.
               </p>
               <div className="mt-10 pl-30 sm:pl-30 pr-20 sm:pr-15 flex justify-end">
-                <Image 
-                  src="/images/LesMerOransje.svg" 
-                  alt="Les Mer" 
-                  width={200} 
-                  height={55} 
-                />
+                <a 
+                  href="https://www.kode24.no/annonse/bytefest-systemutviklernes-woodstock/81547688"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer"
+                >
+                  <Image 
+                    src="/images/LesMerOransje.svg" 
+                    alt="Les Mer" 
+                    width={200} 
+                    height={55} 
+                  />
+                </a>
               </div>
             </div>
           </div>

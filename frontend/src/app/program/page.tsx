@@ -15,8 +15,8 @@ export default async function Program() {
   const talks: TalkProgram[] = await client.fetch(query);
 
   return (
-    <div className="min-h-screen bg-[#161E38] text-white">
-      <div className="container mx-auto px-4 py-6">
+    <div className="text-white py-10">
+      <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold text-center mb-6">Program</h1>
         <div className="bg-white rounded-lg overflow-hidden shadow-lg">
           <table className="min-w-full">

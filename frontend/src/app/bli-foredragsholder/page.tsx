@@ -5,20 +5,13 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
+import { LoginForm } from "@/components/login-form"
 
 export default function BliFoedragsholder() {
+  // For demo purposes, we'll use a state to simulate login
+  // In a real app, you would check authentication status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
-
-  // This would normally check with your authentication system
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate login - in a real app, this would verify credentials
-    setIsLoggedIn(true);
-  };
 
   const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,51 +20,23 @@ export default function BliFoedragsholder() {
   };
 
   return (
-    <div className="min-h-screen bg-[#161E38] flex flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">Bli Foredragsholder</h1>
-        
-        {!isLoggedIn ? (
-          // Login form
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <Label htmlFor="email">E-post</Label>
-              <Input 
-                id="email"
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="din@epost.no" 
-                required 
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="password">Passord</Label>
-              <Input 
-                id="password"
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)}
-                required 
-              />
-            </div>
-            
-            <div className="pt-2">
-              <Button type="submit" className="w-full bg-[#00afea] hover:bg-[#0099d1]">
-                Logg Inn
-              </Button>
-            </div>
-            
-            <div className="text-center text-sm mt-4">
-              Har du ikke en konto? {" "}
-              <Link href="/login" className="text-blue-500 hover:underline">
-                Registrer deg
-              </Link>
-            </div>
-          </form>
-        ) : (
-          // Speaker application form
+    <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px] px-4">
+      {!isLoggedIn ? (
+        // Use the LoginForm component with a special onClick handler
+        <div className="w-full max-w-sm">
+          <div onClick={() => setIsLoggedIn(true)}>
+            <LoginForm 
+              title="Bli Foredragsholder" 
+              redirectUrl="#"
+              buttonText="Gå til søknadsskjema"
+            />
+          </div>
+        </div>
+      ) : (
+        // Container for logged-in state
+        <div id="application-form" className="bg-white rounded-lg shadow-lg w-full max-w-md p-8 mx-auto">
+          <h1 className="text-2xl font-bold text-center mb-6">Bli Foredragsholder</h1>
+          
           <form onSubmit={handleSubmitApplication} className="space-y-4">
             <p className="text-center mb-4">
               Fyll ut dette skjemaet for å bli en foredragsholder på Bytefest 2025.
@@ -116,8 +81,8 @@ export default function BliFoedragsholder() {
               </Button>
             </div>
           </form>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 } 
