@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate"; // Use ESM import instead of require()
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: "class",

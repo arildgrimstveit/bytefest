@@ -5,7 +5,11 @@
 
 @layer base {
   :root {
-    --radius: 0.5rem
+    --radius: 0.5rem;
+    --breakpoint-xxxs: 320px;
+    --breakpoint-xxs: 375px;
+    --breakpoint-xs: 425px;
+    --breakpoint-3xl: 1400px;
   }
 }
 
@@ -39,6 +43,13 @@
         url(../../public/fonts/iceland/Iceland-Regular.woff) format('woff');
   font-weight: 400;
   font-style: normal;
+}
+
+@theme {
+  --breakpoint-xxxs: 320px;
+  --breakpoint-xxs: 375px;
+  --breakpoint-xs: 425px;
+  --breakpoint-3xl: 1400px;
 }
 
 .argent {
