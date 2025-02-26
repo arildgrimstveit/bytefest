@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { LoginForm } from "@/components/login-form"
 import { PixelInput } from "@/components/pixel-input";
 
-export default function BliFoedragsholder() {
+export default function BliForedragsholder() {
   // For demo purposes, we'll use a state to simulate login
   // In a real app, you would check authentication status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
