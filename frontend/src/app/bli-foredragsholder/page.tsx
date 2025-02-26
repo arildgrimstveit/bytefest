@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { LoginForm } from "@/components/login-form"
+import { PixelInput } from "@/components/pixel-input";
 
 export default function BliFoedragsholder() {
   // For demo purposes, we'll use a state to simulate login
@@ -48,49 +49,57 @@ export default function BliFoedragsholder() {
 
               <div>
                 <Label htmlFor="title">Tittel</Label>
-                <textarea 
-                  id="title" 
-                  placeholder="Din foredragstittel (maks 100 tegn)" 
-                  required 
-                  maxLength={100}
-                  className="w-full p-2 border border-gray-300 rounded-md resize-none h-10 overflow-hidden"
-                />
+                <PixelInput>
+                  <input 
+                    id="title" 
+                    placeholder="Din foredragstittel (maks 100 tegn)" 
+                    required 
+                    maxLength={100}
+                    className="w-full p-3 bg-white focus:outline-none"
+                  />
+                </PixelInput>
               </div>
               
               <div>
                 <Label htmlFor="description">Beskrivelse</Label>
-                <textarea 
-                  id="description"
-                  className="w-full p-2 border border-gray-300 rounded-md min-h-[100px]"
-                  placeholder="Fortell oss om ditt foredrag (maks 500 tegn)"
-                  maxLength={500}
-                  required
-                />
+                <PixelInput>
+                  <textarea 
+                    id="description"
+                    className="w-full p-3 bg-white focus:outline-none min-h-[120px]"
+                    placeholder="Fortell oss om ditt foredrag (maks 500 tegn)"
+                    maxLength={500}
+                    required
+                  />
+                </PixelInput>
               </div>
 
               <div>
                 <Label htmlFor="tags">Tags</Label>
-                <textarea 
-                  id="tags" 
-                  placeholder="Hva handler foredraget om? (maks 50 tegn)" 
-                  required 
-                  maxLength={50}
-                  className="w-full p-2 border border-gray-300 rounded-md resize-none h-10 overflow-hidden"
-                />
+                <PixelInput>
+                  <input 
+                    id="tags" 
+                    placeholder="Hva handler foredraget om? (maks 50 tegn)" 
+                    required 
+                    maxLength={50}
+                    className="w-full p-3 bg-white focus:outline-none"
+                  />
+                </PixelInput>
               </div>
               
               <div>
                 <Label htmlFor="experience">Forkunnskaper</Label>
-                <select 
-                  id="experience" 
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="">Velg</option>
-                  <option value="none">Ingen tidligere erfaring</option>
-                  <option value="some">Noen foredrag tidligere</option>
-                  <option value="experienced">Erfaren foredragsholder</option>
-                </select>
+                <PixelInput>
+                  <select 
+                    id="experience" 
+                    className="w-full p-3 bg-white focus:outline-none appearance-none cursor-pointer"
+                    required
+                  >
+                    <option value="">Velg</option>
+                    <option value="none">Ingen tidligere erfaring</option>
+                    <option value="some">Noen foredrag tidligere</option>
+                    <option value="experienced">Erfaren foredragsholder</option>
+                  </select>
+                </PixelInput>
               </div>
               
               <div className="pt-4">

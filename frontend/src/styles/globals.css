@@ -69,3 +69,72 @@ html {
   overflow-y: scroll;
 }
 
+.pixel-corners {
+  --pixel-size: 4px;
+  --corner-size: 8px;
+  position: relative;
+  background-color: white;
+  border: 4px solid #161E38;
+  clip-path: polygon(
+    0px calc(100% - var(--corner-size)),
+    var(--pixel-size) calc(100% - var(--corner-size)),
+    var(--pixel-size) calc(100% - var(--pixel-size)),
+    var(--corner-size) calc(100% - var(--pixel-size)),
+    var(--corner-size) 100%,
+    calc(100% - var(--corner-size)) 100%,
+    calc(100% - var(--corner-size)) calc(100% - var(--pixel-size)),
+    calc(100% - var(--pixel-size)) calc(100% - var(--pixel-size)),
+    calc(100% - var(--pixel-size)) calc(100% - var(--corner-size)),
+    100% calc(100% - var(--corner-size)),
+    100% var(--corner-size),
+    calc(100% - var(--pixel-size)) var(--corner-size),
+    calc(100% - var(--pixel-size)) var(--pixel-size),
+    calc(100% - var(--corner-size)) var(--pixel-size),
+    calc(100% - var(--corner-size)) 0px,
+    var(--corner-size) 0px,
+    var(--corner-size) var(--pixel-size),
+    var(--pixel-size) var(--pixel-size),
+    var(--pixel-size) var(--corner-size),
+    0px var(--corner-size)
+  );
+}
+
+.pixel-corner {
+  position: absolute;
+  width: var(--pixel-size);
+  height: var(--pixel-size);
+  background-color: #161E38;
+  z-index: 2;
+}
+
+.pixel-corner.tl {
+  top: 0;
+  left: 0;
+}
+
+.pixel-corner.tr {
+  top: 0;
+  right: 0;
+}
+
+.pixel-corner.bl {
+  bottom: 0;
+  left: 0;
+}
+
+.pixel-corner.br {
+  bottom: 0;
+  right: 0;
+}
+
+/* Ensure content doesn't get clipped */
+.pixel-corners > input,
+.pixel-corners > select,
+.pixel-corners > textarea {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  box-sizing: border-box;
+}
