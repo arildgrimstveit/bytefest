@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { LoginForm } from "@/components/login-form"
@@ -8,15 +8,73 @@ import { PixelInput } from "@/components/pixel-input";
 import Image from "next/image";
 
 export default function BliForedragsholder() {
-  // For demo purposes, we'll use a state to simulate login
-  // In a real app, you would check authentication status
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+
+  // Check localStorage on component mount
+  useEffect(() => {
+    // Check if user is returning from oppsummering page
+    const isAlreadyLoggedIn = localStorage.getItem('isAlreadyLoggedIn');
+    if (isAlreadyLoggedIn === 'true') {
+      setIsLoggedIn(true);
+      // Clear the flag
+      localStorage.removeItem('isAlreadyLoggedIn');
+      
+      // Restore form data from localStorage
+      const savedTitle = localStorage.getItem('applicationTitle') || '';
+      const savedDescription = localStorage.getItem('applicationDescription') || '';
+      const savedTags = JSON.parse(localStorage.getItem('applicationTags') || '[]');
+      const savedExperience = localStorage.getItem('applicationExperience') || '';
+      
+      // Set tags from localStorage
+      setTags(savedTags);
+      
+      // Wait for DOM to be ready before setting form values
+      setTimeout(() => {
+        const titleInput = document.getElementById('title') as HTMLInputElement;
+        const descriptionInput = document.getElementById('description') as HTMLTextAreaElement;
+        
+        if (titleInput) titleInput.value = savedTitle;
+        if (descriptionInput) descriptionInput.value = savedDescription;
+        
+        // Set the experience radio button
+        if (savedExperience) {
+          const radioButton = document.querySelector(`input[name="experience"][value="${savedExperience}"]`) as HTMLInputElement;
+          if (radioButton) radioButton.checked = true;
+        }
+      }, 0);
+    }
+  }, []);
 
   const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
     // Submit application logic would go here
-    router.push("/bli-foredragsholder/confirmation");
+    router.push("/bli-foredragsholder/oppsummering");
+  };
+
+  const handleAddTag = () => {
+    if (tagInput.trim() === "") return;
+    if (!tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()]);
+    }
+    setTagInput("");
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleTagInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTagInput(e.target.value);
+  };
+
+  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
   };
 
   return (
@@ -32,17 +90,13 @@ export default function BliForedragsholder() {
           </div>
         </div>
       ) : (
-        // Container for logged-in state
         <div id="application-form" className="w-full max-w-4xl mx-auto my-8">
-          {/* White main container with relative positioning */}
-          <div className="relative bg-white p-8 shadow-lg px-20">
-            {/* Orange shadow rectangle positioned behind */}
+          <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20">
             <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
+            <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Send inn ditt foredrag</h1>
             
-            <h1 className="text-5xl argent text-center mb-6">Send inn ditt foredrag</h1>
-            
-            <form onSubmit={handleSubmitApplication} className="space-y-4">
-              <p className="text-left mb-10">
+            <form id="application-form-element" onSubmit={handleSubmitApplication} className="space-y-4">
+              <p className="text-left mb-8">
               Takk for at du vil dele dine erfaringer med kolleger! 
               Send inn ditt forslag til et foredrag. Du kan forvente å få svar innen ... 
               </p>
@@ -73,18 +127,61 @@ export default function BliForedragsholder() {
 
               <div>
                 <Label htmlFor="tags" className="mb-3 block text-md">Tags</Label>
-                <PixelInput>
-                  <input 
-                    id="tags" 
-                    required 
-                    maxLength={50}
-                    className="w-full p-3 bg-white focus:outline-none"
-                  />
-                </PixelInput>
+                <div className="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-5">
+                  <div className="w-full">
+                    <PixelInput>
+                      <input 
+                        id="tags" 
+                        value={tagInput}
+                        onChange={handleTagInputChange}
+                        onKeyDown={handleTagInputKeyDown}
+                        maxLength={50}
+                        className="w-full p-3 bg-white focus:outline-none"
+                      />
+                    </PixelInput>
+                  </div>
+                  <div className="flex-shrink-0 w-auto">
+                    <button 
+                      type="button"
+                      onClick={handleAddTag}
+                      className="flex items-center justify-start hover:opacity-80 cursor-pointer"
+                      style={{ height: "52px" }}
+                    >
+                      <Image
+                        src="/images/LeggTil.svg"
+                        alt="Legg til"
+                        width={182}
+                        height={0}
+                        className="h-full w-auto"
+                      />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Display added tags with truncation */}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3 w-full">
+                    {tags.map((tag, index) => (
+                      <div 
+                        key={index} 
+                        className="flex items-center bg-[#161E38] text-white px-4 py-1 mb-2 max-w-[160px] sm:max-w-[200px] md:max-w-[300px]"
+                      >
+                        <span className="overflow-hidden text-ellipsis whitespace-nowrap">{tag}</span>
+                        <button 
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="ml-2 flex-shrink-0 text-white hover:text-red-300"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <div>
-                <Label htmlFor="experience" className="mb-3 block text-md">Forventede forkunnskaper</Label>
+                <Label htmlFor="experience" className="mt-10 mb-3 block text-md">Forventede forkunnskaper</Label>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <input
@@ -130,11 +227,11 @@ export default function BliForedragsholder() {
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-10">
                 <Label className="mb-3 block text-md">Foredragsholder (hentet fra SSO)</Label>
                 <div className="relative bg-[#F6EBD5] p-6 border-2 border-black">
-                  <div className="flex items-center gap-6">
-                    <div className="w-32 h-32 border-2 border-black">
+                  <div className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0">
                       <Image
                         src="/images/NavnNavnesen.svg"
                         alt="NavnNavnesen"
@@ -143,30 +240,38 @@ export default function BliForedragsholder() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 text-left">
                       <h3 className="text-xl font-medium mb-2">Navn navnesen</h3>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-row items-end justify-start gap-2">
                         <Image
                           src="/images/Mail.svg"
                           alt="Mail"
-                          width={20}
-                          height={20}
+                          width={16}
+                          height={16}
+                          className="shrink-0 w-2 h-2 xs:w-3 xs:h-3 sm:w-4 sm:h-4"
                         />
-                        <span className="text-gray-700">navn.navnesen@soprasteria.com</span>
+                        <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">navn.navnesen@soprasteria.com</span>
                       </div>
                     </div>
-                    <div className="absolute top-0 right-10 h-full flex items-center">
+                    <div className="absolute right-10 h-full hidden md:flex md:items-center">
                       <Image
                         src="/images/FargerikFisk.svg"
                         alt="FargerikFisk"
-                        width={48}
-                        height={48}
+                        width={36}
+                        height={36}
                       />
                     </div>
                   </div>
                 </div>
                 
-                <button className="flex items-center iceland text-xl gap-3 mt-4 hover:opacity-80">
+                <button 
+                  type="button"
+                  className="flex items-center iceland text-xl gap-3 mt-4 hover:opacity-80 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log("Add speaker clicked");
+                  }}
+                >
                   <Image
                     src="/images/Plus.svg"
                     alt="Add speaker"
@@ -178,14 +283,36 @@ export default function BliForedragsholder() {
               </div>
 
               <div className="pt-10">
-                <Image 
-                  src="/images/Lagre.svg"
-                  alt="Lagre"
-                  width={250}
-                  height={16}
+                <button 
+                  type="submit"
                   className="cursor-pointer hover:opacity-80"
-                  onClick={() => router.push("/bli-foredragsholder/confirmation")}
-                />
+                  onClick={(e) => {
+                    const form = document.getElementById('application-form-element') as HTMLFormElement;
+                    
+                    if (form?.checkValidity()) {
+                      const titleInput = document.getElementById('title') as HTMLInputElement;
+                      const descriptionInput = document.getElementById('description') as HTMLTextAreaElement;
+                      const experienceLevel = document.querySelector('input[name="experience"]:checked') as HTMLInputElement;
+                      
+                      localStorage.setItem('applicationTags', JSON.stringify(tags));
+                      localStorage.setItem('applicationTitle', titleInput.value);
+                      localStorage.setItem('applicationDescription', descriptionInput.value);
+                      localStorage.setItem('applicationExperience', experienceLevel.value);
+                      
+                      router.push("/bli-foredragsholder/oppsummering");
+                    } else {
+                      form?.reportValidity();
+                    }
+                    e.preventDefault();
+                  }}
+                >
+                  <Image 
+                    src="/images/Lagre.svg"
+                    alt="Lagre"
+                    width={250}
+                    height={16}
+                  />
+                </button>
               </div>
             </form>
           </div>
