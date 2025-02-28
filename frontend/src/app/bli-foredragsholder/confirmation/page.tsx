@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export default function ConfirmationPage() {
@@ -17,11 +16,11 @@ export default function ConfirmationPage() {
           </div>
         </div>
         
-        <h1 className="text-2xl font-bold mb-4">Takk for din søknad!</h1>
+        <h1 className="text-2xl font-bold mb-4 argent">Takk for ditt foredrag!</h1>
         
         <p className="mb-6">
-          Din søknad om å bli foredragsholder på Bytefest 2025 er mottatt. 
-          Vi vil gjennomgå søknaden din og kontakte deg via e-post innen kort tid.
+        Vi har mottatt dit foredrag og vil  gå igjennom alle foredrag innen..  
+        Du kan forvente å få svar om du skal stille som foredragsholder innen ... 
         </p>
         
         <p className="mb-8 text-sm text-gray-600">
@@ -29,11 +28,17 @@ export default function ConfirmationPage() {
           <a href="mailto:bytefest@example.com" className="text-blue-500 hover:underline"> bytefest@example.com</a>
         </p>
         
-        <Link href="/">
-          <Button className="bg-[#00afea] hover:bg-[#0099d1]">
-            Tilbake til forsiden
-          </Button>
-        </Link>
+        <div className="flex justify-center">
+          <Link href="/">
+            <Image
+              src="/images/Tilbake.svg"
+              alt="Tilbake til forsiden"
+              width={226}
+              height={44}
+              className="hover:opacity-90 transition-opacity"
+            />
+          </Link>
+        </div>
       </div>
     </div>
   );
