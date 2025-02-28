@@ -8,7 +8,11 @@ export default function Bytefest() {
   
   useEffect(() => {
     const updateScale = () => {
-      const newScale = Math.min(1, Math.max(0.2, window.innerWidth / 1400));
+      // Only start scaling when window width is below 1024px
+      // Make scaling less aggressive by using a smaller divisor (800 instead of 1400)
+      const newScale = window.innerWidth >= 1024 
+        ? 1 
+        : Math.min(1, Math.max(0.2, window.innerWidth / 1000));
       setScale(newScale);
     };
 
