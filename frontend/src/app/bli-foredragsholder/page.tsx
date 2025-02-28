@@ -102,31 +102,34 @@ export default function BliForedragsholder() {
               </p>
 
               <div>
-                <Label htmlFor="title" className="mb-3 block text-md">Tittel</Label>
+                <Label htmlFor="title" className="mb-3 block text-md font-bold">Tittel</Label>
                 <PixelInput>
                   <input 
                     id="title" 
                     required 
-                    maxLength={100}
+                    maxLength={80}
+                    placeholder="Maks 80 tegn"
                     className="w-full p-3 bg-white focus:outline-none"
                   />
                 </PixelInput>
               </div>
               
               <div>
-                <Label htmlFor="description" className="mb-3 block text-md">Beskrivelse</Label>
+                <Label htmlFor="description" className="mb-3 block text-md font-bold">Beskrivelse</Label>
                 <PixelInput>
                   <textarea 
                     id="description"
                     className="w-full p-3 bg-white focus:outline-none min-h-[120px]"
-                    maxLength={500}
+                    maxLength={1000}
+                    placeholder="Maks 1000 tegn"
                     required
                   />
                 </PixelInput>
               </div>
 
               <div>
-                <Label htmlFor="tags" className="mb-3 block text-md">Tags</Label>
+                <Label htmlFor="tags" className="mb-1 block text-md font-bold">Tags</Label>
+                <Label htmlFor="tags" className="mb-3 block text-md">Hva handler foredraget om?</Label>
                 <div className="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-5">
                   <div className="w-full">
                     <PixelInput>
@@ -135,6 +138,7 @@ export default function BliForedragsholder() {
                         value={tagInput}
                         onChange={handleTagInputChange}
                         onKeyDown={handleTagInputKeyDown}
+                        placeholder="Skriv inn og trykk enter eller legg til"
                         maxLength={50}
                         className="w-full p-3 bg-white focus:outline-none"
                       />

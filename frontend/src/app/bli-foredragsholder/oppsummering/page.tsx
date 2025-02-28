@@ -90,7 +90,7 @@ export default function Oppsummering() {
             </p>
             
             <div className="mb-8">
-              <h3 className="mb-2">Allergener</h3>
+              <h3 className="mb-2 font-bold">Allergener</h3>
               <div className="space-y-2">
                 <div className="flex">
                   <label className="flex items-center space-x-2 cursor-pointer inline-flex">
