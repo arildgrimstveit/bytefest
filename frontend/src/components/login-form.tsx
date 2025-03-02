@@ -1,6 +1,5 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
@@ -11,7 +10,6 @@ interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
 }
 
 export function LoginForm({
-  className,
   title = "Velkommen",
   redirectUrl = "/",
   buttonText = "Logg Inn",
@@ -29,7 +27,7 @@ export function LoginForm({
   };
   
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className="flex flex-col gap-6" {...props}>
       <div className="relative">
         {/* Orange shadow rectangle with custom color #FFAB5F */}
         <div className="absolute bg-[#FFAB5F] w-full h-full translate-x-1 translate-y-1"></div>

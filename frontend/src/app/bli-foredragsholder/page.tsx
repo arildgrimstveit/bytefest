@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Label } from "@/components/ui/label";
 import { LoginForm } from "@/components/login-form"
 import { PixelInput } from "@/components/pixel-input";
 import Image from "next/image";
@@ -102,7 +101,7 @@ export default function BliForedragsholder() {
               </p>
 
               <div>
-                <Label htmlFor="title" className="mb-3 block text-md font-bold">Tittel</Label>
+                <label htmlFor="title" className="mb-3 block text-md font-bold">Tittel</label>
                 <PixelInput>
                   <input 
                     id="title" 
@@ -115,7 +114,7 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
-                <Label htmlFor="description" className="mb-3 block text-md font-bold">Beskrivelse</Label>
+                <label htmlFor="description" className="mb-3 block text-md font-bold">Beskrivelse</label>
                 <PixelInput>
                   <textarea 
                     id="description"
@@ -128,8 +127,8 @@ export default function BliForedragsholder() {
               </div>
 
               <div>
-                <Label htmlFor="tags" className="mb-1 block text-md font-bold">Tags</Label>
-                <Label htmlFor="tags" className="mb-3 block text-md">Hva handler foredraget om?</Label>
+                <label htmlFor="tags" className="mb-1 block text-md font-bold">Tags</label>
+                <label htmlFor="tags" className="mb-3 block text-md">Hva handler foredraget om?</label>
                 <div className="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-5">
                   <div className="w-full">
                     <PixelInput>
@@ -185,7 +184,7 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
-                <Label htmlFor="experience" className="mt-10 mb-3 block text-md">Forventede forkunnskaper</Label>
+                <label htmlFor="experience" className="mt-10 mb-3 block text-md">Forventede forkunnskaper</label>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <input
@@ -232,7 +231,7 @@ export default function BliForedragsholder() {
               </div>
 
               <div className="mt-10">
-                <Label className="mb-3 block text-md">Foredragsholder (hentet fra SSO)</Label>
+                <label className="mb-3 block text-md">Foredragsholder (hentet fra SSO)</label>
                 <div className="relative bg-[#F6EBD5] p-6 border-2 border-black">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
                     <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0">

@@ -79,13 +79,13 @@ export default function Oppsummering() {
   return (
     <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
       <div className="w-full max-w-4xl mx-auto my-8">
-        <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20">
+        <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20 break-words">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
           
           <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Oppsummering</h1>
           
           <div className="space-y-8">
-            <p className="text-left mb-8">
+            <p className="text-left mb-8 break-words">
                 Det severes mat something something. Det severes mat something something. Det severes mat something something.
             </p>
             
@@ -110,7 +110,7 @@ export default function Oppsummering() {
                         )}
                       </div>
                     </div>
-                    <span>Jeg ønsker ikke mat</span>
+                    <span className="break-words">Jeg ønsker ikke mat</span>
                   </label>
                 </div>
                 
@@ -132,7 +132,7 @@ export default function Oppsummering() {
                         )}
                       </div>
                     </div>
-                    <span>Gluten</span>
+                    <span className="break-words">Gluten</span>
                   </label>
                 </div>
                 
@@ -154,7 +154,7 @@ export default function Oppsummering() {
                         )}
                       </div>
                     </div>
-                    <span>Melk</span>
+                    <span className="break-words">Melk</span>
                   </label>
                 </div>
                 
@@ -176,7 +176,7 @@ export default function Oppsummering() {
                         )}
                       </div>
                     </div>
-                    <span>Annet</span>
+                    <span className="break-words">Annet</span>
                   </label>
                   
                   {allergens.other && (
@@ -187,7 +187,7 @@ export default function Oppsummering() {
                           value={otherAllergenText}
                           onChange={(e) => setOtherAllergenText(e.target.value)}
                           placeholder="Skriv inn din allergi her"
-                          className="w-full p-3 bg-white focus:outline-none"
+                          className="w-full p-3 bg-white focus:outline-none break-words"
                         />
                       </PixelInput>
                     </div>
@@ -197,10 +197,10 @@ export default function Oppsummering() {
             </div>
             
             <div className="bg-[#F6EBD5] p-6 border-2 border-black">
-              <h2 className="text-2xl font-medium mb-4">{formData.title}</h2>
+              <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden">{formData.title}</h2>
               
               <div className="mb-6">
-                <p className="whitespace-pre-wrap">{formData.description}</p>
+                <p className="whitespace-pre-wrap break-words overflow-hidden">{formData.description}</p>
               </div>
               
               {formData.tags.length > 0 && (
@@ -210,7 +210,7 @@ export default function Oppsummering() {
                     {formData.tags.map((tag, index) => (
                       <div 
                         key={index} 
-                        className="bg-[#161E38] text-white px-4 py-1"
+                        className="bg-[#161E38] text-white px-4 py-1 break-words overflow-hidden max-w-full"
                       >
                         {tag}
                       </div>
@@ -222,7 +222,7 @@ export default function Oppsummering() {
               {formData.experience && (
                 <div>
                   <h3 className="font-medium mb-2">Forventede forkunnskaper:</h3>
-                  <p>{getExperienceText(formData.experience)}</p>
+                  <p className="break-words overflow-hidden">{getExperienceText(formData.experience)}</p>
                 </div>
               )}
               
@@ -239,7 +239,7 @@ export default function Oppsummering() {
                     />
                   </div>
                   <div className="flex-1 text-left">
-                    <h3 className="text-xl font-medium mb-2">Navn Navnesen</h3>
+                    <h3 className="text-xl font-medium mb-2 break-words overflow-hidden">Navn Navnesen</h3>
                     <div className="flex flex-row items-end justify-start gap-2">
                       <Image
                         src="/images/Mail.svg"
