@@ -26,6 +26,7 @@ export default function BliForedragsholder() {
       const savedDescription = localStorage.getItem('applicationDescription') || '';
       const savedTags = JSON.parse(localStorage.getItem('applicationTags') || '[]');
       const savedExperience = localStorage.getItem('applicationExperience') || '';
+      const savedDuration = localStorage.getItem('applicationDuration') || '';
       
       // Set tags from localStorage
       setTags(savedTags);
@@ -42,6 +43,12 @@ export default function BliForedragsholder() {
         if (savedExperience) {
           const radioButton = document.querySelector(`input[name="experience"][value="${savedExperience}"]`) as HTMLInputElement;
           if (radioButton) radioButton.checked = true;
+        }
+        
+        // Set the duration radio button
+        if (savedDuration) {
+          const durationButton = document.querySelector(`input[name="duration"][value="${savedDuration}"]`) as HTMLInputElement;
+          if (durationButton) durationButton.checked = true;
         }
       }, 0);
     }
@@ -184,7 +191,62 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
-                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Forventede forkunnskaper</label>
+                <label htmlFor="duration" className="mt-10 mb-3 block text-md font-bold">Hvor lenge varer ditt foredrag?</label>
+                <div className="space-y-3">
+                  <div className="flex">
+                    <label htmlFor="10min" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="10min"
+                        name="duration"
+                        value="10min"
+                        required
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>10 minutter</span>
+                    </label>
+                  </div>
+                  <div className="flex">
+                    <label htmlFor="20min" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="20min"
+                        name="duration"
+                        value="20min"
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>20 minutter</span>
+                    </label>
+                  </div>
+                  <div className="flex">
+                    <label htmlFor="30min" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="30min"
+                        name="duration"
+                        value="30min"
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>30 minutter</span>
+                    </label>
+                  </div>
+                  <div className="flex">
+                    <label htmlFor="45min" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="45min"
+                        name="duration"
+                        value="45min"
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>45 minutter</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Hvilken grad av forkunnskap er forventet fra deltagerne?</label>
                 <div className="space-y-3">
                   <div className="flex">
                     <label htmlFor="none" className="flex items-center space-x-2 cursor-pointer inline-flex">
@@ -304,11 +366,13 @@ export default function BliForedragsholder() {
                       const titleInput = document.getElementById('title') as HTMLInputElement;
                       const descriptionInput = document.getElementById('description') as HTMLTextAreaElement;
                       const experienceLevel = document.querySelector('input[name="experience"]:checked') as HTMLInputElement;
+                      const durationLevel = document.querySelector('input[name="duration"]:checked') as HTMLInputElement;
                       
                       localStorage.setItem('applicationTags', JSON.stringify(tags));
                       localStorage.setItem('applicationTitle', titleInput.value);
                       localStorage.setItem('applicationDescription', descriptionInput.value);
                       localStorage.setItem('applicationExperience', experienceLevel.value);
+                      localStorage.setItem('applicationDuration', durationLevel.value);
                       
                       router.push("/bli-foredragsholder/oppsummering");
                     } else {

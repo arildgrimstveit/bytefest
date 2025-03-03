@@ -9,7 +9,8 @@ export default function Oppsummering() {
     title: '',
     description: '',
     tags: [] as string[],
-    experience: ''
+    experience: '',
+    duration: ''
   });
   const [loading, setLoading] = useState(true);
   const [allergens, setAllergens] = useState({
@@ -26,12 +27,14 @@ export default function Oppsummering() {
     const description = localStorage.getItem('applicationDescription') || '';
     const tags = JSON.parse(localStorage.getItem('applicationTags') || '[]');
     const experience = localStorage.getItem('applicationExperience') || '';
+    const duration = localStorage.getItem('applicationDuration') || '';
 
     setFormData({
       title,
       description,
       tags,
-      experience
+      experience,
+      duration
     });
     setLoading(false);
   }, []);
@@ -43,6 +46,17 @@ export default function Oppsummering() {
       case 'low': return 'Liten grad';
       case 'medium': return 'Middels grad';
       case 'high': return 'Stor grad';
+      default: return '';
+    }
+  };
+
+  // Map duration value to readable text
+  const getDurationText = (value: string) => {
+    switch (value) {
+      case '10min': return '10 minutter';
+      case '20min': return '20 minutter';
+      case '30min': return '30 minutter';
+      case '45min': return '45 minutter';
       default: return '';
     }
   };
@@ -61,6 +75,7 @@ export default function Oppsummering() {
     localStorage.removeItem('applicationDescription');
     localStorage.removeItem('applicationTags');
     localStorage.removeItem('applicationExperience');
+    localStorage.removeItem('applicationDuration');
     
     window.location.href = '/bli-foredragsholder/confirmation';
   };
@@ -205,7 +220,6 @@ export default function Oppsummering() {
               
               {formData.tags.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="font-medium mb-2">Tags:</h3>
                   <div className="flex flex-wrap gap-2">
                     {formData.tags.map((tag, index) => (
                       <div 
@@ -220,9 +234,16 @@ export default function Oppsummering() {
               )}
               
               {formData.experience && (
-                <div>
+                <div className="mb-6">
                   <h3 className="font-medium mb-2">Forventede forkunnskaper:</h3>
                   <p className="break-words overflow-hidden">{getExperienceText(formData.experience)}</p>
+                </div>
+              )}
+              
+              {formData.duration && (
+                <div className="mb-6">
+                  <h3 className="font-medium mb-2">Varighet:</h3>
+                  <p className="break-words overflow-hidden">{getDurationText(formData.duration)}</p>
                 </div>
               )}
               
