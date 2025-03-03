@@ -75,7 +75,7 @@ export default function Search() {
                     <button
                       key={tag}
                       onClick={() => setSearchTerm(tag)}
-                      className="bg-[#161E38] text-white px-4 py-2 hover:opacity-90 transition-opacity"
+                      className="bg-[#161E38] text-white px-4 py-2 hover:opacity-80 transition-opacity active:scale-95 cursor-pointer"
                     >
                       {tag}
                     </button>

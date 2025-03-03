@@ -38,7 +38,7 @@ export default function ConfirmationPage() {
                 alt="Tilbake til forsiden"
                 width={226}
                 height={44}
-                className="hover:opacity-90 transition-opacity"
+                className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
               />
             </Link>
           </div>

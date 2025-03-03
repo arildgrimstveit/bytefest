@@ -22,7 +22,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
-          <Link href="/bli-foredragsholder" className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer">
+          <Link href="/bli-foredragsholder" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
             <Image
               src="/images/BliForedragsholder.svg"
               alt="BliForedragsholder"
@@ -30,7 +30,7 @@ export default function Home() {
               height={55}
             />
           </Link>
-          <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer">
+          <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
             <Image
               src="/images/LesMer.svg"
               alt="LesMer"

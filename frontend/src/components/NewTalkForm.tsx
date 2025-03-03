@@ -2,7 +2,6 @@
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import Image from 'next/image';
-import Tiptap from './Tiptap';
 
 interface Speaker {
   _id: string;
@@ -128,11 +127,12 @@ const NewTalkForm = () => {
         />
         <div>
           <label className="block mb-2 font-medium">Talk Description</label>
-          <Tiptap
-            content={body || ''}
-            onUpdate={(content) =>
-              setForm((prev) => ({ ...prev, body: content }))
-            }
+          <input
+            type="text"
+            value={body}
+            onChange={handleChange}
+            placeholder="Talk Description"
+            className="w-full p-2 border border-gray-300 rounded"
           />
         </div>
         <input

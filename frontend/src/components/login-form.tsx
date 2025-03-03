@@ -45,7 +45,7 @@ export function LoginForm({
           {/* Content */}
           <div className="flex flex-col items-center">
             <button
-              className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer"
+              className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
               onClick={handleLogin}
             >
               <Image

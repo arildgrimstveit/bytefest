@@ -107,7 +107,7 @@ export default function BliForedragsholder() {
                     id="title" 
                     required 
                     maxLength={80}
-                    placeholder="Maks 80 tegn"
+                    placeholder="Tittel på foredraget (Maks 80 tegn)"
                     className="w-full p-3 bg-white focus:outline-none"
                   />
                 </PixelInput>
@@ -120,7 +120,7 @@ export default function BliForedragsholder() {
                     id="description"
                     className="w-full p-3 bg-white focus:outline-none min-h-[120px]"
                     maxLength={1000}
-                    placeholder="Maks 1000 tegn"
+                    placeholder="Beskrivelse av foredraget (Maks 1000 tegn)"
                     required
                   />
                 </PixelInput>
@@ -147,7 +147,7 @@ export default function BliForedragsholder() {
                     <button 
                       type="button"
                       onClick={handleAddTag}
-                      className="flex items-center justify-start hover:opacity-80 cursor-pointer"
+                      className="flex items-center justify-start transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
                       style={{ height: "52px" }}
                     >
                       <Image
@@ -184,7 +184,7 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
-                <label htmlFor="experience" className="mt-10 mb-3 block text-md">Forventede forkunnskaper</label>
+                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Forventede forkunnskaper</label>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <input
@@ -288,7 +288,7 @@ export default function BliForedragsholder() {
               <div className="pt-10">
                 <button 
                   type="submit"
-                  className="cursor-pointer hover:opacity-80"
+                  className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
                   onClick={(e) => {
                     const form = document.getElementById('application-form-element') as HTMLFormElement;
                     

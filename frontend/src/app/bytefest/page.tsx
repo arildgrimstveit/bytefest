@@ -268,7 +268,7 @@ export default function Bytefest() {
                   href="https://www.kode24.no/annonse/bytefest-systemutviklernes-woodstock/81547688"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-transform active:scale-95 hover:opacity-90 cursor-pointer"
+                  className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
                 >
                   <Image 
                     src="/images/LesMerOransje.svg" 
