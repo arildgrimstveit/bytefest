@@ -186,52 +186,60 @@ export default function BliForedragsholder() {
               <div>
                 <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Forventede forkunnskaper</label>
                 <div className="space-y-3">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="none"
-                      name="experience"
-                      value="none"
-                      required
-                      className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px]"
-                    />
-                    <label htmlFor="none" className="ml-2">Ingen grad</label>
+                  <div className="flex">
+                    <label htmlFor="none" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="none"
+                        name="experience"
+                        value="none"
+                        required
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>Ingen grad</span>
+                    </label>
                   </div>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="low"
-                      name="experience"
-                      value="low"
-                      className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px]"
-                    />
-                    <label htmlFor="low" className="ml-2">Liten grad</label>
+                  <div className="flex">
+                    <label htmlFor="low" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="low"
+                        name="experience"
+                        value="low"
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>Liten grad</span>
+                    </label>
                   </div>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="medium"
-                      name="experience"
-                      value="medium"
-                      className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px]"
-                    />
-                    <label htmlFor="medium" className="ml-2">Middels grad</label>
+                  <div className="flex">
+                    <label htmlFor="medium" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="medium"
+                        name="experience"
+                        value="medium"
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>Middels grad</span>
+                    </label>
                   </div>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="high"
-                      name="experience"
-                      value="high"
-                      className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px]"
-                    />
-                    <label htmlFor="high" className="ml-2">Stor grad</label>
+                  <div className="flex">
+                    <label htmlFor="high" className="flex items-center space-x-2 cursor-pointer inline-flex">
+                      <input
+                        type="radio"
+                        id="high"
+                        name="experience"
+                        value="high"
+                        className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                      />
+                      <span>Stor grad</span>
+                    </label>
                   </div>
                 </div>
               </div>
 
               <div className="mt-10">
-                <label className="mb-3 block text-md">Foredragsholder (hentet fra SSO)</label>
+                <label className="mb-3 block text-md"><span className="font-bold">Foredragsholder</span> (hentet fra SSO)</label>
                 <div className="relative bg-[#F6EBD5] p-6 border-2 border-black">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
                     <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0">
@@ -269,7 +277,7 @@ export default function BliForedragsholder() {
                 
                 <button 
                   type="button"
-                  className="flex items-center iceland text-xl gap-3 mt-4 hover:opacity-80 cursor-pointer"
+                  className="flex items-center iceland text-xl gap-3 mt-4 hover:opacity-80 cursor-pointer transition-transform active:scale-95"
                   onClick={(e) => {
                     e.preventDefault();
                     console.log("Add speaker clicked");
