@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { PixelInput } from "@/components/pixel-input";
+import { PixelInput } from "@/components/InputPixelCorners";
 
 export default function Oppsummering() {
   const [formData, setFormData] = useState({

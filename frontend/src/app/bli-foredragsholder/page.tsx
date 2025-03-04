@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LoginForm } from "@/components/login-form"
-import { PixelInput } from "@/components/pixel-input";
+import { LoginForm } from "@/components/LoginForm"
+import { PixelInput } from "@/components/InputPixelCorners";
 import Image from "next/image";
 
 export default function BliForedragsholder() {
@@ -98,7 +98,7 @@ export default function BliForedragsholder() {
       ) : (
         <div id="application-form" className="w-full max-w-4xl mx-auto my-8">
           <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20">
-            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#F6EBD5] translate-x-1 translate-y-1"></div>
+            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
             <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Send inn ditt foredrag</h1>
             
             <form id="application-form-element" onSubmit={handleSubmitApplication} className="space-y-4">

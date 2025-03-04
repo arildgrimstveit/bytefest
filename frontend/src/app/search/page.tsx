@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { PixelInput } from '@/components/pixel-input';
+import { PixelInput } from '@/components/InputPixelCorners';
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState('');
