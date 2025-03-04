@@ -98,7 +98,7 @@ export default function BliForedragsholder() {
       ) : (
         <div id="application-form" className="w-full max-w-4xl mx-auto my-8">
           <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20">
-            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
+            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#F6EBD5] translate-x-1 translate-y-1"></div>
             <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Send inn ditt foredrag</h1>
             
             <form id="application-form-element" onSubmit={handleSubmitApplication} className="space-y-4">
@@ -191,7 +191,7 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
-                <label htmlFor="duration" className="mt-10 mb-3 block text-md font-bold">Hvor lenge varer ditt foredrag?</label>
+                <label htmlFor="duration" className="mt-10 mb-3 block text-md font-bold">Hvor lenge varer foredraget?</label>
                 <div className="space-y-3">
                   <div className="flex">
                     <label htmlFor="10min" className="flex items-center space-x-2 cursor-pointer inline-flex">
@@ -246,7 +246,7 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
-                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Hvilken grad av forkunnskap er forventet fra deltagerne?</label>
+                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Hvor mye forkunnskap forventer du av deltakerne?</label>
                 <div className="space-y-3">
                   <div className="flex">
                     <label htmlFor="none" className="flex items-center space-x-2 cursor-pointer inline-flex">

@@ -14,7 +14,7 @@ export default function Home() {
           />
         </div>
         <div className="text-left argent text-white pt-10 text-2xl sm:text-4xl">
-          <a>Mikrokonferansen som dypdykker ned i systemutvikling</a>
+          <a>Mikrokonferansen som dypdykker i systemutvikling</a>
         </div>
         <div className="text-left iceland text-white pt-10">
           <a className="text-2xl md:text-4xl lg:text-5xl">30. Mai 2025</a>

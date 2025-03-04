@@ -11,6 +11,12 @@ export const speakerType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'email',
+      type: 'string',
+      description: 'Speaker email address',
+      validation: (rule) => rule.required().email(),
+    }),
+    defineField({
       name: 'slug',
       type: 'slug',
       options: {source: 'name', maxLength: 96},

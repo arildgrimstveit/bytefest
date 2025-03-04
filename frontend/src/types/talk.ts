@@ -4,7 +4,14 @@ export interface Talk {
   _id: string;
   title: string;
   slug: { current: string };
-  image: string;
+  speakerImage: string;
+  speakerName?: string;
   publishedAt: string;
-  body: PortableTextBlock[];
+  description?: PortableTextBlock[];
+  body?: PortableTextBlock[];
+  talkTime?: string;
+  duration?: string;
+  location?: string;
+  tags?: string[];
+  forkunnskap?: string;
 }

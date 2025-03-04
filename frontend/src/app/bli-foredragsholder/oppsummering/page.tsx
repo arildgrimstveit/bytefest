@@ -68,16 +68,44 @@ export default function Oppsummering() {
     });
   };
 
-  const handleSubmit = () => {
-    // Submit the form data to your backend
-    // For now, we just redirect to the confirmation page
-    localStorage.removeItem('applicationTitle');
-    localStorage.removeItem('applicationDescription');
-    localStorage.removeItem('applicationTags');
-    localStorage.removeItem('applicationExperience');
-    localStorage.removeItem('applicationDuration');
-    
-    window.location.href = '/bli-foredragsholder/confirmation';
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      
+      // Submit the form data to create a Sanity draft
+      const response = await fetch('/api/createTalkDraft', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          tags: formData.tags,
+          duration: formData.duration,
+          forkunnskap: formData.experience
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to submit talk draft');
+      }
+      
+      // Clear localStorage items
+      localStorage.removeItem('applicationTitle');
+      localStorage.removeItem('applicationDescription');
+      localStorage.removeItem('applicationTags');
+      localStorage.removeItem('applicationExperience');
+      localStorage.removeItem('applicationDuration');
+      
+      // Redirect to confirmation page
+      window.location.href = '/bli-foredragsholder/confirmation';
+    } catch (error) {
+      console.error('Error submitting talk draft:', error);
+      alert('Det oppstod en feil ved innsending av foredraget. Vennligst prøv igjen senere.');
+      setLoading(false);
+    }
   };
 
   const handleGoBack = () => {
@@ -284,12 +312,14 @@ export default function Oppsummering() {
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center">
               <button 
+                type="button"
                 onClick={handleGoBack}
                 className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
+                disabled={loading}
               >
-                <Image 
+                <Image
                   src="/images/Tilbake.svg" 
                   alt="Tilbake til skjema" 
                   width={250}
@@ -298,15 +328,23 @@ export default function Oppsummering() {
               </button>
               
               <button 
+                type="submit"
                 onClick={handleSubmit}
-                className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
+                className="cursor-pointer transition-transform active:scale-95 hover:opacity-80"
+                disabled={loading}
               >
-                <Image 
-                  src="/images/SendInn.svg" 
-                  alt="Send inn" 
-                  width={250}
-                  height={55}
-                />
+                {loading ? (
+                  <div className="flex items-center justify-center px-10 py-4 bg-gray-200 border-2 border-black">
+                    <span className="iceland text-xl">Sender inn...</span>
+                  </div>
+                ) : (
+                  <Image 
+                    src="/images/SendInn.svg"
+                    alt="Send inn"
+                    width={250}
+                    height={55}
+                  />
+                )}
               </button>
             </div>
           </div>
