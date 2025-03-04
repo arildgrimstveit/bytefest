@@ -21,7 +21,7 @@ export default async function TalksPage() {
     <main className="min-h-screen py-12">
       <div className="container mx-auto px-4">
         <div className="mb-10 text-center">
-          <h1 className="text-3xl font-bold text-white mb-4">Foredrag</h1>
+          <h1 className="text-5xl argent text-white mb-4">Foredrag</h1>
         </div>
 
         {talks.length === 0 ? (
