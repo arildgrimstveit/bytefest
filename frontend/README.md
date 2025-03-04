@@ -26,6 +26,22 @@ This is the frontend application for the Bytefest 2025 event website, built with
 yarn install
 ```
 
+2. Create a `.env.local` file in the frontend directory with the following variables:
+
+```
+# Required - your Sanity project ID
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
+
+# Required - the dataset to use
+NEXT_PUBLIC_SANITY_DATASET=production
+
+# Required for authenticated requests
+SANITY_API_TOKEN=your_sanity_api_token
+
+# Optional - API version (defaults to latest if not specified)
+NEXT_PUBLIC_SANITY_API_VERSION=2023-05-03
+```
+
 3. Run the development server:
 
 ```bash
@@ -40,6 +56,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `src/components`: Reusable React components
 - `src/styles`: Global styles and Tailwind configuration
 - `src/types`: TypeScript type definitions
+- `src/sanityClient.ts`: Sanity client configuration for content fetching
+- `src/sanityImage.ts`: Utilities for handling Sanity images
 
 ## Integrations
 
@@ -67,7 +85,7 @@ yarn start
 
 ## Learn More
 
-For more information about the technologies used:
+For more information about the technologies used in this frontend:
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [React Documentation](https://react.dev)
