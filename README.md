@@ -1,109 +1,95 @@
 # Bytefest 2025 Landing Page
 
-This repository contains the complete website for Bytefest 2025, including the frontend, backend, and CMS components.
-
-## Project Structure
-
-The project is divided into three main components:
-
-- **Frontend**: A Next.js application that serves as the user-facing website
-- **Backend**: A Java Spring Boot application that manages data processing and storage
-- **Sanity**: A headless CMS for content management
+This repository contains the website for Bytefest 2025, including frontend (Next.js), backend (Spring Boot), and Sanity CMS components.
 
 ## Prerequisites
 
-Before setting up this project, make sure you have the following installed:
-
-- Node.js (latest LTS version recommended)
+- Node.js (LTS version recommended)
 - Yarn package manager
-- Java JDK
-- Maven
+- Java JDK 17+
 - PostgreSQL
 
-## Setting Up the Backend
+## Quick Start
 
-### PostgreSQL Setup
+Follow these steps to get the application running locally:
 
-1. Install PostgreSQL if you haven't already
-2. Verify the installation in terminal using the command:
-   ```
-   postgres -V
-   ```
-3. Start PostgreSQL using:
-   ```
-   psql postgres
-   ```
-4. Create a user for the application:
-   ```
-   CREATE ROLE bytefest WITH LOGIN PASSWORD 'password';
-   ```
-5. Create the database:
-   ```
-   CREATE DATABASE bytefest;
-   ```
-6. Grant privileges to the user:
-   ```
-   GRANT ALL PRIVILEGES ON DATABASE bytefest TO bytefest;
-   ```
-7. Connect to the database:
-   ```
-   \connect bytefest
-   ```
+### 1. Clone the repository
 
-### Running the Backend
+```bash
+git clone https://github.com/your-username/landingsside-bytefest-2025.git
+cd landingsside-bytefest-2025
+```
 
-1. Navigate to the backend directory:
-   ```
-   cd backend
-   ```
-2. Start the application with Maven:
-   ```
-   mvn spring-boot:run
-   ```
+### 2. Set up the database
 
-The API will be available at http://localhost:8080.
+```bash
+# Start PostgreSQL
+psql postgres
 
-## Setting Up the Frontend
+# Create database and user (in PostgreSQL console)
+CREATE ROLE bytefest WITH LOGIN PASSWORD 'password';
+CREATE DATABASE bytefest;
+GRANT ALL PRIVILEGES ON DATABASE bytefest TO bytefest;
+\q
+```
 
-1. Navigate to the frontend directory:
-   ```
-   cd frontend
-   ```
-2. Install dependencies:
-   ```
-   yarn install
-   ```
-3. Start the development server:
-   ```
-   yarn dev
-   ```
+### 3. Set up and run the backend
 
-The frontend development server will be available at http://localhost:3000.
+```bash
+cd backend
 
-## Setting Up Sanity CMS
+# Start the Spring Boot application
+mvn spring-boot:run
+```
 
-1. Navigate to the Sanity directory:
-   ```
-   cd sanity
-   ```
-2. Install dependencies:
-   ```
-   yarn install
-   ```
-3. Start the Sanity Studio:
-   ```
-   yarn dev
-   ```
+The API will be available at http://localhost:8080
 
-The Sanity Studio will be available at http://localhost:3333.
+### 4. Set up and run the frontend
+
+```bash
+cd frontend
+
+# Install dependencies
+yarn install
+
+# Create .env.local with required variables
+echo "NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=your_sanity_api_token" > .env.local
+
+# Start the development server
+yarn dev
+```
+
+The frontend will be available at http://localhost:3000
+
+### 5. Set up and run Sanity CMS
+
+```bash
+cd sanity
+
+# Install dependencies
+yarn install
+
+# Start Sanity Studio
+yarn dev
+```
+
+The Sanity Studio will be available at http://localhost:3333
+
+## Project Structure
+
+- `frontend/`: Next.js application with React, TypeScript, and Tailwind CSS
+- `backend/`: Java Spring Boot application with PostgreSQL database
+- `sanity/`: Sanity CMS for content management
 
 ## Development Workflow
 
 For local development, you'll need to run all three components simultaneously:
 
 1. Start the backend server
-2. Start the Sanity Studio
-3. Start the frontend development server
+2. Start the frontend development server
+3. Start the Sanity Studio
 
 ## Deployment
 
