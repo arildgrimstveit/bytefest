@@ -9,8 +9,6 @@ export interface Talk {
   speakerEmail?: string;
   publishedAt: string;
   description?: PortableTextBlock[];
-  body?: PortableTextBlock[];
-  talkTime?: string;
   duration?: string;
   location?: string;
   tags?: string[];
