@@ -135,7 +135,7 @@ export default function BliForedragsholder() {
 
               <div>
                 <label htmlFor="tags" className="mb-1 block text-md font-bold">Tags</label>
-                <label htmlFor="tags" className="mb-3 block text-md">Hva handler foredraget om?</label>
+                <label htmlFor="tags" className="mb-3 block text-md">Nøkkelord som gjør det lettere å finne foredraget ditt</label>
                 <div className="flex flex-col sm:flex-row w-full items-start sm:items-center gap-3 sm:gap-5">
                   <div className="w-full">
                     <PixelInput>
@@ -176,7 +176,7 @@ export default function BliForedragsholder() {
                         key={index} 
                         className="flex items-center bg-[#161E38] text-white px-4 py-1 mb-2 max-w-[160px] sm:max-w-[200px] md:max-w-[300px]"
                       >
-                        <span className="overflow-hidden text-ellipsis whitespace-nowrap">{tag}</span>
+                        <span className="overflow-hidden text-ellipsis whitespace-nowrap uppercase">{tag}</span>
                         <button 
                           type="button"
                           onClick={() => handleRemoveTag(tag)}

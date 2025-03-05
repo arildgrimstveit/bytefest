@@ -6,6 +6,7 @@ export interface Talk {
   slug: { current: string };
   speakerImage: string;
   speakerName?: string;
+  speakerEmail?: string;
   publishedAt: string;
   description?: PortableTextBlock[];
   body?: PortableTextBlock[];

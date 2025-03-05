@@ -242,38 +242,45 @@ export default function Oppsummering() {
             <div className="bg-[#F6EBD5] p-6 border-2 border-black">
               <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden">{formData.title}</h2>
               
-              <div className="mb-6">
-                <p className="whitespace-pre-wrap break-words overflow-hidden">{formData.description}</p>
+              <div className="grid grid-cols-1 gap-4 mb-6">
+                <div className="flex items-center text-gray-700">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                    <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  <span className="text-sm">{getDurationText(formData.duration)}</span>
+                </div>
+                
+                <div className="flex items-center text-gray-700">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                    <path d="M5 19V5H19V19H5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 9H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-sm">Forkunnskap: {getExperienceText(formData.experience)}</span>
+                </div>
               </div>
               
               {formData.tags.length > 0 && (
                 <div className="mb-6">
                   <div className="flex flex-wrap gap-2">
                     {formData.tags.map((tag, index) => (
-                      <div 
+                      <span 
                         key={index} 
-                        className="bg-[#161E38] text-white px-4 py-1 break-words overflow-hidden max-w-full"
+                        className="flex items-center bg-[#161E38] text-white px-4 py-1 mb-2 max-w-[160px] sm:max-w-[200px] md:max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap uppercase"
                       >
                         {tag}
-                      </div>
+                      </span>
                     ))}
                   </div>
                 </div>
               )}
               
-              {formData.experience && (
-                <div className="mb-6">
-                  <h3 className="font-medium mb-2">Forventede forkunnskaper:</h3>
-                  <p className="break-words overflow-hidden">{getExperienceText(formData.experience)}</p>
-                </div>
-              )}
-              
-              {formData.duration && (
-                <div className="mb-6">
-                  <h3 className="font-medium mb-2">Varighet:</h3>
-                  <p className="break-words overflow-hidden">{getDurationText(formData.duration)}</p>
-                </div>
-              )}
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-900">Om foredraget</h2>
+                <p className="whitespace-pre-wrap break-words overflow-hidden">{formData.description}</p>
+              </div>
               
               <div className="mt-8 pt-6 border-t-2 border-black">
                 <h3 className="font-medium mb-4">Foredragsholder:</h3>
