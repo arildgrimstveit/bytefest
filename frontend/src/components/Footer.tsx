@@ -98,7 +98,7 @@ const Footer = () => {
                   <Link href="https://www.soprasteria.no/hvem-er-vi" className="text-sm text-gray-300 hover:text-white transition-colors">
                     HVEM ER VI
                   </Link>
-                  <Link href="https://www.soprasteria.no/hvem-er-vi" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  <Link href="https://www.soprasteria.no/dette-kan-vi" className="text-sm text-gray-300 hover:text-white transition-colors">
                     DETTE GJØR VI
                   </Link>
                   <Link href="https://www.soprasteria.no/bli-en-av-oss" className="text-sm text-gray-300 hover:text-white transition-colors">

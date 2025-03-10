@@ -17,7 +17,7 @@ export default function Home() {
           <a>Mikrokonferansen som dypdykker i systemutvikling</a>
         </div>
         <div className="text-left iceland text-white pt-10">
-          <a className="text-2xl md:text-4xl lg:text-5xl">30. Mai 2025</a>
+          <a className="text-2xl md:text-4xl lg:text-5xl">10. Juni 2025</a>
           <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 21.00</a>
         </div>
 
