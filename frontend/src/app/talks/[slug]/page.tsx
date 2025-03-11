@@ -5,7 +5,7 @@ import { PortableText } from "@portabletext/react";
 import type { Talk } from '@/types/talk';
 
 interface TalkProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function TalkDetail(props: TalkProps) {
