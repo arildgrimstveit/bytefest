@@ -1,0 +1,18 @@
+{
+    "navigationFallback": {
+      "rewrite": "/_next/static/404.html"
+    },
+    "routes": [
+      {
+        "route": "/*",
+        "rewrite": "/"
+      }
+    ],
+    "responseOverrides": {
+      "404": {
+        "rewrite": "/_next/static/404.html",
+        "statusCode": 200
+      }
+    }
+  }
+  
