@@ -5,12 +5,59 @@ import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/LoginForm"
 import { PixelInput } from "@/components/InputPixelCorners";
 import Image from "next/image";
+import { useUser } from "@/components/UserContext";
+import { useMsal } from "@azure/msal-react";
+import { InteractionStatus } from "@azure/msal-browser";
+
+// Define GraphConfig for fetching user profile picture
+const graphConfig = {
+  graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
+  graphPhotoEndpoint: "https://graph.microsoft.com/v1.0/me/photo/$value"
+};
 
 export default function BliForedragsholder() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const { user, isAuthenticated } = useUser();
+  const { instance, inProgress } = useMsal();
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [usingFallbackAvatar, setUsingFallbackAvatar] = useState(false);
+  
+  // Handle MSAL redirect - this is crucial for the authentication flow
+  useEffect(() => {
+    if (inProgress === InteractionStatus.None) {
+      (async () => {
+        try {
+          // This handles the redirect response from Azure AD authentication
+          const response = await instance.handleRedirectPromise();
+          if (response) {
+            // Login was successful, we have a response
+            console.log("Authentication successful, redirect response:", response);
+            instance.setActiveAccount(response.account);
+            
+            // Force a re-render of the app by triggering a small state change
+            // This helps ensure the header and other components update
+            window.setTimeout(() => {
+              setIsLoggedIn(true);
+              
+              // Force a re-render by dispatching a custom event
+              window.dispatchEvent(new Event('msal:login:complete'));
+            }, 100);
+          } else if (isAuthenticated) {
+            // No response, but user is already authenticated
+            console.log("User already authenticated");
+            setIsLoggedIn(true);
+          }
+        } catch (error) {
+          console.error("Error handling redirect:", error);
+        }
+      })();
+    }
+  }, [instance, inProgress, isAuthenticated]);
+  
+  // Update this path to your actual talk application form
 
   // Check localStorage on component mount
   useEffect(() => {
@@ -54,6 +101,172 @@ export default function BliForedragsholder() {
     }
   }, []);
 
+  // Set isLoggedIn based on authentication state
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsLoggedIn(true);
+    }
+  }, [isAuthenticated]);
+
+  // Add the useEffect to fetch the user's profile picture
+  useEffect(() => {
+    // Fetch user profile picture when authenticated
+    if (isAuthenticated && user?.name) {
+      const fetchProfilePicture = async () => {
+        // First try to fetch from Graph API if we haven't already fallen back to generated avatar
+        if (!usingFallbackAvatar) {
+          try {
+            const activeAccount = instance.getActiveAccount();
+            if (!activeAccount) {
+              console.log("No active account found for profile picture");
+              generateFallbackAvatar();
+              return;
+            }
+            
+            console.log("Active account info:", {
+              username: activeAccount.username,
+              name: activeAccount.name,
+              homeAccountId: activeAccount.homeAccountId
+            });
+            
+            console.log("Attempting to fetch profile picture from Graph API");
+            
+            try {
+              // Request token with expanded photo permissions
+              const tokenResponse = await instance.acquireTokenSilent({
+                scopes: [
+                  'user.read',
+                  'user.readbasic.all',
+                  'profile',
+                  'openid',
+                  'email'
+                ],
+                account: activeAccount
+              });
+              
+              console.log("Successfully acquired token for Graph API");
+              
+              // First, try getting user details to verify which endpoints are available
+              const userDetailsResponse = await fetch(graphConfig.graphMeEndpoint, {
+                headers: {
+                  'Authorization': `Bearer ${tokenResponse.accessToken}`
+                }
+              });
+              
+              if (userDetailsResponse.ok) {
+                const userDetails = await userDetailsResponse.json();
+                console.log("User details from Graph API:", userDetails);
+              }
+              
+              // Try different photo endpoints - in order of preference
+              const photoEndpoints = [
+                "https://graph.microsoft.com/v1.0/me/photo/$value",
+                "https://graph.microsoft.com/beta/me/photo/$value",
+                "https://graph.microsoft.com/v1.0/me/photos/48x48/$value",
+                "https://graph.microsoft.com/beta/me/profilePhoto",
+                `https://graph.microsoft.com/v1.0/users/${activeAccount.username}/photo/$value`
+              ];
+              
+              let photoFound = false;
+              
+              for (const endpoint of photoEndpoints) {
+                if (photoFound) break;
+                
+                console.log(`Trying photo endpoint: ${endpoint}`);
+                
+                try {
+                  const response = await fetch(endpoint, {
+                    headers: {
+                      'Authorization': `Bearer ${tokenResponse.accessToken}`
+                    }
+                  });
+                  
+                  console.log(`Response from ${endpoint}:`, response.status);
+                  
+                  if (response.ok) {
+                    console.log(`Profile picture fetched successfully from ${endpoint}`);
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    setProfilePic(url);
+                    photoFound = true;
+                    break;
+                  } else {
+                    const errorText = await response.text().catch(() => 'No error details');
+                    console.log(`Failed to fetch from ${endpoint}, status: ${response.status}, Error: ${errorText}`);
+                  }
+                } catch (error) {
+                  console.log(`Error accessing ${endpoint}:`, error);
+                }
+              }
+              
+              if (!photoFound) {
+                console.log("No profile picture found across all endpoints, using fallback avatar");
+                generateFallbackAvatar();
+              }
+            } catch (error) {
+              console.log("Error accessing Graph API:", error);
+              
+              // Try to get a refreshed token with interactive login if silent acquisition failed
+              try {
+                console.log("Trying interactive token acquisition");
+                const interactiveResponse = await instance.acquireTokenPopup({
+                  scopes: [
+                    'user.read',
+                    'user.readbasic.all',
+                    'profile',
+                    'openid',
+                    'email'
+                  ]
+                });
+                
+                if (interactiveResponse) {
+                  console.log("Interactive token acquisition successful, retrying photo fetch");
+                  const response = await fetch(graphConfig.graphPhotoEndpoint, {
+                    headers: {
+                      'Authorization': `Bearer ${interactiveResponse.accessToken}`
+                    }
+                  });
+                  
+                  if (response.ok) {
+                    console.log("Profile picture fetched successfully after interactive login");
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    setProfilePic(url);
+                    return;
+                  } else {
+                    console.log("Still failed after interactive login, status:", response.status);
+                  }
+                }
+              } catch (interactiveError) {
+                console.log("Interactive token acquisition failed:", interactiveError);
+              }
+              
+              generateFallbackAvatar();
+            }
+          } catch (error) {
+            console.error("Error in profile picture fetch:", error);
+            generateFallbackAvatar();
+          }
+        }
+      };
+      
+      const generateFallbackAvatar = () => {
+        // Simple approach: just use basic avatar generation with what the API gives us
+        if (user?.name) {
+          console.log("Generating simple avatar for name:", user.name);
+          
+          // Use UI Avatars service with default behavior
+          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=2A1449&color=fff&size=256`;
+          
+          setProfilePic(avatarUrl);
+          setUsingFallbackAvatar(true);
+        }
+      };
+      
+      fetchProfilePicture();
+    }
+  }, [isAuthenticated, instance, user?.name, usingFallbackAvatar]);
+
   const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
     // Submit application logic would go here
@@ -87,13 +300,10 @@ export default function BliForedragsholder() {
     <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
       {!isLoggedIn ? (
         <div className="w-full max-w-sm">
-          <div onClick={() => setIsLoggedIn(true)}>
-            <LoginForm 
-              title="Bli foredragsholder" 
-              redirectUrl="#"
-              buttonText="Gå til søknadsskjema"
-            />
-          </div>
+          <LoginForm 
+            title="Bli foredragsholder" 
+            buttonText="Gå til søknadsskjema"
+          />
         </div>
       ) : (
         <div id="application-form" className="w-full max-w-4xl mx-auto my-8">
@@ -304,17 +514,24 @@ export default function BliForedragsholder() {
                 <label className="mb-3 block text-md"><span className="font-bold">Foredragsholder</span> (hentet fra SSO)</label>
                 <div className="relative bg-[#F6EBD5] p-6 border-2 border-black">
                   <div className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0">
-                      <Image
-                        src="/images/NavnNavnesen.svg"
-                        alt="NavnNavnesen"
-                        width={128}
-                        height={128}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0 bg-white flex items-center justify-center overflow-hidden">
+                      {profilePic ? (
+                        <Image
+                          src={profilePic}
+                          alt={user?.name || "User"}
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
+                          unoptimized={usingFallbackAvatar}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-[#2A1449] text-white text-5xl">
+                          {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 text-left">
-                      <h3 className="text-xl font-medium mb-2">Navn navnesen</h3>
+                      <h3 className="text-xl font-medium mb-2">{user?.name || "Laster navn..."}</h3>
                       <div className="flex flex-row items-end justify-start gap-2">
                         <Image
                           src="/images/Mail.svg"
@@ -323,7 +540,9 @@ export default function BliForedragsholder() {
                           height={16}
                           className="shrink-0 w-2 h-2 xs:w-3 xs:h-3 sm:w-4 sm:h-4"
                         />
-                        <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">navn.navnesen@soprasteria.com</span>
+                        <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">
+                          {user?.email || "Laster e-post..."}
+                        </span>
                       </div>
                     </div>
                     <div className="absolute right-10 h-full hidden md:flex md:items-center">

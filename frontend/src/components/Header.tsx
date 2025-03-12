@@ -3,14 +3,17 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { NavItem } from "@/types/navItem";
+import { useUser } from "./UserContext";
+import UserAvatar from "./UserAvatar";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const pathname = usePathname();
-
+  const { isAuthenticated } = useUser();
+  
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setIsOpen(false);
@@ -24,13 +27,18 @@ const Header = () => {
     { name: "BYTEFEST", path: "/bytefest" },
     { name: "ALLE FOREDRAG", path: "/talks" },
     { name: "PROGRAM", path: "/program" },
-    { name: "LOGG INN", path: "/login" },
-    { name: "SEARCH", path: "/search", icon: true },
   ], []);
 
   const renderNavLink = useCallback((item: NavItem) => {
-    const isActive = pathname === item.path;
-    const linkClasses = `relative flex items-center ${item.icon ? "justify-center" : ""} py-3 pt-6 group`;
+    // Check if current path is part of the registration flow
+    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder');
+    
+    // PÅMELDING should be highlighted for both root path and the registration flow
+    const isActive = 
+      pathname === item.path || 
+      (item.path === "/" && isRegistrationFlow);
+      
+    const linkClasses = `relative flex items-center py-3 pt-6 group`;
     const overlayClasses = `absolute left-0 right-0 transition-all duration-200 ${
       isActive
         ? "bg-[#F8F5D3] lg:border-b-4 lg:border-[#C16800]"
@@ -39,23 +47,44 @@ const Header = () => {
     return (
       <Link key={item.path} href={item.path} className={linkClasses} onClick={() => setIsOpen(false)}>
         <div className={overlayClasses} />
-        {item.icon ? (
-          <Image
-            src="/images/MagnifyingGlass.svg"
-            alt="Search"
-            width={24}
-            height={24}
-            className="relative z-10 group-hover:opacity-80"
-          />
-        ) : (
-          <span className="relative z-10 text-[#2A1449] group-hover:text-[#2A1449]">{item.name}</span>
-        )}
+        <span className="relative z-10 text-[#2A1449] group-hover:text-[#2A1449]">{item.name}</span>
       </Link>
     );
   }, [pathname, isOpen]);
 
+  const renderLoginOrAvatar = useCallback(() => {
+    if (isAuthenticated) {
+      return (
+        <div className="h-full flex items-center">
+          <UserAvatar size={36} />
+        </div>
+      );
+    }
+    
+    const linkClasses = "relative flex items-center py-3 pt-6 group";
+    const overlayClasses = `absolute left-0 right-0 transition-all duration-200 ${
+      pathname === "/login"
+        ? "bg-[#F8F5D3] lg:border-b-4 lg:border-[#C16800]"
+        : "group-hover:bg-gray-100"
+    } lg:inset-y-[-24px] lg:left-[-16px] lg:right-[-16px] ${isOpen ? "inset-y-[-6] border-none" : ""}`;
+    
+    return (
+      <Link href="/login" className={linkClasses} onClick={() => setIsOpen(false)}>
+        <div className={overlayClasses} />
+        <span className="relative z-10 text-[#2A1449] group-hover:text-[#2A1449]">LOGG INN</span>
+      </Link>
+    );
+  }, [isAuthenticated, pathname, isOpen]);
+
   const renderMobileNavLink = useCallback((item: NavItem) => {
-    const isActive = pathname === item.path;
+    // Check if current path is part of the registration flow
+    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder');
+    
+    // PÅMELDING should be highlighted for both root path and the registration flow
+    const isActive = 
+      pathname === item.path || 
+      (item.path === "/" && isRegistrationFlow);
+      
     return (
       <Link
         key={item.path}
@@ -65,20 +94,33 @@ const Header = () => {
           isActive ? "bg-[#F8F5D3] text-[#2A1449]" : "hover:bg-gray-100 text-[#2A1449]"
         }`}
       >
-        {item.icon ? (
-          <Image
-            src="/images/MagnifyingGlass.svg"
-            alt="Search"
-            width={24}
-            height={24}
-            className="inline-block"
-          />
-        ) : (
-          <span>{item.name}</span>
-        )}
+        <span>{item.name}</span>
       </Link>
     );
   }, [pathname]);
+
+  const renderMobileLoginOrAvatar = useCallback(() => {
+    if (isAuthenticated) {
+      return (
+        <div className="block w-full px-4 py-3 hover:bg-gray-100 text-[#2A1449]">
+          <UserAvatar size={28} />
+        </div>
+      );
+    }
+    
+    const isActive = pathname === "/login";
+    return (
+      <Link
+        href="/login"
+        onClick={() => setIsOpen(false)}
+        className={`block w-full px-4 py-3 ${
+          isActive ? "bg-[#F8F5D3] text-[#2A1449]" : "hover:bg-gray-100 text-[#2A1449]"
+        }`}
+      >
+        <span>LOGG INN</span>
+      </Link>
+    );
+  }, [isAuthenticated, pathname]);
 
   return (
     <header className="bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)] relative">
@@ -112,14 +154,19 @@ const Header = () => {
         <nav className="hidden lg:block">
           <div className="flex flex-col lg:flex-row lg:items-center space-y-3 lg:space-y-0 lg:space-x-8">
             {mainNavItems.map(renderNavLink)}
+            {renderLoginOrAvatar()}
           </div>
         </nav>
 
-        {/* Mobile Search Button */}
-        <div className="lg:hidden absolute top-[34px] right-4 z-20">
-          <Link href="/search" onClick={() => setIsOpen(false)}>
-            <Image src="/images/MagnifyingGlass.svg" alt="Search" width={30} height={30} />
-          </Link>
+        {/* Mobile Login Button/Avatar - adjusted positioning */}
+        <div className="lg:hidden absolute top-[20px] right-4 z-20 flex items-center">
+          {isAuthenticated ? (
+            <UserAvatar size={34} />
+          ) : (
+            <Link href="/login" onClick={() => setIsOpen(false)}>
+              <LogIn className="w-6 h-6 text-[#2A1449]" />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -128,7 +175,8 @@ const Header = () => {
         <nav className="lg:hidden relative z-20">
           <div className="max-w-7xl mx-auto px-4 lg:px-15 pb-4">
             <div className="flex flex-col space-y-0">
-              {mainNavItems.filter(item => item.name !== "SEARCH").map(renderMobileNavLink)}
+              {mainNavItems.map(renderMobileNavLink)}
+              {renderMobileLoginOrAvatar()}
             </div>
           </div>
         </nav>

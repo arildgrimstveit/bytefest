@@ -1,101 +1,86 @@
 "use client";
 
-import { cn } from "@/app/lib/utils";
-import {Button} from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import {Input} from "@/components/ui/input"
-import {Label} from "@/components/ui/label"
-import KeyIcon from "@/app/icons/KeyIcon";
-import {useMsal} from "@azure/msal-react";
-import {InteractionStatus} from "@azure/msal-browser";
-import {loginRequest} from "@/config/AuthConfig";
+import Image from "next/image"
+import { useMsal } from "@azure/msal-react";
+import { InteractionStatus } from "@azure/msal-browser";
+import { loginRequest } from "@/config/AuthConfig";
+import { usePathname } from "next/navigation";
 
-export function LoginForm({className, ...props}: React.ComponentPropsWithoutRef<"div">) {
-    const { instance, inProgress } = useMsal();
+interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
+  title?: string;
+  buttonText?: string;
+  className?: string;
+}
 
-    const handleLogin = async () => {
-        if (inProgress === InteractionStatus.None) {
-            try {
-                await instance.loginRedirect(loginRequest);
-            } catch (error) {
-                // @ts-ignore
-                if (error.errorCode !== 'interaction_in_progress') {
-                    console.error("Login failed:", error);
-                }
-            }
+export function LoginForm({
+  title = "Velkommen",
+  buttonText = "Logg Inn",
+  className,
+  ...props
+}: LoginFormProps) {
+  const { instance, inProgress } = useMsal();
+  const currentPath = usePathname();
+
+  const handleLogin = async () => {
+    if (inProgress === InteractionStatus.None) {
+      try {
+        // First clear any existing redirect flags to prevent unintended redirects
+        localStorage.removeItem('returnToFormAfterLogin');
+        
+        // Only set the redirect flag if we're on the bli-foredragsholder page
+        // This ensures login from header always goes to homepage
+        if (currentPath.includes('/bli-foredragsholder')) {
+          localStorage.setItem('returnToFormAfterLogin', 'true');
+          console.log("Set returnToFormAfterLogin flag for bli-foredragsholder");
+        } else {
+          console.log("Login from regular page, will redirect to homepage");
         }
-    };
-
-    return (
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
-            <Card>
-                <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Welcome</CardTitle>
-                    <CardDescription>
-                        Login with your Sopra Steria account
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form>
-                        <div className="grid gap-6">
-                            <div className="flex flex-col gap-4">
-                                <Button
-                                    variant="outline"
-                                    className="w-full cursor-pointer"
-                                    onClick={handleLogin}
-                                >
-                                    <KeyIcon className="mr-1 fill-current"/>
-                                    Login with SSO
-                                </Button>
-                            </div>
-                            <div
-                                className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-neutral-200 dark:after:border-neutral-800">
-                <span className="relative z-10 bg-white px-2 text-white dark:bg-[#00afea] dark:text:white">
-                  Or continue with
-                </span>
-                            </div>
-                            <div className="grid gap-6">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="m@example.com"
-                                        required
-                                    />
-                                </div>
-                                <div className="grid gap-2">
-                                    <div className="flex items-center">
-                                        <Label htmlFor="password">Password</Label>
-                                        <a
-                                            href="#"
-                                            className="ml-auto text-sm underline-offset-4 hover:underline"
-                                        >
-                                            Forgot your password?
-                                        </a>
-                                    </div>
-                                    <Input id="password" type="password" required/>
-                                </div>
-                                <Button type="submit" className="w-full">
-                                    Login
-                                </Button>
-                            </div>
-                            <div className="text-center text-sm">
-                                Don&apos;t have an account? {""}
-                                <a href="#" className="underline underline-offset-4">
-                                    Sign up
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+        
+        // Use default loginRequest
+        await instance.loginRedirect(loginRequest);
+        // MSAL handles the redirect after successful authentication
+      } catch (error) {
+        // @ts-expect-error error type from MSAL is not properly typed
+        if (error.errorCode !== 'interaction_in_progress') {
+          console.error("Login failed:", error);
+        }
+      }
+    }
+  };
+  
+  return (
+    <div className={`flex flex-col gap-6 ${className || ''}`} {...props}>
+      <div className="relative">
+        {/* Orange shadow rectangle with custom color #FFAB5F */}
+        <div className="absolute bg-[#FFAB5F] w-full h-full translate-x-1 translate-y-1"></div>
+        
+        {/* White main container */}
+        <div className="relative bg-white p-8 shadow-lg">
+          {/* Header */}
+          <div className="text-center mb-4">
+            <h2 className="text-3xl argent text-[#2A1449]">{title}</h2>
+            <p className="text-[#2A1449] mt-6">
+              Logg inn med din Sopra Steria-konto
+            </p>
+          </div>
+          
+          {/* Content */}
+          <div className="flex flex-col items-center">
+            <button
+              className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
+              onClick={handleLogin}
+            >
+              <Image
+                src="/images/LoggInn.svg"
+                alt={buttonText}
+                width={226}
+                height={55}
+                priority
+              />
+            </button>
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  )
 }
