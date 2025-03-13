@@ -3,13 +3,13 @@ import Image from "next/image";
 
 export default function ConfirmationPage() {
   return (
-    <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
-      <div className="w-full max-w-md mx-auto my-8">
-        <div className="relative bg-white p-8 shadow-lg text-center">
+    <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
+      <div className="w-full max-w-md mx-auto mt-8 sm:mt-0 mb-12 sm:mb-8">
+        <div className="relative bg-white p-6 sm:p-8 shadow-lg text-center">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
           
-          <div className="flex justify-center mb-6">
-            <div className="relative w-20 h-20">
+          <div className="flex justify-center mb-4 sm:mb-6">
+            <div className="relative w-16 sm:w-20 h-16 sm:h-20">
               <Image 
                 src="/images/LitenFisk.svg" 
                 alt="Bekreftet" 
@@ -20,7 +20,7 @@ export default function ConfirmationPage() {
             </div>
           </div>
           
-          <h1 className="text-2xl font-bold mb-4 argent">Takk for ditt foredrag!</h1>
+          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 argent">Takk for ditt foredrag!</h1>
           
           <p className="mb-6">
           Vi har mottatt ditt foredrag og vil gå igjennom alle foredrag innen ...  

@@ -50,11 +50,11 @@ export function LoginForm({
         <div className="absolute bg-[#FFAB5F] w-full h-full translate-x-1 translate-y-1"></div>
         
         {/* White main container */}
-        <div className="relative bg-white p-8 shadow-lg">
+        <div className="relative bg-white p-6 sm:p-8 shadow-lg">
           {/* Header */}
           <div className="text-center mb-4">
-            <h2 className="text-3xl argent text-[#2A1449]">{title}</h2>
-            <p className="text-[#2A1449] mt-6">
+            <h2 className="text-2xl sm:text-3xl argent text-[#2A1449]">{title}</h2>
+            <p className="text-[#2A1449] mt-4 sm:mt-6">
               Logg inn med din Sopra Steria-konto
             </p>
           </div>

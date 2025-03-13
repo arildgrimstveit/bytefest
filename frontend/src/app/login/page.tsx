@@ -63,8 +63,8 @@ export default function LoginPage() {
     }, [instance, router, inProgress, isProcessingAuth]);
 
     return (
-        <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
-            <div className="w-full max-w-sm">
+        <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4 mb-12 sm:mb-0">
+            <div className="w-full max-w-sm mt-8 sm:mt-0">
                 <LoginForm 
                   title="Velkommen" 
                 />
