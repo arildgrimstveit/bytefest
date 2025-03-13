@@ -2,12 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import TalkCard from './TalkCard';
-import type { Talk } from '@/types/talk';
-
-interface ClientTalkFiltersProps {
-  talks: Talk[];
-  availableTags: string[];
-}
+import { ClientTalkFiltersProps } from '@/types/props';
 
 export default function ClientTalkFilters({ talks, availableTags }: ClientTalkFiltersProps) {
   const [isTagsOpen, setIsTagsOpen] = useState(false);

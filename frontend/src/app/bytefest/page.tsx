@@ -67,15 +67,15 @@ export default function Bytefest() {
             <Image
               src="/images/Year25.svg"
               alt="Year25"
-              width={120}
-              height={120}
+              width={108}
+              height={108}
               className="pb-33 w-[120px] max-[400px]:w-[80px] h-auto transition-all duration-500 ease-out"
               priority
             />
             <Image
               src="/images/StorFisk.svg"
               alt="StorFisk"
-              width={250}
+              width={288}
               height={281}
               className="pb-5 lg:pb-0 w-[250px] max-[400px]:w-[200px] h-auto transition-all duration-500 ease-out"
               priority
@@ -87,8 +87,8 @@ export default function Bytefest() {
             <Image
               src="/images/BytefestTextYellow.svg"
               alt="BytefestTextYellow"
-              width={460}
-              height={160}
+              width={448}
+              height={76}
               className="pb-7"
               priority
             />
@@ -142,6 +142,7 @@ export default function Bytefest() {
                   alt="Påmelding Kommer" 
                   width={226} 
                   height={44} 
+                  style={{ height: 'auto' }}
                 />
               </div>
             </div>
@@ -172,7 +173,7 @@ export default function Bytefest() {
             src="/images/Krabbe.svg" 
             alt="Krabbe" 
             width={50 * scale} 
-            height={50 * scale}
+            height={39 * scale}
             style={{ transition: "width 0.5s ease-out, height 0.5s ease-out" }}
           />
         </div>
@@ -226,7 +227,7 @@ export default function Bytefest() {
             src="/images/Krabbe.svg" 
             alt="Krabbe" 
             width={50 * scale} 
-            height={50 * scale}
+            height={39 * scale}
             style={{ transition: "width 0.5s ease-out, height 0.5s ease-out" }}
           />
         </div>
@@ -252,10 +253,10 @@ export default function Bytefest() {
             <div className="relative -mr-16 w-[484px] h-[424px]">
               <Image 
                 src="/images/TommelOpp.svg" 
-                alt="forsamling" 
+                alt="TommelOpp" 
                 width={484} 
-                height={424} 
-                className="absolute top-0 left-0 z-10" 
+                height={425} 
+                style={{ height: 'auto' }}
               />
             </div>
             <div className="w-[480px] h-[484px] bg-[#F6EBD5] flex flex-col items-right justify-center pr-5">
@@ -273,8 +274,9 @@ export default function Bytefest() {
                   <Image 
                     src="/images/LesMerOransje.svg" 
                     alt="Les Mer" 
-                    width={200} 
-                    height={55} 
+                    width={209} 
+                    height={56} 
+                    style={{ height: 'auto' }}
                   />
                 </a>
               </div>

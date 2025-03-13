@@ -21,8 +21,9 @@ const Footer = () => {
                   <Image 
                     src="/images/SopraSteria.svg" 
                     alt="Bytefest Logo" 
-                    width={185} 
-                    height={38}
+                    width={180} 
+                    height={23}
+                    style={{ width: '185px', height: 'auto' }}
                     className="pt-1"
                   />
                 </Link>

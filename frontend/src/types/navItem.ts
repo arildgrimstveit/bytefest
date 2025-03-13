@@ -4,4 +4,5 @@ export interface NavItem {
   icon?: boolean;
   hidden?: boolean;
   loginItem?: boolean;
+  disabled?: boolean;
 }

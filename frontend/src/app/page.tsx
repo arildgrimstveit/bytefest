@@ -9,15 +9,17 @@ export default function Home() {
           <Image
             src="/images/BytefestText.svg"
             alt="BytefestText"
-            width={940}
-            height={160}
+            width={936}
+            height={159}
+            priority
+            style={{ width: '940px', height: 'auto' }}
           />
         </div>
         <div className="text-left argent text-white pt-10 text-2xl sm:text-4xl">
           <a>Mikrokonferansen som dypdykker i systemutvikling</a>
         </div>
         <div className="text-left iceland text-white pt-10">
-          <a className="text-2xl md:text-4xl lg:text-5xl">10. Juni 2025</a>
+          <a className="text-2xl md:text-4xl lg:text-5xl">5. juni 2025</a>
           <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 21.00</a>
         </div>
 
@@ -28,6 +30,7 @@ export default function Home() {
               alt="BliForedragsholder"
               width={263}
               height={55}
+              style={{ height: 'auto' }}
             />
           </Link>
           <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
@@ -36,6 +39,7 @@ export default function Home() {
               alt="LesMer"
               width={178}
               height={55}
+              style={{ height: 'auto' }}
             />
           </Link>
         </div>
@@ -43,14 +47,16 @@ export default function Home() {
           <Image
             src="/images/LitenFisk.svg"
             alt="LitenFisk"
-            width={78}
-            height={58}
+            width={79}
+            height={59}
+            style={{ height: 'auto' }}
           />
           <Image
             src="/images/StorFisk.svg"
             alt="StorFisk"
-            width={291}
+            width={288}
             height={281}
+            style={{ width: '291px', height: 'auto' }}
             className="hidden lg:block"
           />
         </div>

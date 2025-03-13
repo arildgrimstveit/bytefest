@@ -1,8 +1,5 @@
 import React from 'react';
-
-interface PixelInputProps {
-  children: React.ReactNode;
-}
+import { PixelInputProps } from '@/types/props';
 
 export function PixelInput({ children }: PixelInputProps) {
   return (
