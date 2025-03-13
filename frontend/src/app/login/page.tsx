@@ -14,58 +14,45 @@ export default function LoginPage() {
     const [isProcessingAuth, setIsProcessingAuth] = useState(false);
 
     useEffect(() => {
+        // Centralized function to handle successful authentication
+        const handleAuthSuccess = () => {
+            // Trigger a re-render of the app
+            window.dispatchEvent(new Event('msal:login:complete'));
+            
+            // Check if we should redirect to bli-foredragsholder page
+            const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
+            
+            // Clear the flag
+            localStorage.removeItem('returnToFormAfterLogin');
+            
+            // Navigate to the appropriate page
+            if (shouldRedirectToForm) {
+                router.push("/bli-foredragsholder");
+            } else {
+                router.push("/");
+            }
+        };
+
         if (inProgress === InteractionStatus.None && !isProcessingAuth) {
             (async () => {
                 try {
                     setIsProcessingAuth(true);
                     const response = await instance.handleRedirectPromise();
+                    
+                    // Handle successful authentication redirect response
                     if (response?.account) {
-                        console.log("Login page: Authentication successful, setting active account");
                         instance.setActiveAccount(response.account);
-                        
-                        // Force a re-render of the app by triggering a small state change and dispatching an event
-                        // This is critical to ensure the header and UserAvatar update properly
-                        window.setTimeout(() => {
-                            console.log("Login page: Dispatching login complete event");
-                            window.dispatchEvent(new Event('msal:login:complete'));
-                            
-                            // Check if we should redirect to bli-foredragsholder page
-                            const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
-                            if (shouldRedirectToForm) {
-                                // Clear the flag
-                                localStorage.removeItem('returnToFormAfterLogin');
-                                router.push("/bli-foredragsholder");
-                            } else {
-                                router.push("/");
-                            }
-                        }, 100);
+                        handleAuthSuccess();
                     } else {
-                        // Silent SSO if no response
+                        // Check for existing sessions
                         const accounts = instance.getAllAccounts();
                         if (accounts.length > 0) {
                             // If user is already logged in, use the first (active) MS account
-                            console.log("Login page: User already authenticated, setting active account");
                             instance.setActiveAccount(accounts[0]);
-                            
-                            // Also dispatch event for this case to ensure UI updates
-                            window.setTimeout(() => {
-                                console.log("Login page: Dispatching login complete event");
-                                window.dispatchEvent(new Event('msal:login:complete'));
-                                
-                                // Check if we should redirect to bli-foredragsholder page
-                                const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
-                                if (shouldRedirectToForm) {
-                                    // Clear the flag
-                                    localStorage.removeItem('returnToFormAfterLogin');
-                                    router.push("/bli-foredragsholder");
-                                } else {
-                                    router.push("/");
-                                }
-                            }, 100);
+                            handleAuthSuccess();
                         } else {
                             setIsProcessingAuth(false);
                         }
-                        // Otherwise, stay on login page for manual login
                     }
                 } catch (error) {
                     console.error("Error during authentication:", error);
@@ -75,13 +62,13 @@ export default function LoginPage() {
         }
     }, [instance, router, inProgress, isProcessingAuth]);
 
-  return (
-    <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
-      <div className="w-full max-w-sm">
-        <LoginForm 
-          title="Velkommen" 
-        />
-      </div>
-    </div>
-  )
+    return (
+        <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
+            <div className="w-full max-w-sm">
+                <LoginForm 
+                  title="Velkommen" 
+                />
+            </div>
+        </div>
+    )
 }

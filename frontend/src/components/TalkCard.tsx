@@ -4,11 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import type { FC } from "react";
-import type { Talk } from '@/types/talk';
-
-interface TalkCardProps {
-  talk: Talk;
-}
+import { TalkCardProps } from '@/types/props';
 
 const TalkCard: FC<TalkCardProps> = ({ talk }) => {
   const [isFavorite, setIsFavorite] = useState(false);

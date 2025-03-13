@@ -12,7 +12,7 @@ import UserAvatar from "./UserAvatar";
 const Header = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const pathname = usePathname();
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, logout } = useUser();
   
   useEffect(() => {
     const handleResize = () => {
@@ -23,10 +23,10 @@ const Header = () => {
   }, []);
 
   const mainNavItems: NavItem[] = useMemo(() => [
-    { name: "PÅMELDING", path: "/" },
-    { name: "BYTEFEST", path: "/bytefest" },
-    { name: "ALLE FOREDRAG", path: "/talks" },
-    { name: "PROGRAM", path: "/program" },
+    { name: "PÅMELDING", path: "/", disabled: false },
+    { name: "BYTEFEST", path: "/bytefest", disabled: false },
+    { name: "ALLE FOREDRAG", path: "/talks", disabled: true },
+    { name: "PROGRAM", path: "/program", disabled: true },
   ], []);
 
   const renderNavLink = useCallback((item: NavItem) => {
@@ -37,6 +37,15 @@ const Header = () => {
     const isActive = 
       pathname === item.path || 
       (item.path === "/" && isRegistrationFlow);
+    
+    // If the item is disabled, render a div instead of a link
+    if (item.disabled) {
+      return (
+        <div key={item.path} className="relative flex items-center py-3 pt-6 group cursor-default">
+          <span className="relative z-10 text-gray-400">{item.name}</span>
+        </div>
+      );
+    }
       
     const linkClasses = `relative flex items-center py-3 pt-6 group`;
     const overlayClasses = `absolute left-0 right-0 transition-all duration-200 ${
@@ -84,6 +93,18 @@ const Header = () => {
     const isActive = 
       pathname === item.path || 
       (item.path === "/" && isRegistrationFlow);
+    
+    // If the item is disabled, render a div instead of a link
+    if (item.disabled) {
+      return (
+        <div
+          key={item.path}
+          className="block w-full px-4 py-3 text-gray-400 cursor-default"
+        >
+          <span>{item.name}</span>
+        </div>
+      );
+    }
       
     return (
       <Link
@@ -102,9 +123,15 @@ const Header = () => {
   const renderMobileLoginOrAvatar = useCallback(() => {
     if (isAuthenticated) {
       return (
-        <div className="block w-full px-4 py-3 hover:bg-gray-100 text-[#2A1449]">
-          <UserAvatar size={28} />
-        </div>
+        <button
+          onClick={() => {
+            setIsOpen(false);
+            logout();
+          }}
+          className="block w-full px-4 py-3 hover:bg-gray-100 text-[#2A1449] text-left cursor-pointer"
+        >
+          <span>LOGG UT</span>
+        </button>
       );
     }
     
@@ -120,7 +147,7 @@ const Header = () => {
         <span>LOGG INN</span>
       </Link>
     );
-  }, [isAuthenticated, pathname]);
+  }, [isAuthenticated, pathname, logout]);
 
   return (
     <header className="bg-white shadow-[0_4px_6px_rgba(0,0,0,0.1)] relative">
@@ -142,10 +169,11 @@ const Header = () => {
             <Image
               src="/images/BytefestLogo.svg"
               alt="Bytefest Logo"
-              width={150}
-              height={50}
+              width={136}
+              height={38}
               priority
               className="mt-[5px] lg:mt-[-5px]"
+              style={{ width: '150px', height: 'auto' }}
             />
           </Link>
         </div>
@@ -159,12 +187,12 @@ const Header = () => {
         </nav>
 
         {/* Mobile Login Button/Avatar - adjusted positioning */}
-        <div className="lg:hidden absolute top-[20px] right-4 z-20 flex items-center">
+        <div className="lg:hidden absolute top-[20px] right-4 z-[50] flex items-center">
           {isAuthenticated ? (
             <UserAvatar size={34} />
           ) : (
             <Link href="/login" onClick={() => setIsOpen(false)}>
-              <LogIn className="w-6 h-6 text-[#2A1449]" />
+              <LogIn className="w-6 h-6 mt-[17px] text-[#2A1449]" />
             </Link>
           )}
         </div>

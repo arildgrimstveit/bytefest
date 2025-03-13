@@ -5,12 +5,7 @@ import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 import { loginRequest } from "@/config/AuthConfig";
 import { usePathname } from "next/navigation";
-
-interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
-  title?: string;
-  buttonText?: string;
-  className?: string;
-}
+import { LoginFormProps } from "@/types/props";
 
 export function LoginForm({
   title = "Velkommen",
@@ -73,9 +68,10 @@ export function LoginForm({
               <Image
                 src="/images/LoggInn.svg"
                 alt={buttonText}
-                width={226}
-                height={55}
+                width={299}
+                height={59}
                 priority
+                style={{ width: '226px', height: 'auto' }}
               />
             </button>
           </div>

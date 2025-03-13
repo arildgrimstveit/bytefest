@@ -13,8 +13,9 @@ export default function ConfirmationPage() {
               <Image 
                 src="/images/LitenFisk.svg" 
                 alt="Bekreftet" 
-                fill
-                className="object-contain"
+                width={79}
+                height={59}
+                className="object-contain w-full h-full"
               />
             </div>
           </div>
@@ -36,8 +37,9 @@ export default function ConfirmationPage() {
               <Image
                 src="/images/Tilbake.svg"
                 alt="Tilbake til forsiden"
-                width={226}
-                height={44}
+                width={269}
+                height={59}
+                style={{ width: '226px', height: 'auto' }}
                 className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
               />
             </Link>

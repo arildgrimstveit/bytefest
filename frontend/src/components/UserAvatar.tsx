@@ -3,24 +3,26 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useUser } from './UserContext';
-import { useMsal } from '@azure/msal-react';
 import { LogOut } from 'lucide-react';
-
-const graphConfig = {
-  graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
-  graphPhotoEndpoint: "https://graph.microsoft.com/v1.0/me/photo/$value"
-};
-
-interface UserAvatarProps {
-  size?: number;
-}
+import { UserAvatarProps } from '@/types/props';
 
 const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
-  const { user, isAuthenticated } = useUser();
-  const { instance } = useMsal();
+  const { user, isAuthenticated, getProfilePicture, logout } = useUser();
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMounted = useRef(true);
+
+  // Clear any timeouts when component unmounts
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,52 +41,38 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
     };
   }, [isOpen]);
 
+  // Fetch profile picture when authenticated
   useEffect(() => {
-    const activeAccount = instance.getActiveAccount();
-    
-    // If user is authenticated (either via context or MSAL), fetch profile picture
-    if (isAuthenticated || activeAccount) {
-      const fetchProfilePicture = async () => {
+    if (isAuthenticated && isMounted.current) {
+      // Debounce the fetch to prevent rapid consecutive calls
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+
+      // Delay the fetch to prevent spamming the API
+      fetchTimeoutRef.current = setTimeout(async () => {
         try {
-          const account = instance.getActiveAccount();
-          if (!account) return;
-          
-          const tokenResponse = await instance.acquireTokenSilent({
-            scopes: ['user.read'],
-            account
-          });
-          
-          const response = await fetch(graphConfig.graphPhotoEndpoint, {
-            headers: {
-              'Authorization': `Bearer ${tokenResponse.accessToken}`
-            }
-          });
-          
-          if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            setProfilePic(url);
+          const photoUrl = await getProfilePicture();
+          if (photoUrl && isMounted.current) {
+            setProfilePic(photoUrl);
           }
-        } catch (error) {
-          console.error('Error fetching profile picture:', error);
+        } catch {
+          // Silent failure - we'll just use the initials avatar
         }
-      };
-      
-      fetchProfilePicture();
+      }, 1000); // 1 second delay
     }
-  }, [isAuthenticated, instance]);
+
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, [isAuthenticated, getProfilePicture]);
   
-  // Only hide avatar if neither context nor MSAL shows as authenticated
-  const activeAccount = instance.getActiveAccount();
-  
-  if (!isAuthenticated && !activeAccount) {
+  if (!isAuthenticated) {
     return null;
   }
   
-  const handleSignOut = () => {
-    instance.logoutRedirect();
-  };
-
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -122,7 +110,7 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
       {/* Custom dropdown menu */}
       {isOpen && (
         <div 
-          className="absolute right-0 2xl:transform 2xl:-translate-x-1/2 2xl:left-1/2 mt-2 w-[calc(100vw-2rem)] max-w-[18rem] sm:w-72 z-50 origin-top-right transition-opacity duration-100 opacity-100"
+          className="absolute right-0 2xl:transform 2xl:-translate-x-1/2 2xl:left-1/2 mt-2 w-[calc(100vw-2rem)] max-w-[18rem] sm:w-72 z-[100] origin-top-right transition-opacity duration-100 opacity-100"
           style={{
             maxWidth: "min(18rem, calc(100vw - 2rem))"
           }}
@@ -139,7 +127,7 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
               </div>
               <div className="py-1">
                 <button
-                  onClick={handleSignOut}
+                  onClick={logout}
                   className="flex w-full items-center px-4 py-2 mt-[-4] mb-[-4] text-sm text-[#2A1449] hover:bg-gray-100 cursor-pointer"
                   role="menuitem"
                 >

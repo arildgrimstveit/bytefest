@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { PixelInput } from "@/components/InputPixelCorners";
+import { useUser } from "@/components/UserContext";
 
 export default function Oppsummering() {
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ export default function Oppsummering() {
     other: false
   });
   const [otherAllergenText, setOtherAllergenText] = useState('');
+  const { user, profilePic } = useUser();
 
   useEffect(() => {
     // Retrieve data from localStorage
@@ -116,7 +118,7 @@ export default function Oppsummering() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Laster inn...</div>;
+    return <div className="flex justify-center items-center min-h-screen text-white">Sender inn...</div>;
   }
 
   return (
@@ -285,34 +287,43 @@ export default function Oppsummering() {
               <div className="mt-8 pt-6 border-t-2 border-black">
                 <h3 className="font-medium mb-4">Foredragsholder:</h3>
                 <div className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0">
-                    <Image
-                      src="/images/NavnNavnesen.svg"
-                      alt="Foredragsholder"
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0 bg-white flex items-center justify-center overflow-hidden">
+                    {profilePic ? (
+                      <Image
+                        src={profilePic}
+                        alt={user?.name || "User"}
+                        width={128}
+                        height={128}
+                        className="w-full h-full object-cover"
+                        unoptimized={true}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[#2A1449] text-white text-5xl">
+                        {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 text-left">
-                    <h3 className="text-xl font-medium mb-2 break-words overflow-hidden">Navn Navnesen</h3>
+                    <h3 className="text-xl font-medium mb-2 break-words overflow-hidden">{user?.name || "Laster navn..."}</h3>
                     <div className="flex flex-row items-end justify-start gap-2">
                       <Image
                         src="/images/Mail.svg"
                         alt="Mail"
                         width={16}
-                        height={16}
-                        className="shrink-0 w-3 h-3 sm:w-4 sm:h-4"
+                        height={14}
+                        className="shrink-0 w-2 xs:w-3 sm:w-4 mb-[1px]"
+                        style={{ height: "auto" }}
                       />
-                      <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">navn.navnesen@soprasteria.com</span>
+                      <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">{user?.email || "Laster e-post..."}</span>
                     </div>
                   </div>
                   <div className="absolute right-30 h-full hidden md:flex md:items-center">
                     <Image
                       src="/images/FargerikFisk.svg"
                       alt="FargerikFisk"
-                      width={36}
-                      height={36}
+                      width={43}
+                      height={40}
+                      style={{ width: '36px', height: 'auto' }}
                     />
                   </div>
                 </div>
@@ -329,8 +340,9 @@ export default function Oppsummering() {
                 <Image
                   src="/images/Tilbake.svg" 
                   alt="Tilbake til skjema" 
-                  width={250}
-                  height={55}
+                  width={269}
+                  height={59}
+                  style={{ width: '250px', height: 'auto' }}
                 />
               </button>
               
@@ -348,8 +360,9 @@ export default function Oppsummering() {
                   <Image 
                     src="/images/SendInn.svg"
                     alt="Send inn"
-                    width={250}
-                    height={55}
+                    width={269}
+                    height={59}
+                    style={{ width: '250px', height: 'auto' }}
                   />
                 )}
               </button>
