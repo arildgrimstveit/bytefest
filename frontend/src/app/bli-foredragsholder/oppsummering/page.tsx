@@ -122,8 +122,8 @@ export default function Oppsummering() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-99px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
-      <div className="w-full max-w-4xl mx-auto mt-8 sm:mt-0 mb-8">
+    <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
+      <div className="w-full max-w-4xl mx-auto mt-16 sm:mt-8 mb-8">
         <div className="relative bg-white p-6 sm:p-8 shadow-lg px-4 sm:px-6 sm:px-10 md:px-20 break-words">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
           
