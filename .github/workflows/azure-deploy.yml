@@ -17,6 +17,11 @@ jobs:
         with:
           node-version: "20.x"
 
+      - name: Enable Corepack and install correct Yarn version
+        run: |
+          corepack enable
+          corepack prepare yarn@4.7.0 --activate
+
       - name: Install dependencies
         run: |
           cd frontend  # Adjust if your code isn't in a frontend directory
@@ -36,4 +41,4 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: frontend/.next/standalone # Adjust path if needed
+          package: frontend/.next/standalone
