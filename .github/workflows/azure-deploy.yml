@@ -25,7 +25,18 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          yarn workspaces focus --all  # ✅ Fix for Yarn 4
+          yarn install --immutable
+
+      - name: Debug Installed Dependencies
+        run: |
+          cd frontend
+          yarn why next || echo "Next.js is NOT installed!"
+
+      - name: Force Install Next.js (if missing)
+        run: |
+          cd frontend
+          yarn add next --exact
+        if: failure()
 
       - name: Build Next.js app
         run: |
