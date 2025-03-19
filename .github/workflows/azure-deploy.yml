@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          yarn install
+          yarn install --production
 
       - name: Build Next.js app
         run: |
