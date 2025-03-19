@@ -35,6 +35,9 @@ jobs:
           NEXT_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MSAL_CLIENT_ID }}
           NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN: ${{ secrets.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN }}
           NEXT_PUBLIC_MSAL_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_MSAL_REDIRECT_URI }}
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
