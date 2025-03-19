@@ -25,18 +25,18 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          yarn install --immutable  # ✅ Fix missing dependencies
+          yarn install --immutable
 
       - name: Debug Installed Dependencies
         run: |
           cd frontend
-          yarn why next || echo "Next.js is NOT installed!"  # ✅ Better debugging
+          yarn why next || echo "Next.js is NOT installed!"
 
       - name: Force Install Next.js (if missing)
         run: |
           cd frontend
           yarn add next --exact
-        if: failure()  # ✅ Runs only if Next.js is missing
+        if: failure()
 
       - name: Build Next.js app
         run: |
