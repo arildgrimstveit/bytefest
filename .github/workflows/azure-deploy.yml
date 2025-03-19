@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          yarn install --production
+          yarn workspaces focus --all  # ✅ Fix for Yarn 4
 
       - name: Build Next.js app
         run: |
