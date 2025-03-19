@@ -20,17 +20,7 @@ export default function ConfirmationPage() {
             </div>
           </div>
           
-          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 argent">Takk for ditt foredrag!</h1>
-          
-          <p className="mb-6">
-          Vi har mottatt ditt foredrag og vil gå igjennom alle foredrag innen ...  
-          Du kan forvente å få svar om du skal stille som foredragsholder på epost innen ... 
-          </p>
-          
-          <p className="mb-8 text-sm text-gray-600">
-            Hvis du har spørsmål, kan du kontakte oss på 
-            <a href="mailto:bytefest@example.com" className="text-blue-500 hover:underline"> bytefest@example.com</a>
-          </p>
+          <h1 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-8 argent">Takk for ditt foredrag!</h1>
           
           <div className="flex justify-center">
             <Link href="/">

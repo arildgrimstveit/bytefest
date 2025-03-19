@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { PixelInput } from "@/components/InputPixelCorners";
 import { useUser } from "@/components/UserContext";
 
 export default function Oppsummering() {
@@ -14,13 +13,6 @@ export default function Oppsummering() {
     duration: ''
   });
   const [loading, setLoading] = useState(true);
-  const [allergens, setAllergens] = useState({
-    none: false,
-    gluten: false,
-    milk: false,
-    other: false
-  });
-  const [otherAllergenText, setOtherAllergenText] = useState('');
   const { user, profilePic } = useUser();
 
   useEffect(() => {
@@ -61,13 +53,6 @@ export default function Oppsummering() {
       case '45min': return '45 minutter';
       default: return '';
     }
-  };
-
-  const handleAllergenChange = (allergen: keyof typeof allergens) => {
-    setAllergens({
-      ...allergens,
-      [allergen]: !allergens[allergen]
-    });
   };
 
   const handleSubmit = async () => {
@@ -127,119 +112,10 @@ export default function Oppsummering() {
         <div className="relative bg-white p-6 sm:p-8 shadow-lg px-4 sm:px-6 sm:px-10 md:px-20 break-words">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
           
-          <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Oppsummering</h1>
+          <h1 className="text-4xl sm:text-5xl argent text-center mb-12">Oppsummering</h1>
           
           <div className="space-y-8">
-            <p className="text-left mb-8 break-words">
-                Det severes mat something something. Det severes mat something something. Det severes mat something something.
-            </p>
             
-            <div className="mb-8">
-              <h3 className="mb-2 font-bold">Allergener</h3>
-              <div className="space-y-2">
-                <div className="flex">
-                  <label className="flex items-center space-x-2 cursor-pointer inline-flex">
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only"
-                        checked={allergens.none}
-                        onChange={() => handleAllergenChange('none')}
-                      />
-                      <div className={`w-5 h-5 rounded-md border-2 border-black ${allergens.none ? 'flex items-center justify-center' : 'bg-white'}`}>
-                        {allergens.none && (
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <span className="break-words">Jeg ønsker ikke mat</span>
-                  </label>
-                </div>
-                
-                <div className="flex">
-                  <label className="flex items-center space-x-2 cursor-pointer inline-flex">
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only"
-                        checked={allergens.gluten}
-                        onChange={() => handleAllergenChange('gluten')}
-                      />
-                      <div className={`w-5 h-5 rounded-md border-2 border-black ${allergens.gluten ? 'flex items-center justify-center' : 'bg-white'}`}>
-                        {allergens.gluten && (
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <span className="break-words">Gluten</span>
-                  </label>
-                </div>
-                
-                <div className="flex">
-                  <label className="flex items-center space-x-2 cursor-pointer inline-flex">
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only"
-                        checked={allergens.milk}
-                        onChange={() => handleAllergenChange('milk')}
-                      />
-                      <div className={`w-5 h-5 rounded-md border-2 border-black ${allergens.milk ? 'flex items-center justify-center' : 'bg-white'}`}>
-                        {allergens.milk && (
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <span className="break-words">Melk</span>
-                  </label>
-                </div>
-                
-                <div className="flex flex-col">
-                  <label className="flex items-center space-x-2 cursor-pointer inline-flex">
-                    <div className="relative">
-                      <input 
-                        type="checkbox" 
-                        className="sr-only"
-                        checked={allergens.other}
-                        onChange={() => handleAllergenChange('other')}
-                      />
-                      <div className={`w-5 h-5 rounded-md border-2 border-black ${allergens.other ? 'flex items-center justify-center' : 'bg-white'}`}>
-                        {allergens.other && (
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18 6L6 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M6 6L18 18" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                    <span className="break-words">Annet</span>
-                  </label>
-                  
-                  {allergens.other && (
-                    <div className="mt-4">
-                      <PixelInput>
-                        <input 
-                          type="text"
-                          value={otherAllergenText}
-                          onChange={(e) => setOtherAllergenText(e.target.value)}
-                          placeholder="Skriv inn din allergi her"
-                          className="w-full p-3 bg-white focus:outline-none break-words"
-                        />
-                      </PixelInput>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
             
             <div className="bg-[#F6EBD5] p-6 border-2 border-black">
               <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden">{formData.title}</h2>
