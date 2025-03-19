@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex pt-10 sm:pt-15 md:pt-20">
+    <div className="flex pt-10 sm:pt-15 md:pt-20 min-h-[calc(100vh-450px)]">
       <div className="w-full max-w-7xl mx-auto px-4 lg:px-18 pb-10">
         <div className="text-left">
           <Image
