@@ -28,6 +28,11 @@ if (!isDevelopment) {
   }
 }
 
+// Validate redirect URI format
+if (MSAL_REDIRECT_URI && !MSAL_REDIRECT_URI.startsWith('http://') && !MSAL_REDIRECT_URI.startsWith('https://')) {
+  throw new Error('MSAL_REDIRECT_URI must be a valid absolute URL starting with http:// or https://');
+}
+
 export const msalConfig = {
   auth: {
     clientId: MSAL_CLIENT_ID,
