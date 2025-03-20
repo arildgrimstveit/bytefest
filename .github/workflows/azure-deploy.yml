@@ -55,14 +55,13 @@ jobs:
           # Remove any previous package folder and create a new one
           rm -rf deploy-package
           mkdir deploy-package
-          # Copy everything from the standalone build output into deploy-package
+          # Copy everything from the standalone build output
           cp -R frontend/.next/standalone/* deploy-package/
-          # Ensure we have a _next/static folder
-          mkdir -p deploy-package/_next/static
-          # Move all directories inside deploy-package/_next (except "static") into _next/static
-          find deploy-package/_next -mindepth 1 -maxdepth 1 -type d ! -name "static" -exec mv {} deploy-package/_next/static/ \;
-          # List final folder structure for debugging
-          ls -R deploy-package/_next
+          # Copy the static assets folder from the build output
+          mkdir -p deploy-package/_next
+          cp -R frontend/.next/static deploy-package/_next/static
+          # List final folder structure for debugging purposes
+          ls -R deploy-package
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
