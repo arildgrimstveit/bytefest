@@ -52,15 +52,17 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          # Remove any previous package folder and create a new one
+          # Remove any previous deploy-package folder
           rm -rf deploy-package
           mkdir deploy-package
-          # Copy everything from the standalone build output
+          # Copy the standalone build output (server files) into deploy-package
           cp -R frontend/.next/standalone/* deploy-package/
-          # Copy the static assets folder from the build output
+          # Create the _next folder and copy static assets from the build output
           mkdir -p deploy-package/_next
           cp -R frontend/.next/static deploy-package/_next/static
-          # List final folder structure for debugging purposes
+          # Copy the public folder so that assets (e.g. SVGs, favicon) are available
+          cp -R frontend/public deploy-package/public
+          # List final folder structure for debugging
           ls -R deploy-package
 
       - name: Deploy to Azure App Service
