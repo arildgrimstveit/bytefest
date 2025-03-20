@@ -52,13 +52,14 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          # Remove any existing deploy-package folder
+          # Remove any previous package folder
           rm -rf deploy-package
           mkdir deploy-package
-          # Copy all standalone server files (including server.js, package.json, etc.)
+          # Copy standalone server files (server.js, package.json, etc.)
           cp -R frontend/.next/standalone/* deploy-package/
-          # Copy the static assets into a folder named _next so that URLs like /_next/static/... work
-          cp -R frontend/.next/static deploy-package/_next
+          # Create the _next/static folder and copy static assets into it
+          mkdir -p deploy-package/_next/static
+          cp -R frontend/.next/static/* deploy-package/_next/static/
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
