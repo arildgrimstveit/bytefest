@@ -50,14 +50,19 @@ jobs:
           SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
 
-      - name: Copy static assets
+      - name: Prepare deployment package
         run: |
-          # Copy the static assets into the standalone folder under _next so they are served correctly
-          cp -R frontend/.next/static frontend/.next/standalone/_next
+          # Remove any existing deploy-package folder
+          rm -rf deploy-package
+          mkdir deploy-package
+          # Copy all standalone server files (including server.js, package.json, etc.)
+          cp -R frontend/.next/standalone/* deploy-package/
+          # Copy the static assets into a folder named _next so that URLs like /_next/static/... work
+          cp -R frontend/.next/static deploy-package/_next
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          package: frontend/.next/standalone
+          package: deploy-package
