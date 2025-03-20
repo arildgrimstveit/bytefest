@@ -55,14 +55,14 @@ jobs:
           # Remove any previous deploy-package folder
           rm -rf deploy-package
           mkdir deploy-package
-          # Copy the standalone build output (server files) into deploy-package
+          # Copy the standalone build output (server.js, package.json, etc.) into deploy-package
           cp -R frontend/.next/standalone/* deploy-package/
-          # Create the _next folder and copy static assets from the build output
-          mkdir -p deploy-package/_next
-          cp -R frontend/.next/static deploy-package/_next/static
-          # Copy the public folder so that assets (e.g. SVGs, favicon) are available
+          # Create a .next folder (with a dot) inside deploy-package and copy static assets there
+          mkdir -p deploy-package/.next
+          cp -R frontend/.next/static deploy-package/.next/static
+          # Copy the public folder so that images, SVGs, etc. are available
           cp -R frontend/public deploy-package/public
-          # List final folder structure for debugging
+          # List the final folder structure for debugging
           ls -R deploy-package
 
       - name: Deploy to Azure App Service
