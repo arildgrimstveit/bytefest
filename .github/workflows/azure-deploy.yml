@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "20.x"
+          cache: "yarn"
 
       - name: Enable Corepack and install correct Yarn version
         run: |
@@ -25,18 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          yarn install --immutable
-
-      - name: Debug Installed Dependencies
-        run: |
-          cd frontend
-          yarn why next || echo "Next.js is NOT installed!"
-
-      - name: Force Install Next.js (if missing)
-        run: |
-          cd frontend
-          yarn add next --exact
-        if: failure()
+          yarn install --immutable --frozen-lockfile
 
       - name: Build Next.js app
         run: |
@@ -52,18 +42,12 @@ jobs:
 
       - name: Prepare deployment package
         run: |
-          # Remove any previous deploy-package folder
           rm -rf deploy-package
           mkdir deploy-package
-          # Copy the standalone build output (server.js, package.json, etc.) into deploy-package
           cp -R frontend/.next/standalone/* deploy-package/
-          # Create a .next folder (with a dot) inside deploy-package and copy static assets there
           mkdir -p deploy-package/.next
           cp -R frontend/.next/static deploy-package/.next/static
-          # Copy the public folder so that images, SVGs, etc. are available
           cp -R frontend/public deploy-package/public
-          # List the final folder structure for debugging
-          ls -R deploy-package
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
