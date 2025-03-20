@@ -3,7 +3,16 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 // Get environment variables with fallbacks ONLY for local development
 const MSAL_CLIENT_ID = process.env.NEXT_PUBLIC_MSAL_CLIENT_ID || (isDevelopment ? '6b5e1b61-c5d5-40f0-964c-37be41a24f06' : '');
 const MSAL_AUTHORITY_TOKEN = process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN || (isDevelopment ? '5cfb4cc2-e03e-4799-847e-4cf4efb321ba' : '');
-const MSAL_REDIRECT_URI = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || (isDevelopment ? 'http://localhost:3000' : '');
+
+const rawRedirect = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || '';
+const MSAL_REDIRECT_URI = rawRedirect.trim() || (isDevelopment ? 'http://localhost:3000' : '');
+console.log("MSAL Redirect URI:", MSAL_REDIRECT_URI);
+
+if (!isDevelopment && !MSAL_REDIRECT_URI) {
+  const message = 'Critical: NEXT_PUBLIC_MSAL_REDIRECT_URI is not set in production!';
+  console.error(message);
+  throw new Error(message);
+}
 
 // Explicitly check for missing production environment variables
 if (!isDevelopment) {
