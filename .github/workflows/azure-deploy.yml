@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack prepare yarn@4.7.0 --activate
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -20,12 +25,8 @@ jobs:
           cache: "yarn"
           cache-dependency-path: frontend/yarn.lock
 
-      - name: Setup Yarn
-        run: |
-          corepack enable
-          corepack prepare yarn@4.7.0 --activate
-          yarn set version 4.7.0
-          yarn --version
+      - name: Verify Yarn version
+        run: yarn --version
 
       - name: Cache Next.js build
         uses: actions/cache@v3
