@@ -3,16 +3,19 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 // Get environment variables
 const MSAL_CLIENT_ID = process.env.NEXT_PUBLIC_MSAL_CLIENT_ID;
 const MSAL_AUTHORITY_TOKEN = process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN;
+const DEFAULT_REDIRECT_URI = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || 'https://bytefest.azurewebsites.net';
 
-// In development, use the environment variable. In production, use window.location.origin
+// In development, use the environment variable. In production, use window.location.origin if available
 const getRedirectUri = () => {
-  if (typeof window === 'undefined') return ''; // Handle SSR case
-  
-  if (isDevelopment) {
-    return process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || 'http://localhost:3000';
+  // During SSR or build time, use the default redirect URI
+  if (typeof window === 'undefined') {
+    return DEFAULT_REDIRECT_URI;
   }
   
-  return window.location.origin;
+  // In the browser, use window.location.origin in production, or development URI
+  return isDevelopment 
+    ? (process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || 'http://localhost:3000')
+    : window.location.origin;
 };
 
 // Debug logging for environment variables
@@ -21,7 +24,8 @@ console.log('Environment check:', {
   hasClientId: !!MSAL_CLIENT_ID,
   hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN,
   redirectUri: getRedirectUri(),
-  isDevelopment
+  isDevelopment,
+  isServer: typeof window === 'undefined'
 });
 
 // Validate required environment variables
@@ -31,18 +35,13 @@ if (!MSAL_CLIENT_ID || !MSAL_AUTHORITY_TOKEN) {
 
 const redirectUri = getRedirectUri();
 
-// Validate redirect URI
-if (!redirectUri) {
-  console.error('No redirect URI available');
-  throw new Error('No redirect URI available');
-}
-
 // Add safe debugging info that won't be masked
 console.log('MSAL Configuration:', {
   isDevelopment,
   redirectUri,
   hasClientId: !!MSAL_CLIENT_ID,
-  hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN
+  hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN,
+  isServer: typeof window === 'undefined'
 });
 
 // TypeScript knows these values are defined after our validation
@@ -63,6 +62,7 @@ console.log('Final MSAL Config:', {
   clientId: msalConfig.auth.clientId,
   authority: msalConfig.auth.authority,
   redirectUri: msalConfig.auth.redirectUri,
+  isServer: typeof window === 'undefined'
 });
 
 export const loginRequest = {
