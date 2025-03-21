@@ -20,10 +20,12 @@ jobs:
           cache: "yarn"
           cache-dependency-path: frontend/yarn.lock
 
-      - name: Enable Corepack and install correct Yarn version
+      - name: Setup Yarn
         run: |
           corepack enable
           corepack prepare yarn@4.7.0 --activate
+          yarn set version 4.7.0
+          yarn --version
 
       - name: Cache Next.js build
         uses: actions/cache@v3
