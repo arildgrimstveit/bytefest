@@ -33,6 +33,17 @@ if (!(MSAL_REDIRECT_URI as string).startsWith('http://') && !(MSAL_REDIRECT_URI 
 
 console.log('MSAL Configuration loaded successfully');
 
+// Debug logging for environment variables
+console.log('MSAL Configuration Debug:', {
+  NODE_ENV: process.env.NODE_ENV,
+  hasClientId: !!process.env.NEXT_PUBLIC_MSAL_CLIENT_ID,
+  hasAuthorityToken: !!process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN,
+  hasRedirectUri: !!process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI,
+  actualRedirectUri: process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI,
+  isDevelopment,
+  redirectUriLength: process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI?.length
+});
+
 // TypeScript knows these values are defined after our validation
 export const msalConfig = {
   auth: {
@@ -45,6 +56,12 @@ export const msalConfig = {
     storeAuthStateInCookie: false,
   },
 };
+
+console.log('Final MSAL Config:', {
+  clientId: msalConfig.auth.clientId,
+  authority: msalConfig.auth.authority,
+  redirectUri: msalConfig.auth.redirectUri,
+});
 
 export const loginRequest = {
   scopes: ["User.Read"]
