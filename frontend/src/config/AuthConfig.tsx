@@ -3,19 +3,28 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 // Get environment variables
 const MSAL_CLIENT_ID = process.env.NEXT_PUBLIC_MSAL_CLIENT_ID;
 const MSAL_AUTHORITY_TOKEN = process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN;
-const DEFAULT_REDIRECT_URI = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || 'https://bytefest.azurewebsites.net';
+const DEFAULT_REDIRECT_URI = 'https://bytefest.azurewebsites.net';
 
 // In development, use the environment variable. In production, use window.location.origin if available
 const getRedirectUri = () => {
-  // During SSR or build time, use the default redirect URI
   if (typeof window === 'undefined') {
+    // During SSR, return the default URI
     return DEFAULT_REDIRECT_URI;
   }
-  
-  // In the browser, use window.location.origin in production, or development URI
-  return isDevelopment 
-    ? (process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || 'http://localhost:3000')
+
+  // In the browser
+  const redirectUri = isDevelopment
+    ? 'http://localhost:3000'
     : window.location.origin;
+
+  console.log('Generating redirect URI:', {
+    isDevelopment,
+    redirectUri,
+    windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'undefined',
+    isServer: typeof window === 'undefined'
+  });
+
+  return redirectUri;
 };
 
 // Debug logging for environment variables
@@ -25,7 +34,8 @@ console.log('Environment check:', {
   hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN,
   redirectUri: getRedirectUri(),
   isDevelopment,
-  isServer: typeof window === 'undefined'
+  isServer: typeof window === 'undefined',
+  defaultUri: DEFAULT_REDIRECT_URI
 });
 
 // Validate required environment variables
@@ -50,6 +60,7 @@ export const msalConfig = {
     clientId: MSAL_CLIENT_ID,
     authority: `https://login.microsoftonline.com/${MSAL_AUTHORITY_TOKEN}`,
     redirectUri,
+    postLogoutRedirectUri: redirectUri,
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -62,6 +73,7 @@ console.log('Final MSAL Config:', {
   clientId: msalConfig.auth.clientId,
   authority: msalConfig.auth.authority,
   redirectUri: msalConfig.auth.redirectUri,
+  postLogoutRedirectUri: msalConfig.auth.postLogoutRedirectUri,
   isServer: typeof window === 'undefined'
 });
 

@@ -23,7 +23,6 @@ export function LoginForm({
         localStorage.removeItem('returnToFormAfterLogin');
         
         // Only set the redirect flag if we're on the bli-foredragsholder page
-        // This ensures login from header always goes to homepage
         if (currentPath.includes('/bli-foredragsholder')) {
           localStorage.setItem('returnToFormAfterLogin', 'true');
           console.log("Set returnToFormAfterLogin flag for bli-foredragsholder");
@@ -33,24 +32,35 @@ export function LoginForm({
         
         // Get the configured redirect URI from MSAL instance
         const msalConfig = instance.getConfiguration();
+        const currentUri = window.location.origin;
+        
         console.log('MSAL Login Debug:', {
           configuredRedirectUri: msalConfig.auth.redirectUri,
+          currentUri,
           currentPath,
-          inProgress
+          inProgress,
+          windowLocationOrigin: window.location.origin,
+          windowLocationHref: window.location.href
         });
+
+        // Ensure we have a valid redirect URI
+        const redirectUri = msalConfig.auth.redirectUri || currentUri;
         
         // Use loginRequest with explicit redirect URI
         await instance.loginRedirect({
           ...loginRequest,
-          redirectUri: msalConfig.auth.redirectUri,
+          redirectUri,
+          prompt: 'select_account',
         });
-        // MSAL handles the redirect after successful authentication
+        
       } catch (error) {
         // @ts-expect-error error type from MSAL is not properly typed
         if (error.errorCode !== 'interaction_in_progress') {
           console.error("Login failed:", error);
         }
       }
+    } else {
+      console.log('Login in progress, current status:', inProgress);
     }
   };
   
