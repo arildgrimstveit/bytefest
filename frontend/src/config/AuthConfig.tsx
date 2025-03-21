@@ -1,66 +1,48 @@
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-// Debug logging for environment variables
-console.log('Environment check:', {
-  NODE_ENV: process.env.NODE_ENV,
-  hasClientId: !!process.env.NEXT_PUBLIC_MSAL_CLIENT_ID,
-  hasAuthorityToken: !!process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN,
-  hasRedirectUri: !!process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI,
-  isDevelopment
-});
-
 // Get environment variables
 const MSAL_CLIENT_ID = process.env.NEXT_PUBLIC_MSAL_CLIENT_ID;
 const MSAL_AUTHORITY_TOKEN = process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN;
-const MSAL_REDIRECT_URI = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI;
+
+// In development, use the environment variable. In production, use window.location.origin
+const getRedirectUri = () => {
+  if (typeof window === 'undefined') return ''; // Handle SSR case
+  
+  if (isDevelopment) {
+    return process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || 'http://localhost:3000';
+  }
+  
+  return window.location.origin;
+};
+
+// Debug logging for environment variables
+console.log('Environment check:', {
+  NODE_ENV: process.env.NODE_ENV,
+  hasClientId: !!MSAL_CLIENT_ID,
+  hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN,
+  redirectUri: getRedirectUri(),
+  isDevelopment
+});
 
 // Validate required environment variables
-if (!MSAL_CLIENT_ID || !MSAL_AUTHORITY_TOKEN || !MSAL_REDIRECT_URI) {
+if (!MSAL_CLIENT_ID || !MSAL_AUTHORITY_TOKEN) {
   throw new Error('Missing required MSAL environment variables');
 }
 
-// Validate redirect URI format
-if (!MSAL_REDIRECT_URI.startsWith('https://')) {
-  throw new Error('MSAL_REDIRECT_URI must be a valid HTTPS URL');
-}
+const redirectUri = getRedirectUri();
 
-// Additional validation for encoding and hidden characters
-const cleanRedirectUri = MSAL_REDIRECT_URI?.trim();
-if (cleanRedirectUri !== MSAL_REDIRECT_URI) {
-  console.error('Redirect URI contains leading/trailing spaces or hidden characters');
-  throw new Error('Redirect URI contains invalid characters');
+// Validate redirect URI
+if (!redirectUri) {
+  console.error('No redirect URI available');
+  throw new Error('No redirect URI available');
 }
-
-// Add safe character validation logging
-console.log('MSAL Redirect URI character validation:', {
-  length: MSAL_REDIRECT_URI?.length || 0,
-  cleanLength: cleanRedirectUri?.length || 0,
-  firstChar: MSAL_REDIRECT_URI?.[0]?.charCodeAt(0),
-  lastChar: MSAL_REDIRECT_URI?.[MSAL_REDIRECT_URI.length - 1]?.charCodeAt(0),
-  urlEncoded: encodeURIComponent(MSAL_REDIRECT_URI || '')
-});
 
 // Add safe debugging info that won't be masked
-console.log('MSAL Redirect URI validation:', {
-  length: MSAL_REDIRECT_URI?.length || 0,
-  startsWithHttp: MSAL_REDIRECT_URI?.startsWith('http://'),
-  startsWithHttps: MSAL_REDIRECT_URI?.startsWith('https://'),
-  containsAzurewebsites: MSAL_REDIRECT_URI?.includes('azurewebsites.net'),
-  hasSpaces: MSAL_REDIRECT_URI?.includes(' '),
-  isEmpty: !MSAL_REDIRECT_URI || MSAL_REDIRECT_URI.trim() === ''
-});
-
-console.log('MSAL Configuration loaded successfully');
-
-// Debug logging for environment variables
-console.log('MSAL Configuration Debug:', {
-  NODE_ENV: process.env.NODE_ENV,
-  hasClientId: !!process.env.NEXT_PUBLIC_MSAL_CLIENT_ID,
-  hasAuthorityToken: !!process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN,
-  hasRedirectUri: !!process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI,
-  actualRedirectUri: process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI,
+console.log('MSAL Configuration:', {
   isDevelopment,
-  redirectUriLength: process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI?.length
+  redirectUri,
+  hasClientId: !!MSAL_CLIENT_ID,
+  hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN
 });
 
 // TypeScript knows these values are defined after our validation
@@ -68,7 +50,7 @@ export const msalConfig = {
   auth: {
     clientId: MSAL_CLIENT_ID,
     authority: `https://login.microsoftonline.com/${MSAL_AUTHORITY_TOKEN}`,
-    redirectUri: MSAL_REDIRECT_URI,
+    redirectUri,
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -77,11 +59,6 @@ export const msalConfig = {
 };
 
 // Add configuration validation logging
-console.log('Redirect URI Debug:', {
-  configuredUri: msalConfig.auth.redirectUri,
-  uriParameter: `redirect_uri=${encodeURIComponent(msalConfig.auth.redirectUri)}`,
-});
-
 console.log('Final MSAL Config:', {
   clientId: msalConfig.auth.clientId,
   authority: msalConfig.auth.authority,
