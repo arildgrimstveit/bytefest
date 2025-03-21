@@ -31,8 +31,19 @@ export function LoginForm({
           console.log("Login from regular page, will redirect to homepage");
         }
         
-        // Use default loginRequest
-        await instance.loginRedirect(loginRequest);
+        // Get the configured redirect URI from MSAL instance
+        const msalConfig = instance.getConfiguration();
+        console.log('MSAL Login Debug:', {
+          configuredRedirectUri: msalConfig.auth.redirectUri,
+          currentPath,
+          inProgress
+        });
+        
+        // Use loginRequest with explicit redirect URI
+        await instance.loginRedirect({
+          ...loginRequest,
+          redirectUri: msalConfig.auth.redirectUri,
+        });
         // MSAL handles the redirect after successful authentication
       } catch (error) {
         // @ts-expect-error error type from MSAL is not properly typed

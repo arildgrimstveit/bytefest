@@ -15,20 +15,13 @@ const MSAL_AUTHORITY_TOKEN = process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN;
 const MSAL_REDIRECT_URI = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI;
 
 // Validate required environment variables
-const missingVars = [];
-if (!MSAL_CLIENT_ID) missingVars.push('NEXT_PUBLIC_MSAL_CLIENT_ID');
-if (!MSAL_AUTHORITY_TOKEN) missingVars.push('NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN');
-if (!MSAL_REDIRECT_URI) missingVars.push('NEXT_PUBLIC_MSAL_REDIRECT_URI');
-
-if (missingVars.length > 0) {
-  const message = `Missing required environment variables: ${missingVars.join(', ')}`;
-  console.error(message);
-  throw new Error(message);
+if (!MSAL_CLIENT_ID || !MSAL_AUTHORITY_TOKEN || !MSAL_REDIRECT_URI) {
+  throw new Error('Missing required MSAL environment variables');
 }
 
 // Validate redirect URI format
-if (!(MSAL_REDIRECT_URI as string).startsWith('http://') && !(MSAL_REDIRECT_URI as string).startsWith('https://')) {
-  throw new Error('MSAL_REDIRECT_URI must be a valid absolute URL starting with http:// or https://');
+if (!MSAL_REDIRECT_URI.startsWith('https://')) {
+  throw new Error('MSAL_REDIRECT_URI must be a valid HTTPS URL');
 }
 
 // Additional validation for encoding and hidden characters
@@ -73,15 +66,21 @@ console.log('MSAL Configuration Debug:', {
 // TypeScript knows these values are defined after our validation
 export const msalConfig = {
   auth: {
-    clientId: MSAL_CLIENT_ID as string,
-    authority: `https://login.microsoftonline.com/${MSAL_AUTHORITY_TOKEN as string}`,
-    redirectUri: encodeURI(MSAL_REDIRECT_URI as string).replace(/%20/g, ''),
+    clientId: MSAL_CLIENT_ID,
+    authority: `https://login.microsoftonline.com/${MSAL_AUTHORITY_TOKEN}`,
+    redirectUri: MSAL_REDIRECT_URI,
   },
   cache: {
     cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
   },
 };
+
+// Add configuration validation logging
+console.log('Redirect URI Debug:', {
+  configuredUri: msalConfig.auth.redirectUri,
+  uriParameter: `redirect_uri=${encodeURIComponent(msalConfig.auth.redirectUri)}`,
+});
 
 console.log('Final MSAL Config:', {
   clientId: msalConfig.auth.clientId,
