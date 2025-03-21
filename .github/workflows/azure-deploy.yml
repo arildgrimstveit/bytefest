@@ -22,39 +22,22 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4.7.0 --activate
-        timeout-minutes: 1
 
       - name: Install dependencies
         run: |
           cd frontend
           yarn install --immutable
-        timeout-minutes: 2
-
-      - name: Debug Installed Dependencies
-        run: |
-          cd frontend
-          yarn why next || echo "Next.js is NOT installed!"
-
-      - name: Force Install Next.js (if missing)
-        run: |
-          cd frontend
-          yarn add next --exact
-        if: failure()
 
       - name: Build Next.js app
         run: |
           cd frontend
-          echo "Starting Next.js build process..."
           export NODE_OPTIONS="--max-old-space-size=4096"
-          # Build with increased logging
           yarn build
 
           if [ ! -d ".next" ]; then
             echo "Error: Build failed - .next directory not created"
             exit 1
           fi
-
-          echo "Build completed successfully"
         env:
           NEXT_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MSAL_CLIENT_ID }}
           NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN: ${{ secrets.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN }}
@@ -62,20 +45,15 @@ jobs:
           SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
           SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
-          DEBUG: "*"
-        timeout-minutes: 2
 
       - name: Prepare deployment package
         run: |
-          echo "Preparing deployment package..."
           rm -rf deploy-package
           mkdir deploy-package
           cp -R frontend/.next/standalone/* deploy-package/
           mkdir -p deploy-package/.next
           cp -R frontend/.next/static deploy-package/.next/static
           cp -R frontend/public deploy-package/public
-          echo "Deployment package prepared successfully"
-        timeout-minutes: 1
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
@@ -83,4 +61,3 @@ jobs:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: deploy-package
-        timeout-minutes: 2
