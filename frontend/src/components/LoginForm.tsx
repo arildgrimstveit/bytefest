@@ -29,35 +29,34 @@ export function LoginForm({
         } else {
           console.log("Login from regular page, will redirect to homepage");
         }
+
+        // Get the current URI to use as redirect
+        const redirectUri = window.location.origin;
         
-        // Get the configured redirect URI from MSAL instance
-        const msalConfig = instance.getConfiguration();
-        const currentUri = window.location.origin;
-        
-        console.log('MSAL Login Debug:', {
-          configuredRedirectUri: msalConfig.auth.redirectUri,
-          currentUri,
+        // Log the login attempt
+        console.log('Attempting login with:', {
+          redirectUri,
           currentPath,
-          inProgress,
-          windowLocationOrigin: window.location.origin,
-          windowLocationHref: window.location.href
+          windowLocation: window.location.href,
+          timestamp: new Date().toISOString()
         });
 
-        // Ensure we have a valid redirect URI
-        const redirectUri = msalConfig.auth.redirectUri || currentUri;
-        
-        // Use loginRequest with explicit redirect URI
+        // Use loginRedirect with explicit configuration
         await instance.loginRedirect({
           ...loginRequest,
           redirectUri,
           prompt: 'select_account',
+          extraQueryParameters: {
+            login_hint: 'user@soprasteria.com'
+          }
         });
         
       } catch (error) {
-        // @ts-expect-error error type from MSAL is not properly typed
-        if (error.errorCode !== 'interaction_in_progress') {
-          console.error("Login failed:", error);
-        }
+        console.error("Login failed:", {
+          error,
+          timestamp: new Date().toISOString(),
+          location: window.location.href
+        });
       }
     } else {
       console.log('Login in progress, current status:', inProgress);
