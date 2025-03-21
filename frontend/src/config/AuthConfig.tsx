@@ -31,6 +31,16 @@ if (!(MSAL_REDIRECT_URI as string).startsWith('http://') && !(MSAL_REDIRECT_URI 
   throw new Error('MSAL_REDIRECT_URI must be a valid absolute URL starting with http:// or https://');
 }
 
+// Add safe debugging info that won't be masked
+console.log('MSAL Redirect URI validation:', {
+  length: MSAL_REDIRECT_URI?.length || 0,
+  startsWithHttp: MSAL_REDIRECT_URI?.startsWith('http://'),
+  startsWithHttps: MSAL_REDIRECT_URI?.startsWith('https://'),
+  containsAzurewebsites: MSAL_REDIRECT_URI?.includes('azurewebsites.net'),
+  hasSpaces: MSAL_REDIRECT_URI?.includes(' '),
+  isEmpty: !MSAL_REDIRECT_URI || MSAL_REDIRECT_URI.trim() === ''
+});
+
 console.log('MSAL Configuration loaded successfully');
 
 // Debug logging for environment variables
