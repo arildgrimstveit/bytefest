@@ -2,9 +2,12 @@
 
 import { Configuration, PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
+import { useEffect, useState } from "react";
 
-// Define redirect URI as a constant
-export const REDIRECT_URI = 'https://bytefest.azurewebsites.net';
+// Define redirect URI based on environment
+export const REDIRECT_URI = typeof window !== 'undefined' 
+  ? window.location.origin
+  : 'https://bytefest.azurewebsites.net';
 
 // MSAL Configuration
 const msalConfig: Configuration = {
@@ -23,13 +26,6 @@ const msalConfig: Configuration = {
 // Initialize MSAL
 const pca = new PublicClientApplication(msalConfig);
 
-// Handle the redirect promise
-if (typeof window !== 'undefined') {
-  pca.handleRedirectPromise().catch(error => {
-    console.error("Error handling redirect:", error);
-  });
-}
-
 // Login request configuration
 export const loginRequest = {
   scopes: ["User.Read", "openid", "profile", "offline_access"],
@@ -38,6 +34,26 @@ export const loginRequest = {
 
 // Export the provider component
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    const initializeMsal = async () => {
+      try {
+        await pca.initialize();
+        await pca.handleRedirectPromise();
+        setIsInitialized(true);
+      } catch (error) {
+        console.error("Error initializing MSAL:", error);
+      }
+    };
+
+    initializeMsal();
+  }, []);
+
+  if (!isInitialized) {
+    return null; // or a loading spinner
+  }
+
   return (
     <MsalProvider instance={pca}>
       {children}
