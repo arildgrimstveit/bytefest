@@ -25,25 +25,20 @@ export function LoginForm({
         // Only set the redirect flag if we're on the bli-foredragsholder page
         if (currentPath.includes('/bli-foredragsholder')) {
           localStorage.setItem('returnToFormAfterLogin', 'true');
+          console.log("Set returnToFormAfterLogin flag for bli-foredragsholder");
+        } else {
+          console.log("Login from regular page, will redirect to homepage");
         }
 
-        // Log the login attempt
-        console.log('Starting login process:', {
-          currentPath,
-          timestamp: new Date().toISOString()
-        });
-
-        // Use loginRedirect with minimal configuration
+        // Use loginRedirect with explicit redirect URI
         await instance.loginRedirect({
           ...loginRequest,
-          prompt: 'select_account'
+          prompt: 'select_account',
+          redirectUri: 'https://bytefest.azurewebsites.net'
         });
         
       } catch (error) {
-        console.error("Login failed:", {
-          error,
-          timestamp: new Date().toISOString()
-        });
+        console.error("Login failed:", error);
       }
     } else {
       console.log('Login in progress, current status:', inProgress);
