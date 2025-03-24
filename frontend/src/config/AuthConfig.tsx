@@ -16,7 +16,7 @@ const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirec
 const msalConfig: Configuration = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!, // from your environment
-    authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
+    authority: "https://login.microsoftonline.com/common",
     redirectUri,
     postLogoutRedirectUri: redirectUri,
   },
