@@ -14,8 +14,9 @@ export default function BliForedragsholder() {
   const router = useRouter();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const { user, isAuthenticated, profilePic } = useUser();
+  const { user, isAuthenticated, getProfilePicture } = useUser();
   const { instance, inProgress } = useMsal();
+  const [profilePic, setProfilePic] = useState<string | null>(null);
   
   // Handle MSAL redirect - this is crucial for the authentication flow
   useEffect(() => {
@@ -100,6 +101,18 @@ export default function BliForedragsholder() {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      if (user?.name) {
+        const photoUrl = await getProfilePicture('profile');
+        if (photoUrl) {
+          setProfilePic(photoUrl);
+        }
+      }
+    };
+    fetchProfilePic();
+  }, [user?.name, getProfilePicture]);
+
   const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
     // Submit application logic would go here
@@ -146,8 +159,8 @@ export default function BliForedragsholder() {
             
             <form id="application-form-element" onSubmit={handleSubmitApplication} className="space-y-4">
               <p className="text-left mb-8">
-              Takk for at du vil dele dine erfaringer med kolleger! 
-              Send inn ditt forslag til et foredrag. Du kan forvente å få svar innen ... 
+              Takk for at du vil dele din kunnskap og dine erfaringer med kolleger! 
+              Send inn ditt forslag til et foredrag, så gir vi deg en tilbakemelding så fort som mulig.
               </p>
 
               <div>
@@ -390,23 +403,6 @@ export default function BliForedragsholder() {
                     </div>
                   </div>
                 </div>
-                
-                <button 
-                  type="button"
-                  className="flex items-center iceland text-xl gap-3 mt-4 hover:opacity-80 cursor-pointer transition-transform active:scale-95"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log("Add speaker clicked");
-                  }}
-                >
-                  <Image
-                    src="/images/Plus.svg"
-                    alt="Add speaker"
-                    width={14}
-                    height={14}
-                  />
-                  <span>Legg til foredragsholder</span>
-                </button>
               </div>
 
               <div className="pt-10">

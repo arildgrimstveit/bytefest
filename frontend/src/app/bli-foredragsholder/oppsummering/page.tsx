@@ -13,7 +13,8 @@ export default function Oppsummering() {
     duration: ''
   });
   const [loading, setLoading] = useState(true);
-  const { user, profilePic } = useUser();
+  const { user, getProfilePicture } = useUser();
+  const [profilePic, setProfilePic] = useState<string | null>(null);
 
   useEffect(() => {
     // Retrieve data from localStorage
@@ -32,6 +33,18 @@ export default function Oppsummering() {
     });
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      if (user?.name) {
+        const photoUrl = await getProfilePicture('profile');
+        if (photoUrl) {
+          setProfilePic(photoUrl);
+        }
+      }
+    };
+    fetchProfilePic();
+  }, [user?.name, getProfilePicture]);
 
   // Map experience value to readable text
   const getExperienceText = (value: string) => {

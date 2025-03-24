@@ -18,7 +18,7 @@ export interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
   logout: () => void;
-  getProfilePicture: () => Promise<string | null>;
+  getProfilePicture: (type?: 'circle' | 'profile') => Promise<string | null>;
   acquireTokenSilent: (scopes: string[]) => Promise<string | null>;
   activeAccount: AccountInfo | null;
   /** Generated avatar URL using UI Avatars service for B2C tenants */

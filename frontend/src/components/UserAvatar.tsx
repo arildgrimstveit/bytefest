@@ -52,7 +52,7 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
       // Delay the fetch to prevent spamming the API
       fetchTimeoutRef.current = setTimeout(async () => {
         try {
-          const photoUrl = await getProfilePicture();
+          const photoUrl = await getProfilePicture('circle');
           if (photoUrl && isMounted.current) {
             setProfilePic(photoUrl);
           }

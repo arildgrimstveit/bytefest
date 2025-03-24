@@ -16,20 +16,38 @@ const profilePictureCache = new Map<string, string | null>();
 /**
  * Generates an avatar URL for a user based on their name
  * @param name The user's display name
+ * @param type The type of avatar to generate ('circle' or 'profile')
  * @returns A URL to a generated avatar from UI Avatars
  */
-const generateAvatarUrl = (name: string): string => {
-    // Extract first letter of last name, or first letter of name if no space
-    const lastInitial = name.includes(' ') ? name.split(' ').pop()?.[0] || name[0] : name[0];
-    return `data:image/svg+xml;base64,${Buffer.from(`
-        <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-            <rect width="256" height="256" fill="#2A1449"/>
-            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
-                  fill="white" font-family="Arial" font-size="120" font-weight="bold">
-                ${lastInitial.toUpperCase()}
-            </text>
-        </svg>
-    `).toString('base64')}`;
+const generateAvatarUrl = (name: string, type: 'circle' | 'profile' = 'profile'): string => {
+    // Split name into parts and handle LASTNAME Firstname format
+    const parts = name.split(' ');
+    const lastName = parts[0]; // First part is last name
+    const firstName = parts[1] || ''; // Second part is first name, or empty if not present
+    
+    if (type === 'circle') {
+        return `data:image/svg+xml;base64,${Buffer.from(`
+            <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                <rect width="256" height="256" rx="128" fill="#2A1449"/>
+                <text x="128" y="140" dominant-baseline="middle" text-anchor="middle" 
+                      fill="white" font-family="Arial" font-size="120" font-weight="bold">
+                    ${lastName.charAt(0).toUpperCase()}
+                </text>
+            </svg>
+        `).toString('base64')}`;
+    } else {
+        // For the profile display, use initials (first letter of first name and last name)
+        const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+        return `data:image/svg+xml;base64,${Buffer.from(`
+            <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                <rect width="256" height="256" fill="#2A1449"/>
+                <text x="128" y="140" dominant-baseline="middle" text-anchor="middle" 
+                      fill="white" font-family="Arial" font-size="90" font-weight="normal">
+                    ${initials}
+                </text>
+            </svg>
+        `).toString('base64')}`;
+    }
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {
@@ -153,10 +171,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     }, [instance, authState.activeAccount]);
 
     // Get user's profile picture with caching - simplified for B2C tenant
-    const getProfilePicture = useCallback(async (): Promise<string | null> => {
+    const getProfilePicture = useCallback(async (type: 'circle' | 'profile' = 'profile'): Promise<string | null> => {
         try {
             // Check cache first using email as key
-            const cacheKey = authState.user?.email;
+            const cacheKey = `${authState.user?.email}-${type}`;
             if (cacheKey && profilePictureCache.has(cacheKey)) {
                 const cachedPic = profilePictureCache.get(cacheKey) || null;
                 setProfilePic(cachedPic);
@@ -165,7 +183,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             
             // For B2C tenants, generate avatar from name
             if (authState.user?.name) {
-                const avatarUrl = generateAvatarUrl(authState.user.name);
+                const avatarUrl = generateAvatarUrl(authState.user.name, type);
                 setProfilePic(avatarUrl);
                 
                 // Cache the result

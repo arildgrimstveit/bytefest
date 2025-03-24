@@ -27,6 +27,15 @@ export async function POST(req: Request) {
     const data = await req.json();
     const { title, description, tags, duration, forkunnskap } = data;
 
+    // Log environment variables (without exposing sensitive values)
+    console.log('Environment check:', {
+      hasProjectId: !!process.env.SANITY_PROJECT_ID,
+      hasDataset: !!process.env.SANITY_DATASET,
+      hasToken: !!process.env.SANITY_API_TOKEN,
+      projectId: process.env.SANITY_PROJECT_ID,
+      dataset: process.env.SANITY_DATASET,
+    });
+
     if (!title || !description || !tags || !duration || !forkunnskap) {
       return NextResponse.json(
         { error: "All fields are required" },
@@ -58,9 +67,22 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Failed to submit talk draft:", error);
+    // Enhanced error logging
+    console.error("Failed to submit talk draft:", {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      env: {
+        hasProjectId: !!process.env.SANITY_PROJECT_ID,
+        hasDataset: !!process.env.SANITY_DATASET,
+        hasToken: !!process.env.SANITY_API_TOKEN,
+      }
+    });
+    
     return NextResponse.json(
-      { error: "Failed to submit talk draft" },
+      { 
+        error: "Failed to submit talk draft",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
