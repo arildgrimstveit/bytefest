@@ -1,86 +1,49 @@
-const isDevelopment = process.env.NODE_ENV === 'development';
+"use client";
 
-// Get environment variables
-const MSAL_CLIENT_ID = process.env.NEXT_PUBLIC_MSAL_CLIENT_ID;
-const MSAL_AUTHORITY_TOKEN = process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN;
-const DEFAULT_REDIRECT_URI = 'https://bytefest.azurewebsites.net';
+import { Configuration, PublicClientApplication } from "@azure/msal-browser";
+import { MsalProvider } from "@azure/msal-react";
 
-// In development, use the environment variable. In production, use window.location.origin if available
-const getRedirectUri = () => {
-  if (typeof window === 'undefined') {
-    // During SSR, return the default URI
-    return DEFAULT_REDIRECT_URI;
-  }
+const REDIRECT_URI = 'https://bytefest.azurewebsites.net';
 
-  // In the browser
-  const redirectUri = isDevelopment
-    ? 'http://localhost:3000'
-    : window.location.origin;
-
-  console.log('Generating redirect URI:', {
-    isDevelopment,
-    redirectUri,
-    windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'undefined',
-    isServer: typeof window === 'undefined'
-  });
-
-  return redirectUri;
-};
-
-// Debug logging for environment variables
-console.log('Environment check:', {
-  NODE_ENV: process.env.NODE_ENV,
-  hasClientId: !!MSAL_CLIENT_ID,
-  hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN,
-  redirectUri: getRedirectUri(),
-  isDevelopment,
-  isServer: typeof window === 'undefined',
-  defaultUri: DEFAULT_REDIRECT_URI
-});
-
-// Validate required environment variables
-if (!MSAL_CLIENT_ID || !MSAL_AUTHORITY_TOKEN) {
-  throw new Error('Missing required MSAL environment variables');
-}
-
-const redirectUri = getRedirectUri();
-
-// Add safe debugging info that won't be masked
-console.log('MSAL Configuration:', {
-  isDevelopment,
-  redirectUri,
-  hasClientId: !!MSAL_CLIENT_ID,
-  hasAuthorityToken: !!MSAL_AUTHORITY_TOKEN,
-  isServer: typeof window === 'undefined'
-});
-
-// TypeScript knows these values are defined after our validation
-export const msalConfig = {
+// MSAL Configuration
+const msalConfig: Configuration = {
   auth: {
-    clientId: MSAL_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${MSAL_AUTHORITY_TOKEN}`,
-    redirectUri,
-    postLogoutRedirectUri: redirectUri,
+    clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!,
+    authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
+    redirectUri: REDIRECT_URI
   },
   cache: {
     cacheLocation: "sessionStorage",
-    storeAuthStateInCookie: false,
+    storeAuthStateInCookie: false
   },
 };
 
-// Add configuration validation logging
-console.log('Final MSAL Config:', {
-  clientId: msalConfig.auth.clientId,
-  authority: msalConfig.auth.authority,
-  redirectUri: msalConfig.auth.redirectUri,
-  postLogoutRedirectUri: msalConfig.auth.postLogoutRedirectUri,
-  isServer: typeof window === 'undefined'
-});
+// Initialize MSAL
+const pca = new PublicClientApplication(msalConfig);
 
+// Handle the redirect promise
+if (typeof window !== 'undefined') {
+  pca.handleRedirectPromise().catch(error => {
+    console.error("Error handling redirect:", error);
+  });
+}
+
+// Login request configuration
 export const loginRequest = {
   scopes: ["User.Read"]
 };
 
+
+// Export the provider component
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <MsalProvider instance={pca}>
+      {children}
+    </MsalProvider>
+  );
+}
+
+// Graph configuration
 export const graphConfig = {
   graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
   graphPhotoEndpoint: "https://graph.microsoft.com/v1.0/me/photo/$value",
