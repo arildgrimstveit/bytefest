@@ -42,34 +42,33 @@ jobs:
           yarn install --immutable --frozen-lockfile
 
       - name: Log Environment Variables with Checks
-      run: |
-        echo "---- Environment Variables Debug ----"
-        
-        # Print length of the client ID (GUIDs are typically 36 characters)
-        echo "NEXT_PUBLIC_MSAL_CLIENT_ID length: ${#NEXT_PUBLIC_MSAL_CLIENT_ID}"
-        if [ ${#NEXT_PUBLIC_MSAL_CLIENT_ID} -eq 36 ]; then
-          echo "Client ID length appears valid."
-        else
-          echo "Warning: Unexpected Client ID length: ${#NEXT_PUBLIC_MSAL_CLIENT_ID}"
-        fi
+        run: |
+          echo "---- Environment Variables Debug ----"
 
-        # Print length of the authority token (could be a tenant id; adjust expected length if needed)
-        echo "NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN length: ${#NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}"
+          # Print length of the client ID (GUIDs are typically 36 characters)
+          echo "NEXT_PUBLIC_MSAL_CLIENT_ID length: ${#NEXT_PUBLIC_MSAL_CLIENT_ID}"
+          if [ ${#NEXT_PUBLIC_MSAL_CLIENT_ID} -eq 36 ]; then
+            echo "Client ID length appears valid."
+          else
+            echo "Warning: Unexpected Client ID length: ${#NEXT_PUBLIC_MSAL_CLIENT_ID}"
+          fi
 
-        # Check the redirect URI – it should be a valid absolute URI (typically starting with "https://")
-        echo "NEXT_PUBLIC_MSAL_REDIRECT_URI: $NEXT_PUBLIC_MSAL_REDIRECT_URI"
-        if [[ "$NEXT_PUBLIC_MSAL_REDIRECT_URI" == https://* ]]; then
-          echo "Redirect URI appears valid (starts with https://)."
-        else
-          echo "Warning: Redirect URI may be invalid: $NEXT_PUBLIC_MSAL_REDIRECT_URI"
-        fi
+          # Print length of the authority token (could be a tenant id; adjust expected length if needed)
+          echo "NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN length: ${#NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}"
 
-        echo "--------------------------------"
-      env:
-        NEXT_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MSAL_CLIENT_ID }}
-        NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN: ${{ secrets.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN }}
-        NEXT_PUBLIC_MSAL_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_MSAL_REDIRECT_URI }}
+          # Check the redirect URI – it should be a valid absolute URI (typically starting with "https://")
+          echo "NEXT_PUBLIC_MSAL_REDIRECT_URI: $NEXT_PUBLIC_MSAL_REDIRECT_URI"
+          if [[ "$NEXT_PUBLIC_MSAL_REDIRECT_URI" == https://* ]]; then
+            echo "Redirect URI appears valid (starts with https://)."
+          else
+            echo "Warning: Redirect URI may be invalid: $NEXT_PUBLIC_MSAL_REDIRECT_URI"
+          fi
 
+          echo "--------------------------------"
+        env:
+          NEXT_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MSAL_CLIENT_ID }}
+          NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN: ${{ secrets.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN }}
+          NEXT_PUBLIC_MSAL_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_MSAL_REDIRECT_URI }}
 
       - name: Build Next.js app
         run: |
