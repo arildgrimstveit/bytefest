@@ -3,14 +3,16 @@
 import { Configuration, PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 
-const REDIRECT_URI = 'https://bytefest.azurewebsites.net';
+// Define redirect URI as a constant
+export const REDIRECT_URI = 'https://bytefest.azurewebsites.net';
 
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!,
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
-    redirectUri: REDIRECT_URI
+    redirectUri: REDIRECT_URI,
+    postLogoutRedirectUri: REDIRECT_URI
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -30,9 +32,9 @@ if (typeof window !== 'undefined') {
 
 // Login request configuration
 export const loginRequest = {
-  scopes: ["User.Read"]
+  scopes: ["User.Read", "openid", "profile", "offline_access"],
+  prompt: "select_account"
 };
-
 
 // Export the provider component
 export function AuthProvider({ children }: { children: React.ReactNode }) {

@@ -30,12 +30,8 @@ export function LoginForm({
           console.log("Login from regular page, will redirect to homepage");
         }
 
-        // Use loginRedirect with explicit redirect URI
-        await instance.loginRedirect({
-          ...loginRequest,
-          prompt: 'select_account',
-          redirectUri: 'https://bytefest.azurewebsites.net'
-        });
+        // Use loginRedirect with the exported loginRequest
+        await instance.loginRedirect(loginRequest);
         
       } catch (error) {
         console.error("Login failed:", error);
