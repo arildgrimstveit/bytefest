@@ -4,22 +4,25 @@ import { Configuration, PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import { useEffect, useState } from "react";
 
-// Define redirect URI based on environment
-export const REDIRECT_URI = typeof window !== 'undefined' 
+// Fallback if not defined or during SSR
+const fallbackRedirectUri = typeof window !== "undefined"
   ? window.location.origin
-  : 'https://bytefest.azurewebsites.net';
+  : "https://bytefest.azurewebsites.net";
+
+// Use the environment variable if available; otherwise use the fallback
+const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirectUri;
 
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
-    clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!,
+    clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!, // from your environment
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
-    redirectUri: REDIRECT_URI,
-    postLogoutRedirectUri: REDIRECT_URI
+    redirectUri,
+    postLogoutRedirectUri: redirectUri,
   },
   cache: {
     cacheLocation: "sessionStorage",
-    storeAuthStateInCookie: false
+    storeAuthStateInCookie: false,
   },
 };
 
@@ -29,7 +32,7 @@ const pca = new PublicClientApplication(msalConfig);
 // Login request configuration
 export const loginRequest = {
   scopes: ["User.Read", "openid", "profile", "offline_access"],
-  prompt: "select_account"
+  prompt: "select_account",
 };
 
 // Export the provider component
@@ -65,5 +68,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const graphConfig = {
   graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
   graphPhotoEndpoint: "https://graph.microsoft.com/v1.0/me/photo/$value",
-  graphThumbnailEndpoint: "https://graph.microsoft.com/v1.0/me/photos/48x48/$value"
+  graphThumbnailEndpoint: "https://graph.microsoft.com/v1.0/me/photos/48x48/$value",
 };
