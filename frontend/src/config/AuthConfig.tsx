@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 
 // Fallback if not defined or during SSR
 const fallbackRedirectUri = typeof window !== "undefined"
-  ? window.location.origin
-  : "https://bytefest.azurewebsites.net";
+  ? `${window.location.origin}/auth`
+  : "https://bytefest.azurewebsites.net/";
 
 // Use the environment variable if available; otherwise use the fallback
 const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirectUri;
@@ -20,8 +20,8 @@ const apiScope = process.env.NEXT_PUBLIC_MSAL_API_SCOPE
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
-    clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!, // from your environment
-    authority: "https://login.microsoftonline.com/organizations",
+    clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!,
+    authority: "https://login.microsoftonline.com/common",
     redirectUri,
     postLogoutRedirectUri: redirectUri,
     navigateToLoginRequestUrl: true
@@ -30,6 +30,12 @@ const msalConfig: Configuration = {
     cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
   },
+  system: {
+    loggerOptions: {
+      logLevel: 3,
+      piiLoggingEnabled: false
+    }
+  }
 };
 
 // Initialize MSAL
@@ -43,7 +49,7 @@ export const loginRequest = {
     "profile",
     "offline_access",
     apiScope
-  ].filter(Boolean), // Remove empty strings if apiScope is not configured
+  ].filter(Boolean),
   prompt: "select_account",
   domainHint: "soprasteria.com"
 };
@@ -51,27 +57,70 @@ export const loginRequest = {
 // Export the provider component
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeMsal = async () => {
       try {
         await pca.initialize();
-        await pca.handleRedirectPromise();
+        const response = await pca.handleRedirectPromise();
+        
+        if (response?.account) {
+          const userEmail = response.account.username.toLowerCase();
+          if (!userEmail.endsWith('@soprasteria.com')) {
+            console.log('Non-Sopra Steria account detected, logging out...');
+            setAuthError('Only Sopra Steria accounts are allowed to access this application.');
+            // Use a timeout to ensure the error message is shown before redirect
+            setTimeout(() => {
+              pca.logoutRedirect({
+                postLogoutRedirectUri: window.location.origin
+              });
+            }, 2000);
+            return;
+          }
+          
+          // Valid Sopra Steria account
+          pca.setActiveAccount(response.account);
+          
+          // Check if we should redirect to bli-foredragsholder page
+          const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
+          localStorage.removeItem('returnToFormAfterLogin');
+          
+          // Trigger login complete event
+          window.dispatchEvent(new Event('msal:login:complete'));
+          
+          // Handle redirect
+          if (shouldRedirectToForm) {
+            window.location.href = '/bli-foredragsholder';
+          } else {
+            window.location.href = '/';
+          }
+        }
+        
         setIsInitialized(true);
       } catch (error) {
         console.error("Error initializing MSAL:", error);
+        setAuthError('An error occurred during authentication.');
       }
     };
 
     initializeMsal();
   }, []);
 
+  // Show error message if there is one, but don't block the app
+  const errorMessage = authError ? (
+    <div className="fixed top-0 left-0 right-0 z-50 p-4 bg-red-50 text-red-800 text-center">
+      {authError}
+    </div>
+  ) : null;
+
   if (!isInitialized) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
     <MsalProvider instance={pca}>
+      {errorMessage}
       {children}
     </MsalProvider>
   );
