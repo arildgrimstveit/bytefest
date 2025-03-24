@@ -53,7 +53,7 @@ jobs:
             echo "Warning: Unexpected Client ID length: ${#NEXT_PUBLIC_MSAL_CLIENT_ID}"
           fi
 
-          # Print length of the authority token (could be a tenant id; adjust expected length if needed)
+          # Print length of the authority token
           echo "NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN length: ${#NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}"
 
           # Check the redirect URI – it should be a valid absolute URI (typically starting with "https://")
@@ -86,10 +86,12 @@ jobs:
         run: |
           rm -rf deploy-package
           mkdir deploy-package
-          cp -R frontend/.next/standalone/* deploy-package/
-          mkdir -p deploy-package/.next
-          cp -R frontend/.next/static deploy-package/.next/static
+          # Copy the entire .next folder so that all build files (manifests, etc.) are included.
+          cp -R frontend/.next deploy-package/.next
+          # Copy the public assets.
           cp -R frontend/public deploy-package/public
+          # Copy package.json (and any other needed files) for runtime if required.
+          cp frontend/package.json deploy-package/package.json
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
