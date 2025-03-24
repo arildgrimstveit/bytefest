@@ -7,20 +7,15 @@ import { LogOut } from 'lucide-react';
 import { UserAvatarProps } from '@/types/props';
 
 const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
-  const { user, isAuthenticated, getProfilePicture, logout } = useUser();
-  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const { user, isAuthenticated, profilePic, logout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMounted = useRef(true);
 
   // Clear any timeouts when component unmounts
   useEffect(() => {
     return () => {
       isMounted.current = false;
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -40,34 +35,6 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-
-  // Fetch profile picture when authenticated
-  useEffect(() => {
-    if (isAuthenticated && isMounted.current) {
-      // Debounce the fetch to prevent rapid consecutive calls
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
-
-      // Delay the fetch to prevent spamming the API
-      fetchTimeoutRef.current = setTimeout(async () => {
-        try {
-          const photoUrl = await getProfilePicture('circle');
-          if (photoUrl && isMounted.current) {
-            setProfilePic(photoUrl);
-          }
-        } catch {
-          // Silent failure - we'll just use the initials avatar
-        }
-      }, 1000); // 1 second delay
-    }
-
-    return () => {
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
-    };
-  }, [isAuthenticated, getProfilePicture]);
   
   if (!isAuthenticated) {
     return null;

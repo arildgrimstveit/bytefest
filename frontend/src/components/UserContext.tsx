@@ -8,12 +8,6 @@ import { User, UserContextType, UserProviderProps } from "@/types/user";
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 /**
- * Cache for generated avatars to avoid regeneration during session
- * Uses the user's email as the key and the avatar URL as the value
- */
-const profilePictureCache = new Map<string, string | null>();
-
-/**
  * Generates an avatar URL for a user based on their name
  * @param name The user's display name
  * @param type The type of avatar to generate ('circle' or 'profile')
@@ -70,22 +64,38 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         const activeAccount = instance.getActiveAccount();
         
         if (activeAccount) {
+            const user = {
+                name: activeAccount.name || "",
+                email: activeAccount.username
+            };
+            
             setAuthState({
                 isAuthenticated: true,
-                user: {
-                    name: activeAccount.name || "",
-                    email: activeAccount.username
-                },
+                user,
                 activeAccount
             });
             
-            // Generate avatar immediately for B2C tenants
+            // Fetch avatar for B2C tenants
             if (activeAccount.name) {
-                const avatarUrl = generateAvatarUrl(activeAccount.name);
-                setProfilePic(avatarUrl);
-                
-                // Also cache it to avoid regeneration
-                profilePictureCache.set(activeAccount.username, avatarUrl);
+                const name = activeAccount.name;
+                // Split name and get first letter of last name
+                const lastName = name.split(' ')[0];
+                const firstLetter = lastName.charAt(0).toUpperCase();
+                fetch(`https://ui-avatars.com/api/?name=${encodeURIComponent(firstLetter)}&background=2A1449&color=fff&size=256&bold=false`)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            setProfilePic(reader.result as string);
+                        };
+                        reader.readAsDataURL(blob);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching avatar:", error);
+                        // Fallback to generated avatar if fetch fails
+                        const avatarUrl = generateAvatarUrl(name, 'circle');
+                        setProfilePic(avatarUrl);
+                    });
             }
         } else {
             setAuthState({
@@ -173,27 +183,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     // Get user's profile picture with caching - simplified for B2C tenant
     const getProfilePicture = useCallback(async (type: 'circle' | 'profile' = 'profile'): Promise<string | null> => {
         try {
-            // Check cache first using email as key
-            const cacheKey = `${authState.user?.email}-${type}`;
-            if (cacheKey && profilePictureCache.has(cacheKey)) {
-                const cachedPic = profilePictureCache.get(cacheKey) || null;
-                setProfilePic(cachedPic);
-                return cachedPic;
-            }
-            
             // For B2C tenants, generate avatar from name
             if (authState.user?.name) {
-                const avatarUrl = generateAvatarUrl(authState.user.name, type);
-                setProfilePic(avatarUrl);
-                
-                // Cache the result
-                if (cacheKey) {
-                    profilePictureCache.set(cacheKey, avatarUrl);
-                }
-                
-                return avatarUrl;
+                return generateAvatarUrl(authState.user.name, type);
             }
-            
             return null;
         } catch (error) {
             console.error("Error generating avatar:", error);
