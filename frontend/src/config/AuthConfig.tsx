@@ -12,13 +12,19 @@ const fallbackRedirectUri = typeof window !== "undefined"
 // Use the environment variable if available; otherwise use the fallback
 const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirectUri;
 
+// API scope configuration
+const apiScope = process.env.NEXT_PUBLIC_MSAL_API_SCOPE 
+  ? `api://${process.env.NEXT_PUBLIC_MSAL_API_SCOPE}/user`
+  : "";
+
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!, // from your environment
-    authority: "https://login.microsoftonline.com/common",
+    authority: "https://login.microsoftonline.com/organizations",
     redirectUri,
     postLogoutRedirectUri: redirectUri,
+    navigateToLoginRequestUrl: true
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -31,8 +37,15 @@ const pca = new PublicClientApplication(msalConfig);
 
 // Login request configuration
 export const loginRequest = {
-  scopes: ["User.Read", "openid", "profile", "offline_access"],
+  scopes: [
+    "User.Read",
+    "openid", 
+    "profile",
+    "offline_access",
+    apiScope
+  ].filter(Boolean), // Remove empty strings if apiScope is not configured
   prompt: "select_account",
+  domainHint: "soprasteria.com"
 };
 
 // Export the provider component
