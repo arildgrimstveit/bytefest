@@ -41,6 +41,18 @@ jobs:
           cd frontend
           yarn install --immutable --frozen-lockfile
 
+      - name: Log Environment Variables
+        run: |
+          echo "---- Environment Variables ----"
+          echo "NEXT_PUBLIC_MSAL_CLIENT_ID: $NEXT_PUBLIC_MSAL_CLIENT_ID"
+          echo "NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN: $NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN"
+          echo "NEXT_PUBLIC_MSAL_REDIRECT_URI: $NEXT_PUBLIC_MSAL_REDIRECT_URI"
+          echo "--------------------------------"
+        env:
+          NEXT_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_MSAL_CLIENT_ID }}
+          NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN: ${{ secrets.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN }}
+          NEXT_PUBLIC_MSAL_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_MSAL_REDIRECT_URI }}
+
       - name: Build Next.js app
         run: |
           cd frontend
