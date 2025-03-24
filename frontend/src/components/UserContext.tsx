@@ -19,7 +19,17 @@ const profilePictureCache = new Map<string, string | null>();
  * @returns A URL to a generated avatar from UI Avatars
  */
 const generateAvatarUrl = (name: string): string => {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2A1449&color=fff&size=256`;
+    // Extract first letter of last name, or first letter of name if no space
+    const lastInitial = name.includes(' ') ? name.split(' ').pop()?.[0] || name[0] : name[0];
+    return `data:image/svg+xml;base64,${Buffer.from(`
+        <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+            <rect width="256" height="256" fill="#2A1449"/>
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+                  fill="white" font-family="Arial" font-size="120" font-weight="bold">
+                ${lastInitial.toUpperCase()}
+            </text>
+        </svg>
+    `).toString('base64')}`;
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {

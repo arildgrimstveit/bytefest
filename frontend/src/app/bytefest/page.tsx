@@ -83,13 +83,13 @@ export default function Bytefest() {
           </div>
 
           {/* Bytefest text and caption */}
-          <div className="flex flex-col items-center lg:items-start">
+          <div className="flex flex-col items-center lg:items-start px-4 lg:px-0">
             <Image
               src="/images/BytefestTextYellow.svg"
               alt="BytefestTextYellow"
               width={448}
               height={76}
-              className="pb-7"
+              className="pb-7 w-full max-w-[448px]"
               priority
             />
             <p className="argent text-white text-4xl mt-4 text-center lg:text-left">
@@ -149,7 +149,7 @@ export default function Bytefest() {
 
             <div className="relative -ml-16 w-[484px] h-[424px]">
               <Image 
-                src="/images/Forsamling.svg" 
+                src="/images/Forsamling.webp" 
                 alt="forsamling" 
                 width={484} 
                 height={424} 
@@ -252,8 +252,8 @@ export default function Bytefest() {
           >
             <div className="relative -mr-16 w-[484px] h-[424px]">
               <Image 
-                src="/images/TommelOpp.svg" 
-                alt="TommelOpp" 
+                src="/images/TommelOpp.webp" 
+                alt="Tommel opp" 
                 width={484} 
                 height={425} 
                 style={{ height: 'auto' }}
