@@ -12,11 +12,6 @@ const fallbackRedirectUri = typeof window !== "undefined"
 // Use the environment variable if available; otherwise use the fallback
 const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirectUri;
 
-// API scope configuration
-const apiScope = process.env.NEXT_PUBLIC_MSAL_API_SCOPE 
-  ? `api://${process.env.NEXT_PUBLIC_MSAL_API_SCOPE}/user`
-  : "";
-
 // MSAL Configuration
 const msalConfig: Configuration = {
   auth: {
@@ -41,9 +36,8 @@ export const loginRequest = {
     "User.Read",
     "openid", 
     "profile",
-    "offline_access",
-    apiScope
-  ].filter(Boolean),
+    "offline_access"
+  ],
   prompt: "select_account"
 };
 
