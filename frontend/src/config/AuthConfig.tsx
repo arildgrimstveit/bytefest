@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 
 // Fallback if not defined or during SSR
 const fallbackRedirectUri = typeof window !== "undefined"
-  ? `${window.location.origin}/auth`
-  : "https://bytefest.azurewebsites.net/";
+  ? window.location.origin
+  : "https://bytefest.azurewebsites.net";
 
 // Use the environment variable if available; otherwise use the fallback
 const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirectUri;
@@ -21,7 +21,7 @@ const apiScope = process.env.NEXT_PUBLIC_MSAL_API_SCOPE
 const msalConfig: Configuration = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_MSAL_CLIENT_ID!,
-    authority: "https://login.microsoftonline.com/common",
+    authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
     redirectUri,
     postLogoutRedirectUri: redirectUri,
     navigateToLoginRequestUrl: true
@@ -29,12 +29,6 @@ const msalConfig: Configuration = {
   cache: {
     cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
-  },
-  system: {
-    loggerOptions: {
-      logLevel: 3,
-      piiLoggingEnabled: false
-    }
   }
 };
 
@@ -50,8 +44,7 @@ export const loginRequest = {
     "offline_access",
     apiScope
   ].filter(Boolean),
-  prompt: "select_account",
-  domainHint: "soprasteria.com"
+  prompt: "select_account"
 };
 
 // Export the provider component
@@ -66,20 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await pca.handleRedirectPromise();
         
         if (response?.account) {
-          const userEmail = response.account.username.toLowerCase();
-          if (!userEmail.endsWith('@soprasteria.com')) {
-            console.log('Non-Sopra Steria account detected, logging out...');
-            setAuthError('Only Sopra Steria accounts are allowed to access this application.');
-            // Use a timeout to ensure the error message is shown before redirect
-            setTimeout(() => {
-              pca.logoutRedirect({
-                postLogoutRedirectUri: window.location.origin
-              });
-            }, 2000);
-            return;
-          }
-          
-          // Valid Sopra Steria account
+          // Valid account
           pca.setActiveAccount(response.account);
           
           // Check if we should redirect to bli-foredragsholder page
