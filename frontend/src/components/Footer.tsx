@@ -43,11 +43,8 @@ const Footer = () => {
                 <Link href="/bytefest" className="text-sm text-gray-300 hover:text-white transition-colors">
                   OM BYTEFEST
                 </Link>
-                <Link href="/program" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  PROGRAM
-                </Link>
-                <Link href="/talks" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  FOREDRAG
+                <Link href="/bli-foredragsholder" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  BLI FOREDRAGSHOLDER
                 </Link>
               </div>
             </div>
@@ -56,9 +53,6 @@ const Footer = () => {
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <h3 className="text-xl font-medium mb-6">Informasjon</h3>
               <div className="flex flex-col space-y-3">
-                <Link href="/bli-foredragsholder" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  BLI FOREDRAGSHOLDER
-                </Link>
                 <Link href="/personvernerklaering" className="text-sm text-gray-300 hover:text-white transition-colors">
                   PERSONVERNERKLÆRING
                 </Link>
