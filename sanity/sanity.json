@@ -1,0 +1,9 @@
+{
+    "root": true,
+    "api": {
+      "projectId": "twav4yff",
+      "dataset": "production"
+    },
+    "autoUpdates": true
+  }
+  

@@ -75,7 +75,7 @@ const Footer = () => {
                   <Link href="https://www.soprasteria.no/footer/nettstedkart" className="text-sm text-gray-300 hover:text-white transition-colors">
                     NETTSTEDKART
                   </Link>
-                  <Link href="https://www.soprasteria.no/footer/personvernerklaering" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  <Link href="/personvernerklaering" className="text-sm text-gray-300 hover:text-white transition-colors">
                     PERSONVERNERKLÆRING
                   </Link>
                   <Link href="https://www.soprasteria.no/footer/tilgjengelighetserklaering" className="text-sm text-gray-300 hover:text-white transition-colors">
