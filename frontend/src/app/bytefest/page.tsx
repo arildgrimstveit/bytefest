@@ -2,18 +2,17 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Bytefest() {
   const [scale, setScale] = useState(1);
   
   useEffect(() => {
     const updateScale = () => {
-      // Only start scaling when window width is below 1024px
-      // Make scaling less aggressive by using a smaller divisor (800 instead of 1400)
-      const newScale = window.innerWidth >= 1024 
+      const scale = window.innerWidth >= 1024 
         ? 1 
         : Math.min(1, Math.max(0.2, window.innerWidth / 1000));
-      setScale(newScale);
+      setScale(scale);
     };
 
     // Initial calculation
@@ -35,17 +34,16 @@ export default function Bytefest() {
   }, []);
 
   // Calculate responsive negative margins for different sections
-  const negativeMargin = scale < 0.8 ? `${-70 * (1 - scale)}px` : '0px';
-  const outerNegativeMargin = scale < 0.8 ? `${-100 * (1 - scale)}px` : '0px';
-  const extraNegativeMargin = scale < 0.8 ? `${-120 * (1 - scale)}px` : '0px';
-  const midContainerMargin = scale < 0.8 ? `${-50 * (1 - scale)}px` : '0px';
+  const containerSpacing = scale < 0.8 ? `${-40 * (1 - scale)}px` : '0px';
+  const crabSpacing = scale < 0.8 ? `${-40 * (1 - scale)}px` : '0px';
+  const speakerContainerSpacing = scale < 0.8 ? `${-400 * (1 - scale)}px` : '0px';  // Much more aggressive for the taller container
 
   // Calculate responsive paddings with smooth quintic easing
   const crabPadding = () => {
     const currentWidth = typeof window !== 'undefined' ? window.innerWidth : 1000;
     const t = Math.min(1, Math.max(0, (currentWidth - 600) / 1000));
     const easedProgress = t * t * t * (t * (t * 6 - 15) + 10);
-    return `${Math.round(5 + 95 * easedProgress)}px`;
+    return `${Math.round(20 + 30 * easedProgress)}px`;
   };
 
   // State for crab padding
@@ -93,7 +91,7 @@ export default function Bytefest() {
               priority
             />
             <p className="argent text-white text-4xl mt-4 text-center lg:text-left">
-              Et nytt år og nye muligheter <br />
+              En mikrokonferanse <br />
               for å dele og lære om <br />
               systemutvikling
             </p>
@@ -104,11 +102,13 @@ export default function Bytefest() {
         <div className="px-5 xs:px-10 sm:px-16 text-white pt-15 lg:pt-20">
           <h2 className="text-2xl lg:text-3xl iceland">Hva er Bytefest?</h2>
           <p className="text-xl mt-4">
-            Bytefest er en mikrokonferanse med fokus på fag og mye gøy! Den foregår på Sopra Sterias kontorer rundt omkring i landet - noen live, og noen digitalt.
+            Bytefest er en ettermiddag fylt med interessante foredrag om systemutvikling, 
+            og en kveld med sosialisering med kollegene dine. 
           </p>
           <p className="text-xl mt-4">
-            I fjor var det åtte fysiske lokasjoner spredt rundt i landet, og nesten 300 deltakere deltok på minikonferansen, som ble holdt av og for utviklermiljøet i Sopra Steria.
-            Noen av temaene deltakerne kunne bryne seg på i fjor var Kubernetes og pipelines, kodekvalitet, hvordan lage egen GPT, kryssplattform mobilutvikling med React Native og .NET MAUI, med mer.
+            Den arrangeres av og for utviklermiljøet i Sopra Steria, 
+            og foregår på kontone våre over hele landet, 
+            med foredrag som streames mellom byene. 
           </p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function Bytefest() {
         {/* Container 1 */}
         <div 
           className="w-full flex items-center justify-center"
-          style={{ marginTop: extraNegativeMargin, marginBottom: extraNegativeMargin }}
+          style={{ marginBottom: containerSpacing }}
         >
           <div 
             style={{ 
@@ -130,7 +130,7 @@ export default function Bytefest() {
             className="flex items-center justify-center"
           >
             <div className="w-[480px] h-[484px] bg-[#F6EBD5] flex flex-col items-left justify-center pl-5">
-              <p className="text-3xl sm:text-2xl text-[#2A1449] pr-40 sm:pr-30 pl-20 sm:pl-15">Sosial arena</p>
+              <p className="text-3xl iceland text-[#2A1449] pr-40 sm:pr-30 pl-20 sm:pl-15">Sosial arena</p>
               <p className="text-2xl sm:text-xl text-[#2A1449] pr-30 sm:pr-30 pl-20 sm:pl-15 mt-4">
                 Bytefest har fokus på læring, deling og det sosiale.
                 Her får du mulighet til å utveksle erfaringer, lære nye 
@@ -163,8 +163,123 @@ export default function Bytefest() {
         <div 
           className="flex justify-center items-center z-10"
           style={{ 
-            marginTop: negativeMargin, 
-            marginBottom: midContainerMargin,
+            marginTop: crabSpacing,
+            marginBottom: crabSpacing,
+            padding: paddingValue,
+            transition: "margin 0.5s ease-out, padding 0.5s ease-out"
+          }}
+        >
+          <Image 
+            src="/images/Krabbe.svg" 
+            alt="Krabbe" 
+            width={50 * scale} 
+            height={39 * scale}
+            style={{ transition: "width 0.5s ease-out, height 0.5s ease-out" }}
+          />
+        </div>
+
+        {/* Speaker Information Container */}
+        <div 
+          className="w-full flex items-center justify-center"
+          style={{ 
+            marginTop: speakerContainerSpacing,
+            marginBottom: speakerContainerSpacing,
+            transition: "margin 0.5s ease-out"
+          }}
+        >
+          <div
+            style={{ 
+              transform: `scale(${scale})`,
+              transformOrigin: "center center",
+              willChange: "transform",
+              transition: "transform 0.5s ease-out"
+            }}
+          >
+            <div className="w-[904px] h-[1200px] bg-[#F6EBD5] flex flex-col items-start justify-start px-12 py-12 lg:py-12 py-6">
+              <p className="text-4xl text-[#2A1449] argent mb-8 lg:mb-8 mb-4 self-center">Bli foredragsholder!</p>
+              <p className="text-xl text-[#2A1449] mb-8 lg:mb-8 mb-4 text-left">
+                Bytefest er en arena for å dele kunnskap med kolleger. Har du noe du gjerne vil dele?
+              </p>
+
+              <div className="space-y-6 lg:space-y-6 space-y-4">
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hvem kan holde foredrag?</h3>
+                  <p className="text-lg text-[#2A1449]">
+                    Alle som jobber i Sopra Steria, uavhengig av nivå, business unit og rolle.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hva slags foredrag vi ønsker oss?</h3>
+                  <p className="text-lg text-[#2A1449]">
+                    Vi ønsker oss alle typer foredrag som har med utvikling å gjøre, om dette er low-code, no-code, fullstack, java, react, tips og triks, AI, azure, apps, dps, designdreven utvikling eller lignende.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Lengde</h3>
+                  <p className="text-lg text-[#2A1449]">
+                    Foredragene kan være av forskjellige lengder. I programmet har vi rom for foredrag på 10, 20, 30 eller 45 minutter. Tenk over hvor lang tid du trenger til å si det du vil. Planlegg heller for å bruke mindre tid enn å treffe helt på tiden. Da har du tid til et spørsmål eller to også.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Forkunnskaper</h3>
+                  <p className="text-lg text-[#2A1449] mb-3">
+                    Tenk over hvilke forkunnskaper du forventer av de som hører på. Hvilken av disse kategoriene snakker du til?
+                  </p>
+                  <ul className="list-disc pl-6 text-lg text-[#2A1449] space-y-2">
+                    <li>Har knapt hørt om systemutvikling</li>
+                    <li>Kjenner til hva systemutvikling er og vil gjerne forstå hvordan det er relevant for sitt fagfelt</li>
+                    <li>Jobber med systemutvikling og vil ha påfyll av kunnskap</li>
+                    <li>Har jobbet med systemutvikling i lang tid og nerder gjerne intenst på detaljer</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hybride foredrag</h3>
+                  <p className="text-lg text-[#2A1449]">
+                    Foredragene vil foregå på de ulike lokasjonene og streames over Teams.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hva er fristen for å sende inn forslag til foredrag?</h3>
+                  <p className="text-lg text-[#2A1449]">
+                    10. april klokken 23.59.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Spørsmål?</h3>
+                  <p className="text-lg text-[#2A1449]">
+                    Kontakt oss på <a href="mailto:bytefest@soprasteria.com" className="hover:underline">bytefest@soprasteria.com</a>.
+                  </p>
+                </div>
+
+                <div className="mt-9">
+                <Link href="/bli-foredragsholder" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
+                  <Image
+                    src="/images/BliForedragsholder.svg"
+                    alt="BliForedragsholder"
+                    width={263}
+                    height={55}
+                    style={{ height: 'auto' }}
+                  />
+                </Link>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Second Crab */}
+        <div 
+          className="flex justify-center items-center z-10"
+          style={{ 
+            marginTop: crabSpacing,
+            marginBottom: crabSpacing,
             padding: paddingValue,
             transition: "margin 0.5s ease-out, padding 0.5s ease-out"
           }}
@@ -182,8 +297,8 @@ export default function Bytefest() {
         <div 
           className="w-full flex items-center justify-center"
           style={{ 
-            marginTop: midContainerMargin, 
-            marginBottom: midContainerMargin,
+            marginTop: containerSpacing,
+            marginBottom: containerSpacing,
             transition: "margin 0.5s ease-out"
           }}
         >
@@ -195,10 +310,13 @@ export default function Bytefest() {
               transition: "transform 0.5s ease-out"
             }}
           >
-            <div className="w-[904px] h-[328px] bg-[#F6EBD5] flex flex-col items-center justify-center">
-              <p className="text-4xl text-[#2A1449] argent mb-15">Deltakelse i 2024</p>
+            <div className="w-[904px] h-[428px] bg-[#F6EBD5] flex flex-col items-center justify-center">
+              <p className="text-4xl text-[#2A1449] argent mb-8">Deltakelse i 2024</p>
+              <p className="text-xl text-[#2A1449] text-center mb-8 px-12">
+                I fjor foregikk Bytefest på 8 fysiske Sopra Steria-lokasjoner rundt i landet. Nesten 300 deltakere var med på minikonferansen. Noen av temaene deltakerne kunne bryne seg på i fjor var Kubernetes og pipelines, kodekvalitet, hvordan lage egen GPT, kryssplatform mobilutvikling med React Native og .NET MAUI med mer.
+              </p>
 
-              <div className="flex w-full text-3xl text-[#2A1449]">
+              <div className="flex w-full text-3xl argent text-[#2A1449]">
                 <div className="w-1/3 flex items-center justify-center">Fysisk</div>
                 <div className="w-1/3 flex items-center justify-center">Digitalt</div>
                 <div className="w-1/3 flex items-center justify-center">Totalt</div>
@@ -213,12 +331,12 @@ export default function Bytefest() {
           </div>
         </div>
         
-        {/* Second Crab */}
+        {/* Third Crab */}
         <div 
           className="flex justify-center items-center z-10"
           style={{ 
-            marginTop: midContainerMargin, 
-            marginBottom: extraNegativeMargin,
+            marginTop: crabSpacing,
+            marginBottom: crabSpacing,
             padding: paddingValue,
             transition: "margin 0.5s ease-out, padding 0.5s ease-out"
           }}
@@ -236,8 +354,8 @@ export default function Bytefest() {
         <div 
           className="w-full flex items-center justify-center"
           style={{ 
-            marginTop: negativeMargin, 
-            marginBottom: outerNegativeMargin,
+            marginTop: containerSpacing,
+            marginBottom: containerSpacing,
             transition: "margin 0.5s ease-out"
           }}
         >
@@ -260,9 +378,12 @@ export default function Bytefest() {
               />
             </div>
             <div className="w-[480px] h-[484px] bg-[#F6EBD5] flex flex-col items-right justify-center pr-5">
-              <p className="text-3xl sm:text-2xl text-[#2A1449] pl-40 sm:pl-30 pr-20 sm:pr-15 text-right">Kode 24</p>
+              <p className="text-3xl text-[#2A1449] iceland pl-40 sm:pl-30 pr-20 sm:pr-15 text-right">Bytefest i Kode 24</p>
               <p className="text-2xl sm:text-xl text-[#2A1449] pl-30 sm:pl-30 pr-20 sm:pr-15 mt-4 text-right">
                 Gjennom historien har deling av kunnskap, erfaringer og kode vært selve motoren for utviklermiljøene.
+              </p>
+              <p className="text-lg text-[#2A1449] pl-30 sm:pl-30 pr-20 sm:pr-15 mt-4 text-right italic">
+                - Kjell Rusti
               </p>
               <div className="mt-10 pl-30 sm:pl-30 pr-20 sm:pr-15 flex justify-end">
                 <a 

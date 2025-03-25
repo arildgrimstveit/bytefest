@@ -30,6 +30,13 @@ export const talkType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'location',
+      title: 'Location',
+      type: 'string',
+      description: 'Where the talk will be held',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'duration',
       title: 'Duration',
       type: 'string',
@@ -72,11 +79,16 @@ export const talkType = defineType({
       name: 'speakers',
       title: 'Speakers',
       type: 'array',
-      of: [{
-        type: 'reference',
-        to: [{type: 'speaker'}]
-      }],
-      description: 'Select speakers for this talk',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            { name: 'name', type: 'string', title: 'Name' },
+            { name: 'email', type: 'string', title: 'Email' }
+          ]
+        }
+      ],
+      description: 'Speakers for this talk',
       validation: (rule) => rule.required().min(1),
     })
   ],

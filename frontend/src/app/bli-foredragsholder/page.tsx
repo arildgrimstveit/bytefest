@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { LoginForm } from "@/components/LoginForm"
 import { PixelInput } from "@/components/InputPixelCorners";
@@ -17,6 +17,12 @@ export default function BliForedragsholder() {
   const { user, isAuthenticated, getProfilePicture } = useUser();
   const { instance, inProgress } = useMsal();
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [location, setLocation] = useState("");
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const locationDropdownRef = useRef<HTMLDivElement>(null);
+  const [showLocationError, setShowLocationError] = useState(false);
+  const [showTitleError, setShowTitleError] = useState(false);
+  const [showDescriptionError, setShowDescriptionError] = useState(false);
   
   // Handle MSAL redirect - this is crucial for the authentication flow
   useEffect(() => {
@@ -67,9 +73,13 @@ export default function BliForedragsholder() {
       const savedTags = JSON.parse(localStorage.getItem('applicationTags') || '[]');
       const savedExperience = localStorage.getItem('applicationExperience') || '';
       const savedDuration = localStorage.getItem('applicationDuration') || '';
+      const savedLocation = localStorage.getItem('applicationLocation') || '';
       
       // Set tags from localStorage
       setTags(savedTags);
+      
+      // Set location from localStorage
+      setLocation(savedLocation);
       
       // Wait for DOM to be ready before setting form values
       setTimeout(() => {
@@ -112,6 +122,33 @@ export default function BliForedragsholder() {
     };
     fetchProfilePic();
   }, [user?.name, getProfilePicture]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target as Node)) {
+        setIsLocationDropdownOpen(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  
+  // Handle location selection
+  const handleLocationSelect = (value: string) => {
+    setLocation(value);
+    setIsLocationDropdownOpen(false);
+    setShowLocationError(false);
+    
+    // Clear any custom validation message
+    const locationInput = document.getElementById('location') as HTMLInputElement;
+    if (locationInput) {
+      locationInput.setCustomValidity('');
+    }
+  };
 
   const handleSubmitApplication = (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,34 +196,61 @@ export default function BliForedragsholder() {
             
             <form id="application-form-element" onSubmit={handleSubmitApplication} className="space-y-4">
               <p className="text-left mb-8">
-              Takk for at du vil dele din kunnskap og dine erfaringer med kolleger! 
-              Send inn ditt forslag til et foredrag, så gir vi deg en tilbakemelding så fort som mulig.
+                Takk for at du vil dele dine erfaringer med kolleger! Lurer du på noe, kan du se mer informasjon på <a href="/bytefest" className="underline hover:no-underline">Bytefestsiden</a>.
               </p>
 
               <div>
-                <label htmlFor="title" className="mb-3 block text-md font-bold">Tittel</label>
+                <label htmlFor="title" className="mb-3 block text-md font-bold">Tittel på foredraget (maks 80 tegn)*</label>
                 <PixelInput>
                   <input 
                     id="title" 
                     required 
                     maxLength={80}
-                    placeholder="Tittel på foredraget (Maks 80 tegn)"
                     className="w-full p-3 bg-white focus:outline-none"
+                    onChange={() => setShowTitleError(false)}
                   />
                 </PixelInput>
+                {showTitleError && (
+                  <p className="text-red-600 text-sm mt-1 font-medium px-1">
+                    Vennligst skriv inn en tittel på foredraget
+                  </p>
+                )}
               </div>
               
               <div>
-                <label htmlFor="description" className="mb-3 block text-md font-bold">Beskrivelse</label>
+                <label htmlFor="description" className="mb-3 block text-md font-bold">Hva handler foredraget om? (maks 1000 tegn)*</label>
+                <style jsx>{`
+                  textarea {
+                    resize: vertical;
+                  }
+                  textarea::-webkit-resizer {
+                    border-width: 8px;
+                    border-style: solid;
+                    border-color: transparent #6b7280 #6b7280 transparent;
+                    background-color: transparent;
+                  }
+                `}</style>
                 <PixelInput>
                   <textarea 
                     id="description"
-                    className="w-full p-3 bg-white focus:outline-none min-h-[120px]"
+                    className="w-full p-3 bg-white focus:outline-none min-h-[120px] resize"
+                    style={{ resize: 'vertical' }}
                     maxLength={1000}
-                    placeholder="Beskrivelse av foredraget (Maks 1000 tegn)"
                     required
+                    onChange={() => setShowDescriptionError(false)}
                   />
                 </PixelInput>
+                {showDescriptionError && (
+                  <p className="text-red-600 text-sm mt-1 font-medium px-1">
+                    Vennligst beskriv hva foredraget handler om
+                  </p>
+                )}
+                <div className="flex items-center justify-end mt-1 text-sm text-gray-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                    <path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/>
+                  </svg>
+                  <span>Kan utvides nedover ved å dra i hjørnet</span>
+                </div>
               </div>
 
               <div>
@@ -200,7 +264,6 @@ export default function BliForedragsholder() {
                         value={tagInput}
                         onChange={handleTagInputChange}
                         onKeyDown={handleTagInputKeyDown}
-                        placeholder="Skriv inn og trykk enter eller legg til"
                         maxLength={50}
                         className="w-full p-3 bg-white focus:outline-none"
                       />
@@ -234,9 +297,9 @@ export default function BliForedragsholder() {
                       >
                         <span className="overflow-hidden text-ellipsis whitespace-nowrap uppercase">{tag}</span>
                         <button 
-                          type="button"
+                         type="button"
                           onClick={() => handleRemoveTag(tag)}
-                          className="ml-2 flex-shrink-0 text-white hover:text-red-300"
+                          className="ml-2 flex-shrink-0 text-white hover:text-red-300 cursor-pointer"
                         >
                           ×
                         </button>
@@ -247,6 +310,92 @@ export default function BliForedragsholder() {
               </div>
               
               <div>
+                <label htmlFor="location" className="mt-10 mb-3 block text-md font-bold">Hvor skal du holde foredraget?*</label>
+                <div className="w-full relative" ref={locationDropdownRef}>
+                  <PixelInput>
+                    <button 
+                      type="button"
+                      className="w-full p-3 bg-white focus:outline-none appearance-none cursor-pointer text-left flex justify-between items-center"
+                      onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+                      role="combobox"
+                      aria-expanded={isLocationDropdownOpen}
+                      aria-controls="location-dropdown"
+                      data-testid="location-dropdown"
+                    >
+                      <span className={location ? "" : "text-gray-500"}>
+                        {location || "Velg"}
+                      </span>
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="24" 
+                        height="24" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className={`transition-transform duration-200 ${isLocationDropdownOpen ? 'rotate-180' : ''}`}
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </button>
+                  </PixelInput>
+                  {showLocationError && !location && (
+                    <p className="text-red-600 text-sm mt-1 font-medium px-1">
+                      Vennligst velg hvor du skal holde foredraget
+                    </p>
+                  )}
+                  
+                  {isLocationDropdownOpen && (
+                    <div id="location-dropdown" className="absolute z-10 w-full mt-1 border-2 border-black bg-white max-h-60 overflow-auto p-0">
+                      {[
+                        { value: "Oslo", label: "Oslo" },
+                        { value: "Trondheim", label: "Trondheim" },
+                        { value: "Stavanger", label: "Stavanger" },
+                        { value: "Bergen", label: "Bergen" },
+                        { value: "Drammen", label: "Drammen" },
+                        { value: "Kristiansand", label: "Kristiansand" },
+                        { value: "Tromsø", label: "Tromsø" },
+                        { value: "Fredrikstad", label: "Fredrikstad" },
+                        { value: "Hamar", label: "Hamar" }
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className={`w-full px-4 py-2 text-left hover:bg-[#F8F5D3] cursor-pointer ${
+                            location === option.value ? 'bg-[#F8F5D3]' : 'bg-white'
+                          }`}
+                          onClick={() => handleLocationSelect(option.value)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Hidden input for form validation */}
+                  <input 
+                    type="hidden" 
+                    id="location" 
+                    name="location" 
+                    value={location} 
+                    required 
+                    aria-required="true"
+                    title="Vennligst velg hvor du skal holde foredraget"
+                    onInvalid={(e) => {
+                      const input = e.target as HTMLInputElement;
+                      input.setCustomValidity('Vennligst velg hvor du skal holde foredraget');
+                    }}
+                    onChange={() => {
+                      const input = document.getElementById('location') as HTMLInputElement;
+                      input.setCustomValidity('');
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div>
                 <label htmlFor="duration" className="mt-10 mb-3 block text-md font-bold">Hvor lenge varer foredraget?</label>
                 <div className="space-y-3">
                   <div className="flex">
@@ -256,10 +405,9 @@ export default function BliForedragsholder() {
                         id="10min"
                         name="duration"
                         value="10min"
-                        required
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>10 minutter</span>
+                      <span>10 Minutter</span>
                     </label>
                   </div>
                   <div className="flex">
@@ -271,7 +419,7 @@ export default function BliForedragsholder() {
                         value="20min"
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>20 minutter</span>
+                      <span>20 Minutter</span>
                     </label>
                   </div>
                   <div className="flex">
@@ -283,7 +431,7 @@ export default function BliForedragsholder() {
                         value="30min"
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>30 minutter</span>
+                      <span>30 Minutter</span>
                     </label>
                   </div>
                   <div className="flex">
@@ -295,14 +443,14 @@ export default function BliForedragsholder() {
                         value="45min"
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>45 minutter</span>
+                      <span>45 Minutter</span>
                     </label>
                   </div>
                 </div>
               </div>
               
               <div>
-                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Hvor mye forkunnskap forventer du av deltakerne?</label>
+                <label htmlFor="experience" className="mt-10 mb-3 block text-md font-bold">Hvor mye forkunnskap rundt temaet i ditt foredrag forventer du av deltagerne?</label>
                 <div className="space-y-3">
                   <div className="flex">
                     <label htmlFor="none" className="flex items-center space-x-2 cursor-pointer inline-flex">
@@ -311,10 +459,9 @@ export default function BliForedragsholder() {
                         id="none"
                         name="experience"
                         value="none"
-                        required
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>Ingen grad</span>
+                      <span>Har ikke hørt om temaet</span>
                     </label>
                   </div>
                   <div className="flex">
@@ -326,7 +473,7 @@ export default function BliForedragsholder() {
                         value="low"
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>Liten grad</span>
+                      <span>Kjenner til temaet</span>
                     </label>
                   </div>
                   <div className="flex">
@@ -338,7 +485,7 @@ export default function BliForedragsholder() {
                         value="medium"
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>Middels grad</span>
+                      <span>Har jobbet noe med temaet</span>
                     </label>
                   </div>
                   <div className="flex">
@@ -350,7 +497,7 @@ export default function BliForedragsholder() {
                         value="high"
                         className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                       />
-                      <span>Stor grad</span>
+                      <span>Har bred erfaring med tema</span>
                     </label>
                   </div>
                 </div>
@@ -377,7 +524,7 @@ export default function BliForedragsholder() {
                       )}
                     </div>
                     <div className="flex-1 text-left">
-                      <h3 className="text-xl font-medium mb-2">{user?.name || "Laster navn..."}</h3>
+                      <h3 className="text-xl font-medium mb-2">{user?.name || "Navn navnesen"}</h3>
                       <div className="flex flex-row items-end justify-start gap-2">
                         <Image
                           src="/images/Mail.svg"
@@ -388,7 +535,7 @@ export default function BliForedragsholder() {
                           style={{ height: "auto" }}
                         />
                         <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">
-                          {user?.email || "Laster e-post..."}
+                          {user?.email || "Navn.Navnesen@soprasteria.com"}
                         </span>
                       </div>
                     </div>
@@ -405,40 +552,84 @@ export default function BliForedragsholder() {
                 </div>
               </div>
 
-              <div className="pt-10">
-                <button 
-                  type="submit"
-                  className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
-                  onClick={(e) => {
-                    const form = document.getElementById('application-form-element') as HTMLFormElement;
-                    
-                    if (form?.checkValidity()) {
+              <div className="pt-5 flex justify-center sm:justify-between flex-wrap gap-4">
+                <div className="flex space-x-4 order-1 sm:order-2">
+                  <button 
+                    type="submit"
+                    className="cursor-pointer transition-transform active:scale-95 hover:opacity-80"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      
+                      // Get form fields
                       const titleInput = document.getElementById('title') as HTMLInputElement;
                       const descriptionInput = document.getElementById('description') as HTMLTextAreaElement;
-                      const experienceLevel = document.querySelector('input[name="experience"]:checked') as HTMLInputElement;
-                      const durationLevel = document.querySelector('input[name="duration"]:checked') as HTMLInputElement;
                       
-                      localStorage.setItem('applicationTags', JSON.stringify(tags));
-                      localStorage.setItem('applicationTitle', titleInput.value);
-                      localStorage.setItem('applicationDescription', descriptionInput.value);
-                      localStorage.setItem('applicationExperience', experienceLevel.value);
-                      localStorage.setItem('applicationDuration', durationLevel.value);
+                      // Check title first
+                      if (!titleInput.value.trim()) {
+                        setShowTitleError(true);
+                        titleInput.focus();
+                        titleInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                      }
                       
-                      router.push("/bli-foredragsholder/oppsummering");
-                    } else {
-                      form?.reportValidity();
-                    }
-                    e.preventDefault();
-                  }}
-                >
-                  <Image 
-                    src="/images/Lagre.svg"
-                    alt="Lagre"
-                    width={211}
-                    height={59}
-                    style={{ width: '250px', height: 'auto' }}
-                  />
-                </button>
+                      // Then check description
+                      if (!descriptionInput.value.trim()) {
+                        setShowDescriptionError(true);
+                        descriptionInput.focus();
+                        descriptionInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                      }
+                      
+                      // Then check location
+                      if (!location) {
+                        setShowLocationError(true);
+                        const locationField = document.querySelector('[data-testid="location-dropdown"]');
+                        if (locationField) {
+                          locationField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return;
+                      }
+                      
+                      const form = document.getElementById('application-form-element') as HTMLFormElement;
+                      if (form?.checkValidity()) {
+                        const experienceLevel = document.querySelector('input[name="experience"]:checked') as HTMLInputElement;
+                        const durationLevel = document.querySelector('input[name="duration"]:checked') as HTMLInputElement;
+                        
+                        localStorage.setItem('applicationTags', JSON.stringify(tags));
+                        localStorage.setItem('applicationTitle', titleInput.value);
+                        localStorage.setItem('applicationDescription', descriptionInput.value);
+                        
+                        // Only set experienceLevel if it exists
+                        if (experienceLevel) {
+                          localStorage.setItem('applicationExperience', experienceLevel.value);
+                        } else {
+                          localStorage.setItem('applicationExperience', '');
+                        }
+                        
+                        // Only set durationLevel if it exists
+                        if (durationLevel) {
+                          localStorage.setItem('applicationDuration', durationLevel.value);
+                        } else {
+                          localStorage.setItem('applicationDuration', '');
+                        }
+                        
+                        localStorage.setItem('applicationLocation', location);
+                        
+                        router.push("/bli-foredragsholder/oppsummering");
+                      } else {
+                        form?.reportValidity();
+                      }
+                    }}
+                  >
+                    <Image 
+                      src="/images/Videre.svg"
+                      alt="Videre"
+                      width={211}
+                      height={59}
+                      style={{ width: '250px', height: 'auto' }}
+                    />
+                  </button>
+                </div>
               </div>
             </form>
           </div>

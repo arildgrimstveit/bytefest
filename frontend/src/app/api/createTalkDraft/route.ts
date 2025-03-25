@@ -25,20 +25,11 @@ function convertToPortableText(text: string) {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { title, description, tags, duration, forkunnskap } = data;
+    const { title, description, tags, duration, forkunnskap, location, speakerName, speakerEmail } = data;
 
-    // Log environment variables (without exposing sensitive values)
-    console.log('Environment check:', {
-      hasProjectId: !!process.env.SANITY_PROJECT_ID,
-      hasDataset: !!process.env.SANITY_DATASET,
-      hasToken: !!process.env.SANITY_API_TOKEN,
-      projectId: process.env.SANITY_PROJECT_ID,
-      dataset: process.env.SANITY_DATASET,
-    });
-
-    if (!title || !description || !tags || !duration || !forkunnskap) {
+    if (!title || !description || !tags || !location) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: "Required fields are missing" },
         { status: 400 }
       );
     }
@@ -49,6 +40,16 @@ export async function POST(req: Request) {
     // Generate a unique draft ID
     const draftId = `drafts.${slug}-${Date.now()}`;
     
+    // Create speaker reference if name is provided
+    const speakers = [];
+    if (speakerName) {
+      speakers.push({
+        _key: Date.now().toString(),
+        name: speakerName,
+        email: speakerEmail || "",
+      });
+    }
+    
     const newTalk = await client.create({
       _id: draftId,
       _type: "talk",
@@ -57,9 +58,10 @@ export async function POST(req: Request) {
       description: descriptionBlocks,
       duration,
       forkunnskap,
+      location,
       tags,
       publishedAt: new Date().toISOString(),
-      speakers: [], // Initialize with empty speakers array
+      speakers,
     });
 
     return NextResponse.json(

@@ -4,13 +4,26 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useUser } from "@/components/UserContext";
 
+// Define TypeScript interface for the form data
+interface TalkSubmitData {
+  title: string;
+  description: string;
+  tags: string[];
+  duration?: string;
+  forkunnskap?: string;
+  location: string;
+  speakerName?: string;
+  speakerEmail?: string;
+}
+
 export default function Oppsummering() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     tags: [] as string[],
     experience: '',
-    duration: ''
+    duration: '',
+    location: ''
   });
   const [loading, setLoading] = useState(true);
   const { user, getProfilePicture } = useUser();
@@ -23,13 +36,15 @@ export default function Oppsummering() {
     const tags = JSON.parse(localStorage.getItem('applicationTags') || '[]');
     const experience = localStorage.getItem('applicationExperience') || '';
     const duration = localStorage.getItem('applicationDuration') || '';
+    const location = localStorage.getItem('applicationLocation') || '';
 
     setFormData({
       title,
       description,
       tags,
       experience,
-      duration
+      duration,
+      location
     });
     setLoading(false);
   }, []);
@@ -49,10 +64,10 @@ export default function Oppsummering() {
   // Map experience value to readable text
   const getExperienceText = (value: string) => {
     switch (value) {
-      case 'none': return 'Ingen grad';
-      case 'low': return 'Liten grad';
-      case 'medium': return 'Middels grad';
-      case 'high': return 'Stor grad';
+      case 'none': return 'Ingen forkunnskap kreves';
+      case 'low': return 'Lite forkunnskap kreves';
+      case 'medium': return 'Noe forkunnskap kreves';
+      case 'high': return 'Mye forkunnskap kreves';
       default: return '';
     }
   };
@@ -72,19 +87,33 @@ export default function Oppsummering() {
     try {
       setLoading(true);
       
+      // Prepare the data object with required fields
+      const submitData: TalkSubmitData = {
+        title: formData.title,
+        description: formData.description,
+        tags: formData.tags,
+        location: formData.location,
+        speakerName: user?.name || "",
+        speakerEmail: user?.email || ""
+      };
+      
+      // Only add duration if it exists
+      if (formData.duration) {
+        submitData.duration = formData.duration;
+      }
+      
+      // Only add forkunnskap if it exists
+      if (formData.experience) {
+        submitData.forkunnskap = formData.experience;
+      }
+      
       // Submit the form data to create a Sanity draft
       const response = await fetch('/api/createTalkDraft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          tags: formData.tags,
-          duration: formData.duration,
-          forkunnskap: formData.experience
-        }),
+        body: JSON.stringify(submitData),
       });
       
       if (!response.ok) {
@@ -98,6 +127,7 @@ export default function Oppsummering() {
       localStorage.removeItem('applicationTags');
       localStorage.removeItem('applicationExperience');
       localStorage.removeItem('applicationDuration');
+      localStorage.removeItem('applicationLocation');
       
       // Redirect to confirmation page
       window.location.href = '/bli-foredragsholder/confirmation';
@@ -125,33 +155,71 @@ export default function Oppsummering() {
         <div className="relative bg-white p-6 sm:p-8 shadow-lg px-4 sm:px-6 sm:px-10 md:px-20 break-words">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
           
-          <h1 className="text-4xl sm:text-5xl argent text-center mb-12">Oppsummering</h1>
+          <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Oppsummering</h1>
           
           <div className="space-y-8">
+          
+            <button 
+              onClick={handleGoBack}
+              className="flex items-center text-sm text-gray-700 hover:text-black transition-colors mb-2 cursor-pointer ml-[-6]"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="mr-1"
+              >
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              <span>Tilbake</span>
+            </button>
             
+            <p>Ble det riktig? Se over det du har skrevet og gjør eventuelle endringer før du sender inn. </p>
             
             <div className="bg-[#F6EBD5] p-6 border-2 border-black">
-              <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden">{formData.title}</h2>
+              <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden mb-6">{formData.title}</h2>
               
-              <div className="grid grid-cols-1 gap-4 mb-6">
-                <div className="flex items-center text-gray-700">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                    <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                  </svg>
-                  <span className="text-sm">{getDurationText(formData.duration)}</span>
+              {(formData.duration || formData.experience || formData.location) && (
+                <div className="grid grid-cols-1 gap-4 mb-6">
+                  {formData.duration && (
+                    <div className="flex items-center text-gray-700 ml-[-5px]">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                        <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                      </svg>
+                      <span className="text-sm">{getDurationText(formData.duration)}</span>
+                    </div>
+                  )}
+                  
+                  {formData.experience && (
+                    <div className="flex items-center text-gray-700 ml-[-5px]">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                        <path d="M5 19V5H19V19H5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9 9H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-sm">{getExperienceText(formData.experience)}</span>
+                    </div>
+                  )}
+                  
+                  {formData.location && (
+                    <div className="flex items-center text-gray-700 ml-[-5px]">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <circle cx="12" cy="9" r="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span className="text-sm">{formData.location}</span>
+                    </div>
+                  )}
                 </div>
-                
-                <div className="flex items-center text-gray-700">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                    <path d="M5 19V5H19V19H5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M9 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M9 9H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className="text-sm">Forkunnskap: {getExperienceText(formData.experience)}</span>
-                </div>
-              </div>
+              )}
               
               {formData.tags.length > 0 && (
                 <div className="mb-6">
