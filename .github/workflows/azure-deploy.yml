@@ -58,6 +58,17 @@ jobs:
           mkdir deploy-package
           # Copy the standalone build which includes server.js
           cp -R frontend/.next/standalone/* deploy-package/
+          # Copy the .next directory (crucial for Next.js to find the build)
+          mkdir -p deploy-package/.next
+          cp -R frontend/.next/static deploy-package/.next/
+          cp frontend/.next/BUILD_ID deploy-package/.next/
+          cp frontend/.next/build-manifest.json deploy-package/.next/
+          cp frontend/.next/react-loadable-manifest.json deploy-package/.next/
+          cp -R frontend/.next/server deploy-package/.next/ || echo "No server directory found"
+          cp -R frontend/.next/app-build-manifest.json deploy-package/.next/ || echo "No app-build-manifest.json found"
+          cp -R frontend/.next/trace deploy-package/.next/ || echo "No trace directory found"
+          cp -R frontend/.next/cache deploy-package/.next/ || echo "No cache directory found"
+          cp -R frontend/.next/required-server-files.json deploy-package/.next/ || echo "No required-server-files.json found"
           # Copy the public assets
           cp -R frontend/public deploy-package/public
           # Copy package.json for runtime requirements
