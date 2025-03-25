@@ -1,8 +1,8 @@
 "use client";
 
-import { Configuration, PublicClientApplication } from "@azure/msal-browser";
+import { Configuration, PublicClientApplication, EventType } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 // Fallback if not defined or during SSR
 const fallbackRedirectUri = typeof window !== "undefined"
@@ -19,11 +19,22 @@ const msalConfig: Configuration = {
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
     redirectUri,
     postLogoutRedirectUri: redirectUri,
-    navigateToLoginRequestUrl: true
+    navigateToLoginRequestUrl: false // Change to false to prevent navigation issues
   },
   cache: {
     cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
+  },
+  system: {
+    allowRedirectInIframe: true,
+    loggerOptions: {
+      loggerCallback: (level, message, containsPii) => {
+        if (!containsPii) {
+          console.log(`MSAL: ${message}`);
+        }
+      },
+      piiLoggingEnabled: false
+    }
   }
 };
 
@@ -46,28 +57,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  // Handler for redirect completion - used to prevent stuck states
+  const handleRedirectComplete = useCallback(() => {
+    console.log("MSAL redirect flow completed");
+  }, []);
+
   useEffect(() => {
+    // Set up event listener for redirect completion
+    const listenerId = pca.addEventCallback(event => {
+      if (event.eventType === EventType.HANDLE_REDIRECT_END) {
+        handleRedirectComplete();
+      }
+    });
+
+    // Initialize MSAL - one-time call at app startup
     const initializeMsal = async () => {
       try {
+        // First initialize MSAL instance
         await pca.initialize();
+        console.log("MSAL initialized");
+        
+        // Then try to handle any redirect response
         const response = await pca.handleRedirectPromise();
+        console.log("Initial redirect handled:", response ? "with response" : "no response");
         
         if (response?.account) {
-          // Valid account
+          // Set active account when successful
           pca.setActiveAccount(response.account);
+          console.log("Account set from redirect:", response.account.username);
           
-          // Check if we should redirect to bli-foredragsholder page
+          // Get flag for bli-foredragsholder redirect
           const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
           localStorage.removeItem('returnToFormAfterLogin');
           
           // Trigger login complete event
           window.dispatchEvent(new Event('msal:login:complete'));
           
-          // Handle redirect
+          // Redirect user appropriately
           if (shouldRedirectToForm) {
             window.location.href = '/bli-foredragsholder';
-          } else {
+          } else if (window.location.pathname === '/login') {
+            // Only redirect away from login page
             window.location.href = '/';
+          }
+        } else {
+          // Check for existing sessions
+          const accounts = pca.getAllAccounts();
+          if (accounts.length > 0) {
+            pca.setActiveAccount(accounts[0]);
+            console.log("Using existing account:", accounts[0].username);
           }
         }
         
@@ -75,11 +113,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Error initializing MSAL:", error);
         setAuthError('An error occurred during authentication.');
+        setIsInitialized(true); // Still mark as initialized to prevent app blocking
       }
     };
 
     initializeMsal();
-  }, []);
+
+    // Cleanup event listener
+    return () => {
+      if (listenerId) {
+        pca.removeEventCallback(listenerId);
+      }
+    };
+  }, [handleRedirectComplete]);
 
   // Show error message if there is one, but don't block the app
   const errorMessage = authError ? (

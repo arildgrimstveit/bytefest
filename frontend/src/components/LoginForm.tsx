@@ -17,27 +17,33 @@ export function LoginForm({
   const currentPath = usePathname();
 
   const handleLogin = async () => {
-    if (inProgress === InteractionStatus.None) {
-      try {
-        // First clear any existing redirect flags to prevent unintended redirects
-        localStorage.removeItem('returnToFormAfterLogin');
-        
-        // Only set the redirect flag if we're on the bli-foredragsholder page
-        if (currentPath.includes('/bli-foredragsholder')) {
-          localStorage.setItem('returnToFormAfterLogin', 'true');
-          console.log("Set returnToFormAfterLogin flag for bli-foredragsholder");
-        } else {
-          console.log("Login from regular page, will redirect to homepage");
-        }
-
-        // Use loginRedirect with the exported loginRequest
-        await instance.loginRedirect(loginRequest);
-        
-      } catch (error) {
-        console.error("Login failed:", error);
+    // Only proceed if no interaction is in progress
+    if (inProgress !== InteractionStatus.None) {
+      console.log("Login already in progress, status:", inProgress);
+      return;
+    }
+    
+    try {
+      console.log("Starting login process from button click");
+      // Store redirect information before initiating login
+      localStorage.removeItem('returnToFormAfterLogin');
+      
+      if (currentPath.includes('/bli-foredragsholder')) {
+        localStorage.setItem('returnToFormAfterLogin', 'true');
+        console.log("Will return to bli-foredragsholder after login");
       }
-    } else {
-      console.log('Login in progress, current status:', inProgress);
+
+      // Use loginRedirect with minimal configuration
+      await instance.loginRedirect({
+        ...loginRequest,
+        onRedirectNavigate: (url) => {
+          // This callback is triggered right before redirect
+          console.log("Redirecting to login provider:", url);
+          return true; // Return true to allow the redirect
+        }
+      });
+    } catch (error) {
+      console.error("Failed to initiate login:", error);
     }
   };
   
@@ -62,6 +68,7 @@ export function LoginForm({
             <button
               className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
               onClick={handleLogin}
+              disabled={inProgress !== InteractionStatus.None}
             >
               <Image
                 src="/images/LoggInn.svg"
