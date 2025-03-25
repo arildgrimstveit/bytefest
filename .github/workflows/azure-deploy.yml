@@ -86,11 +86,11 @@ jobs:
         run: |
           rm -rf deploy-package
           mkdir deploy-package
-          # Copy the entire .next folder so that all build files (manifests, etc.) are included.
-          cp -R frontend/.next deploy-package/.next
-          # Copy the public assets.
+          # Copy the standalone build which includes server.js
+          cp -R frontend/.next/standalone/* deploy-package/
+          # Copy the public assets
           cp -R frontend/public deploy-package/public
-          # Copy package.json (and any other needed files) for runtime if required.
+          # Copy package.json for runtime requirements
           cp frontend/package.json deploy-package/package.json
 
       - name: Deploy to Azure App Service
