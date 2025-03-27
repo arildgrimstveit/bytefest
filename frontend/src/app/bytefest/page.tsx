@@ -203,28 +203,28 @@ export default function Bytefest() {
 
               <div className="space-y-6 lg:space-y-6 space-y-4">
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hvem kan holde foredrag?</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Hvem kan holde foredrag?</h3>
                   <p className="text-lg text-[#2A1449]">
                     Alle som jobber i Sopra Steria, uavhengig av nivå, business unit og rolle.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hva slags foredrag vi ønsker oss?</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Hva slags foredrag vi ønsker oss?</h3>
                   <p className="text-lg text-[#2A1449]">
                     Vi ønsker oss alle typer foredrag som har med utvikling å gjøre, om dette er low-code, no-code, fullstack, java, react, tips og triks, AI, azure, apps, dps, designdreven utvikling eller lignende.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Lengde</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Lengde</h3>
                   <p className="text-lg text-[#2A1449]">
                     Foredragene kan være av forskjellige lengder. I programmet har vi rom for foredrag på 10, 20, 30 eller 45 minutter. Tenk over hvor lang tid du trenger til å si det du vil. Planlegg heller for å bruke mindre tid enn å treffe helt på tiden. Da har du tid til et spørsmål eller to også.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Forkunnskaper</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Forkunnskaper</h3>
                   <p className="text-lg text-[#2A1449] mb-3">
                     Tenk over hvilke forkunnskaper du forventer av de som hører på. Hvilken av disse kategoriene snakker du til?
                   </p>
@@ -237,21 +237,21 @@ export default function Bytefest() {
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hybride foredrag</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Hybride foredrag</h3>
                   <p className="text-lg text-[#2A1449]">
                     Foredragene vil foregå på de ulike lokasjonene og streames over Teams.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Hva er fristen for å sende inn forslag til foredrag?</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Hva er fristen for å sende inn forslag til foredrag?</h3>
                   <p className="text-lg text-[#2A1449]">
                     10. april klokken 23.59.
                   </p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl text-[#2A1449] iceland font-bold mb-3">Spørsmål?</h3>
+                  <h3 className="text-2xl text-[#2A1449] iceland font-bold mb-3">Spørsmål?</h3>
                   <p className="text-lg text-[#2A1449]">
                     Kontakt oss på <a href="mailto:bytefest@soprasteria.com" className="hover:underline">bytefest@soprasteria.com</a>.
                   </p>
