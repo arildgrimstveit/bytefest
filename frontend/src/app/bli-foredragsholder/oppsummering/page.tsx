@@ -87,6 +87,9 @@ export default function Oppsummering() {
     try {
       setLoading(true);
       
+      // Scroll to top of page to ensure loading state is visible
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
       // Prepare the data object with required fields
       const submitData: TalkSubmitData = {
         title: formData.title,
@@ -146,7 +149,19 @@ export default function Oppsummering() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen text-white">Sender inn...</div>;
+    return (
+      <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
+        <div className="w-full max-w-4xl mx-auto my-8 relative">
+          <div className="relative bg-white p-6 sm:p-8 shadow-lg px-4 sm:px-6 sm:px-10 md:px-20 break-words">
+            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
+            <div className="flex flex-col items-center justify-center py-10">
+              <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Sender inn...</h1>
+              <p className="text-center">Vennligst vent mens foredraget ditt blir sendt inn.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

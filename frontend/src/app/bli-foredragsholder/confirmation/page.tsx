@@ -10,7 +10,7 @@ export default function ConfirmationPage() {
           
           <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Takk for ditt foredrag</h1>
           
-          <div className="space-y-6">
+          <div className="space-y-6 mx-5 sm:mx-0">
             <p>Vi har mottatt forslaget ditt til foredrag. Takk!</p>
             
             <p>Vi vil gå igjennom alle foredrag etter at fristen for å sende inn forslag går ut 10. april. Deretter sender vi ut svar fortløpende om hvilke foredrag som får plass på programmet.</p>

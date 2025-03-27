@@ -552,7 +552,7 @@ export default function BliForedragsholder() {
                 </div>
               </div>
 
-              <div className="pt-5 flex justify-center sm:justify-between flex-wrap gap-4">
+              <div className="pt-5 flex justify-start sm:justify-between flex-wrap gap-4">
                 <div className="flex space-x-4 order-1 sm:order-2">
                   <button 
                     type="submit"
