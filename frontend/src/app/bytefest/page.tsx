@@ -91,7 +91,7 @@ export default function Bytefest() {
               priority
             />
             <p className="argent text-white text-4xl mt-4 text-center lg:text-left">
-              En mikrokonferanse <br />
+              En minikonferanse <br />
               for å dele og lære om <br />
               systemutvikling
             </p>

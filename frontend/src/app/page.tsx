@@ -16,11 +16,11 @@ export default function Home() {
           />
         </div>
         <div className="text-left argent text-white pt-10 text-2xl sm:text-4xl">
-          <a>Mikrokonferansen som dypdykker i systemutvikling</a>
+          <a>Minikonferansen som dypdykker i systemutvikling</a>
         </div>
         <div className="text-left iceland text-white pt-10">
           <a className="text-2xl md:text-4xl lg:text-5xl">5. juni 2025</a>
-          <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 21.00</a>
+          <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 23.00</a>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
