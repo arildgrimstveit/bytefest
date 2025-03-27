@@ -266,6 +266,7 @@ export default function BliForedragsholder() {
                         onKeyDown={handleTagInputKeyDown}
                         maxLength={50}
                         className="w-full p-3 bg-white focus:outline-none"
+                        autoComplete="off"
                       />
                     </PixelInput>
                   </div>
