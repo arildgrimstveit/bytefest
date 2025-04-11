@@ -55,7 +55,7 @@ export default function Bytefest() {
           </p>
           <p className="text-xl mt-4">
             Den arrangeres av og for utviklermiljøet i Sopra Steria, 
-            og foregår på kontone våre over hele landet, 
+            og foregår på kontorene våre over hele landet, 
             med foredrag som streames mellom byene. 
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function Bytefest() {
                 <div>
                   <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Hva er fristen for å sende inn forslag til foredrag?</h3>
                   <p className="text-base md:text-lg text-[#2A1449]">
-                    10. april klokken 23.59.
+                    23. april klokken 23.59.
                   </p>
                 </div>
 

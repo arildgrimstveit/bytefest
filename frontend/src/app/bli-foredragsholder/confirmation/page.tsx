@@ -13,7 +13,7 @@ export default function ConfirmationPage() {
           <div className="space-y-6 mx-5 sm:mx-0">
             <p>Vi har mottatt forslaget ditt til foredrag. Takk!</p>
             
-            <p>Vi vil gå igjennom alle foredrag etter at fristen for å sende inn forslag går ut 10. april. Deretter sender vi ut svar fortløpende om hvilke foredrag som får plass på programmet.</p>
+            <p>Vi vil gå igjennom alle foredrag etter at fristen for å sende inn forslag går ut 23. april. Deretter sender vi ut svar fortløpende om hvilke foredrag som får plass på programmet.</p>
             
             <div className="flex justify-start mt-8">
               <Link href="/">
