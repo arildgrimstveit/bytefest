@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 
 export default function Bytefest() {
   return (
@@ -105,97 +105,6 @@ export default function Bytefest() {
             height={39}
           />
         </div>
-
-        {/* Speaker Information Container */}
-        <div className="w-full max-w-5xl mx-auto px-4">
-          <div className="flex flex-col items-center justify-center mx-1 sm:mx-12">
-            <div className="bg-[#F6EBD5] w-full lg:max-w-[900px] py-10 px-6 md:px-12">
-              <p className="text-3xl md:text-4xl text-[#2A1449] argent mb-6 md:mb-8 text-center -mx-6 md:-mx-12">Bli foredragsholder!</p>
-              <p className="text-lg md:text-xl text-[#2A1449] mb-6 md:mb-8 text-left">
-                Bytefest er en arena for å dele kunnskap med kolleger. Har du noe du gjerne vil dele?
-              </p>
-
-              <div className="space-y-4 md:space-y-6">
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Hvem kan holde foredrag?</h3>
-                  <p className="text-base md:text-lg text-[#2A1449]">
-                    Alle som jobber i Sopra Steria, uavhengig av nivå, business unit og rolle.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Hva slags foredrag vi ønsker oss?</h3>
-                  <p className="text-base md:text-lg text-[#2A1449]">
-                    Vi ønsker oss alle typer foredrag som har med utvikling å gjøre, om dette er low-code, no-code, fullstack, java, react, tips og triks, AI, azure, apps, dps, designdreven utvikling eller lignende.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Lengde</h3>
-                  <p className="text-base md:text-lg text-[#2A1449]">
-                    Foredragene kan være av forskjellige lengder. I programmet har vi rom for foredrag på 10, 20, 30 eller 45 minutter. Tenk over hvor lang tid du trenger til å si det du vil. Planlegg heller for å bruke mindre tid enn å treffe helt på tiden. Da har du tid til et spørsmål eller to også.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Forkunnskaper</h3>
-                  <p className="text-base md:text-lg text-[#2A1449] mb-2 md:mb-3">
-                    Tenk over hvilke forkunnskaper du forventer av de som hører på. Hvilken av disse kategoriene snakker du til?
-                  </p>
-                  <ul className="list-disc pl-6 text-base md:text-lg text-[#2A1449] space-y-1 md:space-y-2">
-                    <li>Har knapt hørt om systemutvikling</li>
-                    <li>Kjenner til hva systemutvikling er og vil gjerne forstå hvordan det er relevant for sitt fagfelt</li>
-                    <li>Jobber med systemutvikling og vil ha påfyll av kunnskap</li>
-                    <li>Har jobbet med systemutvikling i lang tid og nerder gjerne intenst på detaljer</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Hybride foredrag</h3>
-                  <p className="text-base md:text-lg text-[#2A1449]">
-                    Foredragene vil foregå på de ulike lokasjonene og streames over Teams.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Hva er fristen for å sende inn forslag til foredrag?</h3>
-                  <p className="text-base md:text-lg text-[#2A1449]">
-                    23. april klokken 23.59.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-xl md:text-2xl text-[#2A1449] iceland font-bold mb-2 md:mb-3">Spørsmål?</h3>
-                  <p className="text-base md:text-lg text-[#2A1449]">
-                    Kontakt oss på <a href="mailto:bytefest@soprasteria.com" className="hover:underline">bytefest@soprasteria.com</a>.
-                  </p>
-                </div>
-
-                <div className="mt-6 md:mt-9 flex justify-start">
-                  <Link href="/bli-foredragsholder" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
-                    <Image
-                      src="/images/BliForedragsholder.svg"
-                      alt="BliForedragsholder"
-                      width={263}
-                      height={55}
-                      style={{ height: 'auto' }}
-                    />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Second Crab */}
-        <div className="flex justify-center items-center z-10 my-12 md:my-16">
-          <Image 
-            src="/images/Krabbe.svg" 
-            alt="Krabbe" 
-            width={50} 
-            height={39}
-          />
-        </div>
         
         {/* Container 2 - Stats box */}
         <div className="w-full max-w-5xl mx-auto px-4">
@@ -221,7 +130,7 @@ export default function Bytefest() {
           </div>
         </div>
         
-        {/* Third Crab */}
+        {/* Second Crab */}
         <div className="flex justify-center items-center z-10 my-12 md:my-16">
           <Image 
             src="/images/Krabbe.svg" 

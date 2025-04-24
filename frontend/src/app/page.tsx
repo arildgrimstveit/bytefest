@@ -24,15 +24,13 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
-          <Link href="/bli-foredragsholder" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
             <Image
-              src="/images/BliForedragsholder.svg"
-              alt="BliForedragsholder"
-              width={263}
+              src="/images/PaameldingKommer.svg"
+              alt="Påmelding kommer"
+              width={300}
               height={55}
               style={{ height: 'auto' }}
             />
-          </Link>
           <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
             <Image
               src="/images/LesMer.svg"
