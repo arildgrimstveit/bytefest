@@ -47,7 +47,7 @@ export default function Bytefest() {
         </div>
 
         {/* Description */}
-        <div className="px-5 xs:px-10 sm:px-16 text-white pt-15 lg:pt-20">
+        <div className="px-5 sm:px-16 text-white pt-15 lg:pt-20">
           <h2 className="text-2xl lg:text-3xl iceland font-bold">Hva er Bytefest?</h2>
           <p className="text-xl mt-4">
             Bytefest er en ettermiddag fylt med interessante foredrag om systemutvikling, 
@@ -65,7 +65,7 @@ export default function Bytefest() {
       <div className="relative flex flex-col items-center mt-15">
         {/* Container 1 - First white box and image */}
         <div className="w-full max-w-5xl mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-center justify-center mx-5 sm:mx-12">
+          <div className="flex flex-col lg:flex-row items-center justify-center mx-1 sm:mx-12">
             <div className="bg-[#F6EBD5] w-full lg:w-[480px] py-10 px-8 lg:h-[484px] lg:flex lg:flex-col lg:justify-center lg:pl-5 lg:pr-0">
               <p className="text-2xl md:text-3xl iceland font-bold text-[#2A1449] lg:pl-15">Sosial arena</p>
               <p className="text-lg md:text-xl text-[#2A1449] mt-4 lg:pr-30 lg:pl-15">
@@ -108,9 +108,9 @@ export default function Bytefest() {
 
         {/* Speaker Information Container */}
         <div className="w-full max-w-5xl mx-auto px-4">
-          <div className="flex flex-col items-center justify-center mx-5 sm:mx-12">
+          <div className="flex flex-col items-center justify-center mx-1 sm:mx-12">
             <div className="bg-[#F6EBD5] w-full lg:max-w-[900px] py-10 px-6 md:px-12">
-              <p className="text-3xl md:text-4xl text-[#2A1449] argent mb-6 md:mb-8 text-center">Bli foredragsholder!</p>
+              <p className="text-3xl md:text-4xl text-[#2A1449] argent mb-6 md:mb-8 text-center -mx-6 md:-mx-12">Bli foredragsholder!</p>
               <p className="text-lg md:text-xl text-[#2A1449] mb-6 md:mb-8 text-left">
                 Bytefest er en arena for å dele kunnskap med kolleger. Har du noe du gjerne vil dele?
               </p>
@@ -199,7 +199,7 @@ export default function Bytefest() {
         
         {/* Container 2 - Stats box */}
         <div className="w-full max-w-5xl mx-auto px-4">
-          <div className="flex flex-col items-center justify-center mx-5 sm:mx-12">
+          <div className="flex flex-col items-center justify-center mx-1 sm:mx-12">
             <div className="bg-[#F6EBD5] w-full lg:max-w-[900px] py-10 px-6 md:px-12">
               <p className="text-3xl md:text-4xl text-[#2A1449] argent mb-6 md:mb-8 text-center">Deltakelse i 2024</p>
               <p className="text-lg md:text-xl text-[#2A1449] text-center mb-6 md:mb-8 px-4 md:px-12">
@@ -233,7 +233,7 @@ export default function Bytefest() {
         
         {/* Container 3 - Last box and image */}
         <div className="w-full max-w-5xl mx-auto px-4">
-          <div className="flex flex-col-reverse lg:flex-row items-center justify-center mx-5 sm:mx-12">
+          <div className="flex flex-col-reverse lg:flex-row items-center justify-center mx-1 sm:mx-12">
             <div className="relative w-full lg:w-[484px] lg:-mr-16 mt-6 lg:mt-0">
               <Image 
                 src="/images/TommelOpp.webp" 
