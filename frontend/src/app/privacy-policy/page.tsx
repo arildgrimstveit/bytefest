@@ -1,6 +1,6 @@
 "use client";
 
-export default function Personvernerklaering() {
+export default function PrivacyPolicy() {
   return (
     <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
       <div className="w-full max-w-4xl mx-auto my-8">

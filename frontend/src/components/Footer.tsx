@@ -53,7 +53,7 @@ const Footer = () => {
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <h3 className="text-xl font-medium mb-6">Informasjon</h3>
               <div className="flex flex-col space-y-3">
-                <Link href="/personvernerklaering" className="text-sm text-gray-300 hover:text-white transition-colors">
+                <Link href="/privacy-policy" className="text-sm text-gray-300 hover:text-white transition-colors">
                   PERSONVERNERKLÆRING
                 </Link>
                 <a href="mailto:bytefest@soprasteria.com" className="text-sm text-gray-300 hover:text-white transition-colors">

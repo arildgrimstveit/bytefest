@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-// import Link from "next/link";
+import Link from "next/link";
 
 export default function Bytefest() {
   return (
@@ -74,13 +74,18 @@ export default function Bytefest() {
                 teknologier og bygge nettverk.
               </p>
               <div className="mt-10 lg:pl-15">
-                <Image 
-                  src="/images/PaameldingKommer.svg" 
-                  alt="Påmelding Kommer" 
-                  width={226} 
-                  height={44} 
-                  style={{ height: 'auto' }}
-                />
+                <Link 
+                  href="/paamelding" 
+                  className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
+                >
+                  <Image 
+                    src="/images/MeldDegPaa.svg" 
+                    alt="Meld deg på" 
+                    width={263} 
+                    height={55} 
+                    style={{ height: 'auto' }}
+                  />
+                </Link>
               </div>
             </div>
 

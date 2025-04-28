@@ -24,13 +24,18 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
+          <Link
+            href="/paamelding"
+            className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
+            target="_self"
+          >
             <Image
-              src="/images/PaameldingKommer.svg"
-              alt="Påmelding kommer"
-              width={300}
-              height={55}
-              style={{ height: 'auto' }}
+              alt="En påmelding kommer knapp"
+              height="55"
+              src="/images/MeldDegPaa.svg"
+              width="263"
             />
+          </Link>
           <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
             <Image
               src="/images/LesMer.svg"
