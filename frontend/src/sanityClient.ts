@@ -1,10 +1,22 @@
-import { createClient, SanityClient } from "@sanity/client";
+import { createClient } from "@sanity/client";
 
-const client: SanityClient = createClient({
-  projectId: "twav4yff",
-  dataset: "production",
-  apiVersion: "2023-01-01",
-  useCdn: true,
+// Check for environment variables
+const projectId = process.env.SANITY_PROJECT_ID;
+const dataset = process.env.SANITY_DATASET;
+
+if (!projectId || !dataset) {
+  throw new Error(
+    "Missing Sanity project ID or dataset. Check your environment variables (.env.local?)."
+  );
+}
+
+const client = createClient({
+  projectId,
+  dataset,
+  apiVersion: "2024-05-05",
+  useCdn: false,
+  perspective: 'previewDrafts',
+  token: process.env.SANITY_API_TOKEN
 });
 
 export default client;

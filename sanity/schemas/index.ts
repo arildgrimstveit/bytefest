@@ -1,5 +1,4 @@
-import {talkType} from './talkType'
-import {speakerType} from './speakerType'
+import {talk} from './talk'
 import {attendee} from './attendee'
 
-export const schemaTypes = [talkType, speakerType, attendee]
+export const schemaTypes = [talk, attendee]

@@ -340,6 +340,13 @@
               {
                 "name": "email",
                 "type": "string"
+              },
+              {
+                "options": {
+                  "hotspot": true
+                },
+                "name": "picture",
+                "type": "image"
               }
             ],
             "type": "object"
@@ -366,8 +373,10 @@
             "level": "error"
           }
         ],
-        "name": "name",
-        "type": "string"
+        "readOnly": true,
+        "name": "attendeeName",
+        "type": "string",
+        "title": "Name / Navn"
       },
       {
         "validation": [
@@ -381,20 +390,39 @@
             "level": "error"
           }
         ],
-        "description": "Speaker email address",
-        "name": "email",
-        "type": "string"
+        "readOnly": true,
+        "name": "attendeeEmail",
+        "type": "string",
+        "title": "Email"
       },
       {
         "options": {
-          "source": "name",
-          "maxLength": 96
+          "list": [
+            {
+              "value": "Applications",
+              "title": "Applications"
+            },
+            {
+              "value": "Digital Platform Services",
+              "title": "Digital Platform Services"
+            },
+            {
+              "value": "Advisory",
+              "title": "Advisory"
+            }
+          ],
+          "layout": "dropdown"
         },
         "validation": [
           {
             "rules": [
               {
-                "flag": "custom"
+                "flag": "valid",
+                "constraint": [
+                  "Applications",
+                  "Digital Platform Services",
+                  "Advisory"
+                ]
               },
               {
                 "flag": "presence",
@@ -404,33 +432,80 @@
             "level": "error"
           }
         ],
-        "name": "slug",
-        "type": "slug"
-      },
-      {
-        "validation": [
-          {
-            "rules": [
-              {
-                "flag": "presence",
-                "constraint": "required"
-              }
-            ],
-            "level": "error"
-          }
-        ],
-        "description": "A short summary about the speaker",
-        "name": "summary",
-        "type": "text"
+        "name": "bu",
+        "type": "string",
+        "title": "Business Unit"
       },
       {
         "options": {
-          "hotspot": true
+          "list": [
+            {
+              "value": "Bergen",
+              "title": "Bergen"
+            },
+            {
+              "value": "Drammen",
+              "title": "Drammen"
+            },
+            {
+              "value": "Fredrikstad",
+              "title": "Fredrikstad"
+            },
+            {
+              "value": "Hamar",
+              "title": "Hamar"
+            },
+            {
+              "value": "Kristiansand",
+              "title": "Kristiansand"
+            },
+            {
+              "value": "København",
+              "title": "København"
+            },
+            {
+              "value": "Oslo",
+              "title": "Oslo"
+            },
+            {
+              "value": "Stavanger",
+              "title": "Stavanger"
+            },
+            {
+              "value": "Tromsø",
+              "title": "Tromsø"
+            },
+            {
+              "value": "Trondheim",
+              "title": "Trondheim"
+            },
+            {
+              "value": "Digitalt",
+              "title": "Digitalt"
+            }
+          ],
+          "layout": "dropdown"
         },
         "validation": [
           {
             "rules": [
               {
+                "flag": "valid",
+                "constraint": [
+                  "Bergen",
+                  "Drammen",
+                  "Fredrikstad",
+                  "Hamar",
+                  "Kristiansand",
+                  "København",
+                  "Oslo",
+                  "Stavanger",
+                  "Tromsø",
+                  "Trondheim",
+                  "Digitalt"
+                ]
+              },
+              {
                 "flag": "presence",
                 "constraint": "required"
               }
@@ -438,11 +513,140 @@
             "level": "error"
           }
         ],
-        "name": "picture",
+        "name": "participationLocation",
+        "type": "string"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "value": "yes",
+              "title": "Ja"
+            },
+            {
+              "value": "no",
+              "title": "Nei"
+            },
+            {
+              "value": "digital",
+              "title": "Deltar digitalt"
+            }
+          ],
+          "layout": "radio",
+          "direction": "vertical"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "yes",
+                  "no",
+                  "digital"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "wantsFood",
+        "type": "string"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "dietaryNeeds",
+        "type": "array"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "value": "yes",
+              "title": "Ja, er med på det sosiale"
+            },
+            {
+              "value": "no",
+              "title": "Nei, kan dessverre ikke"
+            }
+          ],
+          "layout": "radio",
+          "direction": "vertical"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "yes",
+                  "no"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "attendsParty",
+        "type": "string"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "value": "yes",
+              "title": "Ja"
+            },
+            {
+              "value": "no",
+              "title": "Nei"
+            }
+          ],
+          "layout": "radio",
+          "direction": "vertical"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "yes",
+                  "no"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "willPresent",
+        "type": "string"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "name": "image",
         "type": "image"
       }
     ],
-    "name": "speaker",
+    "name": "attendee",
     "type": "document"
   }
 ]

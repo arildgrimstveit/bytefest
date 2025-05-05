@@ -1,6 +1,6 @@
 import {defineField, defineType} from 'sanity'
 
-export const talkType = defineType({
+export const talk = defineType({
   name: 'talk',
   title: 'Talk',
   type: 'document',
@@ -84,7 +84,15 @@ export const talkType = defineType({
           type: 'object',
           fields: [
             { name: 'name', type: 'string', title: 'Name' },
-            { name: 'email', type: 'string', title: 'Email' }
+            { name: 'email', type: 'string', title: 'Email' },
+            {
+              name: 'picture',
+              title: 'Picture',
+              type: 'image',
+              options: {
+                hotspot: true
+              }
+            }
           ]
         }
       ],

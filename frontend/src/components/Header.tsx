@@ -26,9 +26,9 @@ const Header = () => {
   // Define main navigation items
   const mainNavItems: NavItem[] = useMemo(() => [
     { name: "PÅMELDING", path: "/", disabled: false },
-    { name: "BYTEFEST", path: "/bytefest", disabled: false },
-    { name: "ALLE FOREDRAG", path: "/talks", disabled: true },
-    { name: "PROGRAM", path: "/program", disabled: true },
+    { name: "OM BYTEFEST", path: "/bytefest", disabled: false },
+    { name: "ALLE FOREDRAG", path: "/talks", disabled: false },
+    { name: "PROGRAM", path: "/program", disabled: false },
   ], []);
 
   // Renders a single desktop navigation link with active state styling
