@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import sanityClient from "@/sanityClient"; // Use default import for the client
-import type { RegistrationSubmitData } from "@/app/paamelding/summary/page"; // Import the type
+import type { RegistrationSubmitData } from "@/types/registration"; // Import from new location
 
-// Use unknown for incoming data type
 function isValidRegistrationData(
   data: unknown
 ): data is RegistrationSubmitData {
@@ -20,15 +19,25 @@ function isValidRegistrationData(
     typeof potentialData.participationLocation === "string" &&
     potentialData.participationLocation.trim() !== "" &&
     typeof potentialData.wantsFood === "string" &&
-    ["yes", "no", "digital"].includes(potentialData.wantsFood) &&
+    ["yes", "no", "digital"].includes(potentialData.wantsFood as string) && // Added type assertion for safety
     Array.isArray(potentialData.dietaryNeeds) &&
+    potentialData.dietaryNeeds.every(item => typeof item === 'string') && // Ensure all items in array are strings
     typeof potentialData.attendsParty === "string" &&
-    ["yes", "no"].includes(potentialData.attendsParty) &&
+    ["yes", "no"].includes(potentialData.attendsParty as string) && // Added type assertion
     typeof potentialData.willPresent === "string" &&
-    ["yes", "no"].includes(potentialData.willPresent) &&
+    ["yes", "no"].includes(potentialData.willPresent as string) && // Added type assertion
     typeof potentialData.attendeeName === "string" && // Assuming name comes from frontend/SSO
-    typeof potentialData.attendeeEmail === "string" // Assuming email comes from frontend/SSO
+    typeof potentialData.attendeeEmail === "string" && // Assuming email comes from frontend/SSO
+    // localFavoriteSlugs is optional, but if present, should be an array of strings
+    (potentialData.localFavoriteSlugs === undefined || 
+     (Array.isArray(potentialData.localFavoriteSlugs) && 
+      potentialData.localFavoriteSlugs.every(item => typeof item === 'string')))
   );
+}
+
+// Helper to clean talk IDs (remove drafts. prefix)
+function cleanTalkId(id: string): string {
+  return id.replace(/^drafts\./, '');
 }
 
 export async function POST(request: Request) {
@@ -44,55 +53,88 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prepare the document to be created in Sanity
-    const attendeeDocument = {
-      _type: "attendee",
-      _id: `attendee.${data.attendeeEmail.replace(/[^a-zA-Z0-9]/g, '-')}`,
-      attendeeName: data.attendeeName,
-      attendeeEmail: data.attendeeEmail,
-      bu: data.bu,
-      participationLocation: data.participationLocation,
-      wantsFood: data.wantsFood,
-      dietaryNeeds: data.dietaryNeeds, // Directly pass the array of strings
-      attendsParty: data.attendsParty,
-      willPresent: data.willPresent,
-      // Initialize empty favoriteTalks array to ensure it exists
-      favoriteTalks: [],
-      // Add registeredAt timestamp
-      registeredAt: new Date().toISOString(),
+    // Fields that can be submitted via the registration form
+    const formFields = {
+        attendeeName: data.attendeeName,
+        attendeeEmail: data.attendeeEmail,
+        bu: data.bu,
+        participationLocation: data.participationLocation,
+        wantsFood: data.wantsFood,
+        dietaryNeeds: data.dietaryNeeds,
+        attendsParty: data.attendsParty,
+        willPresent: data.willPresent,
+        registeredAt: new Date().toISOString(), // Always update/set registration timestamp
     };
+
+    const attendeeId = `attendee.${data.attendeeEmail.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
     // Check if an attendee with this email already exists
     const existingAttendee = await sanityClient.fetch(
-      `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`,
+      `*[_type == "attendee" && attendeeEmail == $email][0]{_id, "favoriteTalks": favoriteTalks[]._ref}`,
       { email: data.attendeeEmail }
     );
 
-    let createdAttendee;
+    let savedAttendee;
+    let migratedFavoriteCount = 0;
     
     if (existingAttendee) {
       console.log(`Updating existing attendee document with ID ${existingAttendee._id}`);
-      // Update existing document and ensure it's published
-      createdAttendee = await sanityClient
-        .patch(existingAttendee._id)
-        .set(attendeeDocument)
+      // For updates, we currently don't merge localFavoriteSlugs here to keep it simple.
+      // The main purpose of this endpoint is registration data. Favorite management is separate.
+      // If localFavoriteSlugs were provided, they are ignored for existing users via this endpoint.
+      savedAttendee = await sanityClient
+        .patch(existingAttendee._id) // Use the fetched ID, which is the published one
+        .set(formFields) 
         .commit();
       
-      console.log("Attendee document updated:", createdAttendee);
+      console.log("Attendee document updated:", savedAttendee);
     } else {
-      // Create a new document using createOrReplace to ensure it's published
-      console.log("Creating new attendee document");
-      createdAttendee = await sanityClient.createOrReplace(attendeeDocument);
-      console.log("Attendee document created:", createdAttendee);
+      console.log(`Creating new attendee document with ID: ${attendeeId}`);
+      let initialFavoriteReferences: {_type: string, _ref: string, _key: string}[] = [];
+
+      if (data.localFavoriteSlugs && data.localFavoriteSlugs.length > 0) {
+        console.log("Attempting to migrate localFavoriteSlugs:", data.localFavoriteSlugs);
+        const uniqueLocalSlugs = [...new Set(data.localFavoriteSlugs)];
+        // Fetch talk documents for these slugs to get their actual _ids
+        const talks = await sanityClient.fetch<{_id: string, slug: {current: string}}[]>(
+          `*[_type == "talk" && slug.current in $slugs]{_id, "slug": slug.current}`,
+          { slugs: uniqueLocalSlugs }
+        );
+
+        if (talks && talks.length > 0) {
+          initialFavoriteReferences = talks.map(talk => {
+            const cleanedId = cleanTalkId(talk._id);
+            return ({ _type: 'reference', _ref: cleanedId, _key: cleanedId });
+          });
+          migratedFavoriteCount = initialFavoriteReferences.length;
+          console.log(`Successfully mapped ${migratedFavoriteCount} local slugs to talk references.`);
+        } else {
+          console.log("No matching talk documents found for localFavoriteSlugs.");
+        }
+      }
+
+      // For new attendees, include _type, _id and initialize favoriteTalks
+      const newAttendeeDocument = {
+        _type: "attendee",
+        _id: attendeeId,
+        ...formFields,
+        favoriteTalks: initialFavoriteReferences, 
+      };
+      savedAttendee = await sanityClient.createOrReplace(newAttendeeDocument);
+      console.log("Attendee document created:", savedAttendee);
     }
 
     // Return a success response
     return NextResponse.json(
-      { message: "Registration successful", attendeeId: createdAttendee._id },
+      { 
+        message: "Registration successful", 
+        attendeeId: savedAttendee._id,
+        migratedFavorites: migratedFavoriteCount // Inform client how many were migrated
+      },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating attendee document:", error);
+    console.error("Error during registration process:", error);
     // Return an error response
     return NextResponse.json(
       {

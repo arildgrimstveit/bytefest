@@ -22,42 +22,53 @@ interface FavoriteItem {
   title?: string;
 }
 
+// Type for the result of fetching attendee with their favorite talks projected
+interface AttendeeWithFavorites {
+  favorites: FavoriteItem[];
+}
+
 export async function POST(request: NextRequest) {
   const email = getAuthenticatedUserEmail(request);
   
-  // Check authentication early
   if (!email) {
+    console.log("POST /api/favorites: User not authenticated.");
     return NextResponse.json({
       error: 'User not authenticated',
       details: 'You need to be logged in to save favorites on the server',
       useLocalStorage: true
-    }, { status: 200 }); // Return 200 so frontend can still use localStorage
+    }, { status: 200 });
   }
   
   try {
     const { talkSlug, favorite } = await request.json();
     
     if (!talkSlug) {
+      console.error("POST /api/favorites: Talk slug is required.");
       return NextResponse.json({ error: 'Talk slug is required' }, { status: 400 });
     }
     
-    // Get talk document(s) by slug
-    const talks = await client.fetch<TalkDoc[]>(
-      `*[_type == "talk" && slug.current == $talkSlug]{ _id, title }`,
+    // Get talk document by slug - we only need one, published or draft.
+    const talk = await client.fetch<TalkDoc>(
+      `*[_type == "talk" && slug.current == $talkSlug][0]{ _id }`,
       { talkSlug }
     );
     
-    if (!talks || talks.length === 0) {
+    if (!talk) {
+      console.log(`POST /api/favorites: Talk not found for slug "${talkSlug}".`);
       return NextResponse.json({
         error: 'Talk not found',
         details: `No talk found with slug "${talkSlug}"`,
         useLocalStorage: true
-      }, { status: 404 });
+      }, { status: 404 }); // Keep 404 for talk not found
     }
     
-    // Get attendee document
+    // Use the cleaned ID for the talk reference (ensures we reference the published version if applicable)
+    const talkReferenceId = cleanReferenceId(talk._id);
+
+    // Get PUBLISHED attendee document
+    console.log(`POST /api/favorites: Fetching published attendee for email: ${email}`);
     const attendee = await client.fetch(
-      `*[_type == "attendee" && attendeeEmail == $email][0]{ 
+      `*[_type == "attendee" && attendeeEmail == $email && !(_id in path("drafts.**"))][0]{ 
         _id, 
         "favoriteTalks": favoriteTalks[]._ref 
       }`,
@@ -65,98 +76,47 @@ export async function POST(request: NextRequest) {
     );
     
     if (!attendee) {
+      console.log(`POST /api/favorites: Published attendee not found for email "${email}". Defaulting to localStorage.`);
       return NextResponse.json({
-        error: 'Attendee not found',
-        details: `No attendee record for ${email}`,
+        error: 'Published attendee not found',
+        details: `No published attendee record for ${email}. Favorites will be saved locally.`,
         useLocalStorage: true
-      }, { status: 200 });
+      }, { status: 200 }); // 200 allows frontend to use localStorage
     }
     
-    // Log attendee document ID to check if it's a draft
-    console.log(`Attendee document ID: ${attendee._id}, isDraft: ${attendee._id.startsWith('drafts.')}`);
-    
-    // Get all possible IDs for this talk (draft and published versions)
-    const talkIds = talks.map((t: TalkDoc) => t._id);
-    // Get clean IDs for reference creation (without "drafts." prefix)
-    const cleanIds = talkIds.map(cleanReferenceId);
-    // Select one ID to use (prefer published)
-    const referenceId = cleanIds[0];
-    
-    // Get existing favorite IDs
+    console.log(`POST /api/favorites: Found published attendee: ${attendee._id}`);
     const existingFavoriteIds = attendee.favoriteTalks || [];
     
-    // Check if any version of this talk is already favorited
-    const isAlreadyFavorited = talkIds.some((id: string) => 
-      existingFavoriteIds.includes(id) || existingFavoriteIds.includes(cleanReferenceId(id))
-    );
+    // Check if this specific talk reference is already favorited
+    const isAlreadyFavorited = existingFavoriteIds.includes(talkReferenceId);
     
     // Adding to favorites
     if (favorite !== false) {
       if (isAlreadyFavorited) {
+        console.log(`POST /api/favorites: Talk ${talkReferenceId} already favorited by ${attendee._id}.`);
         return NextResponse.json({ success: true, action: 'already_exists' });
       }
       
       try {
-        // Add favorite using a clean reference ID
-        console.log(`Attempting to update attendee ${attendee._id} with talk reference ${referenceId}`);
-        console.log(`Current favorites: ${JSON.stringify(existingFavoriteIds)}`);
-        
-        // Try to publish the document first if it's a draft
-        if (attendee._id.startsWith('drafts.')) {
-          console.log('Attendee is in draft state, attempting to use published ID');
-          
-          // Get the published ID (remove drafts. prefix)
-          const publishedId = attendee._id.replace(/^drafts\./, '');
-          console.log(`Trying published ID: ${publishedId}`);
-          
-          try {
-            // Try to patch using the published ID instead
-            const patchResult = await client
-              .patch(publishedId)
-              .setIfMissing({ favoriteTalks: [] })
-              .append('favoriteTalks', [{ 
-                _type: 'reference', 
-                _ref: referenceId
-              }])
-              .commit();
-              
-            console.log(`Patch result with published ID: ${JSON.stringify(patchResult)}`);
-            return NextResponse.json({ success: true, action: 'added' });
-          } catch (publishedError) {
-            console.error('Error using published ID:', publishedError);
-            // Fall back to using the draft ID
-            console.log('Falling back to using draft ID');
-          }
-        }
-        
-        // Regular patch if not draft or if publishing failed
-        const patchResult = await client
-          .patch(attendee._id)
+        console.log(`POST /api/favorites: Attempting to add talk ${talkReferenceId} to favorites for attendee ${attendee._id}`);
+        await client
+          .patch(attendee._id) // Operate on the fetched published attendee ID
           .setIfMissing({ favoriteTalks: [] })
           .append('favoriteTalks', [{ 
             _type: 'reference', 
-            _ref: referenceId
+            _ref: talkReferenceId, 
+            _key: talkReferenceId
           }])
-          .commit();
+          .commit(); // Removed skipDuplicatePatchError
           
-        console.log(`Patch result: ${JSON.stringify(patchResult)}`);
+        console.log(`POST /api/favorites: Successfully added talk ${talkReferenceId} for attendee ${attendee._id}`);
         return NextResponse.json({ success: true, action: 'added' });
       } catch (error) {
-        // Log detailed error information
-        console.error("Error updating favorites:", error);
-        console.error("Error details:", error instanceof Error ? error.message : 'Unknown error');
-        
-        if (error instanceof Error && error.message.includes('permission')) {
-          return NextResponse.json({
-            error: 'Permission denied',
-            details: 'Your Sanity token may have insufficient permissions',
-            useLocalStorage: true
-          }, { status: 200 });
-        }
-        
+        console.error(`POST /api/favorites: Error adding favorite for attendee ${attendee._id}, talk ${talkReferenceId}:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return NextResponse.json({ 
           error: 'Failed to update favorites in database',
-          details: error instanceof Error ? error.message : 'Unknown error',
+          details: errorMessage,
           useLocalStorage: true
         }, { status: 200 });
       }
@@ -164,37 +124,43 @@ export async function POST(request: NextRequest) {
     // Removing from favorites
     else {
       if (!isAlreadyFavorited) {
+        console.log(`POST /api/favorites: Talk ${talkReferenceId} not found in favorites of ${attendee._id} to remove.`);
         return NextResponse.json({ success: true, action: 'not_found' });
       }
       
       try {
-        // Remove all versions of this talk from favorites
-        const updatedFavorites = existingFavoriteIds.filter((id: string) => 
-          !talkIds.includes(id) && !talkIds.includes(`drafts.${id}`)
-        );
+        console.log(`POST /api/favorites: Attempting to remove talk ${talkReferenceId} from favorites for attendee ${attendee._id}`);
+        const updatedFavorites = existingFavoriteIds.filter((id: string) => id !== talkReferenceId);
         
         await client
-          .patch(attendee._id)
+          .patch(attendee._id) // Operate on the fetched published attendee ID
           .set({ favoriteTalks: updatedFavorites.map((id: string) => ({ 
             _type: 'reference', 
-            _ref: id 
+            _ref: id, 
+            _key: id
           }))})
-          .commit();
+          .commit(); // Removed skipDuplicatePatchError
           
+        console.log(`POST /api/favorites: Successfully removed talk ${talkReferenceId} for attendee ${attendee._id}`);
         return NextResponse.json({ success: true, action: 'removed' });
-      } catch {
+      } catch (error) {
+        console.error(`POST /api/favorites: Error removing favorite for attendee ${attendee._id}, talk ${talkReferenceId}:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return NextResponse.json({ 
-          error: 'Failed to remove favorite',
+          error: 'Failed to remove favorite from database',
+          details: errorMessage,
           useLocalStorage: true
-        }, { status: 200 }); // Return 200 so frontend can still use localStorage
+        }, { status: 200 });
       }
     }
   } catch (error) {
-    console.error('Error handling favorites:', error);
+    console.error('POST /api/favorites: General error handling favorites:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
-      error: 'Server error',
+      error: 'Server error while handling favorites',
+      details: errorMessage,
       useLocalStorage: true
-    }, { status: 200 }); // Return 200 so frontend can still use localStorage
+    }, { status: 200 });
   }
 }
 
@@ -202,66 +168,87 @@ export async function GET(request: NextRequest) {
   const email = getAuthenticatedUserEmail(request);
   const talkSlug = request.nextUrl.searchParams.get('talkSlug');
   
-  // Check authentication early and return appropriate response for localStorage
   if (!email) {
+    console.log("GET /api/favorites: User not authenticated.");
     return NextResponse.json({
-      useLocalStorage: true
+      useLocalStorage: true // Allow frontend to use localStorage if user not logged in
     }, { status: 200 });
   }
   
   try {
     // For checking a specific talk's favorite status
     if (talkSlug) {
-      // Get talk IDs for the slug
+      console.log(`GET /api/favorites: Checking favorite status for talkSlug: ${talkSlug}, user: ${email}`);
       const talk = await client.fetch<TalkDoc>(
         `*[_type == "talk" && slug.current == $talkSlug][0]{ _id }`,
         { talkSlug }
       );
       
       if (!talk) {
-        return NextResponse.json({ isFavorite: false });
+        console.log(`GET /api/favorites: Talk not found for slug "${talkSlug}".`);
+        // If talk doesn't exist, it can't be a favorite.
+        // Still return useLocalStorage: false as user is authenticated, but talk isn't favorited.
+        return NextResponse.json({ isFavorite: false, useLocalStorage: false });
       }
       
-      const talkId = talk._id;
-      const cleanId = cleanReferenceId(talkId);
+      const talkReferenceId = cleanReferenceId(talk._id);
       
-      // Check if user has favorited this talk
-      const favorited = await client.fetch(
-        `*[_type == "attendee" && attendeeEmail == $email && 
-          count(favoriteTalks[_ref == $talkId || _ref == $cleanId]) > 0
+      // Check if the PUBLISHED attendee has favorited this talk
+      const favoritedAttendee = await client.fetch(
+        `*[_type == "attendee" && 
+           attendeeEmail == $email && 
+           !(_id in path("drafts.**")) && 
+           $talkReferenceId in favoriteTalks[]._ref
         ][0]{ _id }`,
-        { email, talkId, cleanId }
+        { email, talkReferenceId }
       );
       
-      return NextResponse.json({ isFavorite: !!favorited });
+      const isFavorite = !!favoritedAttendee;
+      console.log(`GET /api/favorites: Talk ${talkSlug} (ref: ${talkReferenceId}) isFavorite: ${isFavorite} for user ${email}`);
+      return NextResponse.json({ isFavorite: isFavorite, useLocalStorage: false });
     }
     
-    // For getting all favorites
-    const favorites = await client.fetch<FavoriteItem[]>(
-      `*[_type == "attendee" && attendeeEmail == $email][0]{
-        "favorites": favoriteTalks[]-> {
-          _id,
-          "slug": slug.current,
-          title
+    // For getting all favorites for the authenticated user
+    console.log(`GET /api/favorites: Fetching all favorites for user: ${email}`);
+    const attendeeWithFavorites = await client.fetch<AttendeeWithFavorites | null>( // Using specific type or null
+      `*[_type == "attendee" && attendeeEmail == $email && !(_id in path("drafts.**"))][0]{
+        "favorites": favoriteTalks[]->{ 
+          _id, 
+          "slug": slug.current, 
+          title 
         }
-      }.favorites`,
+      }`,
       { email }
     );
     
+    if (!attendeeWithFavorites || !attendeeWithFavorites.favorites) {
+      console.log(`GET /api/favorites: No published attendee or no favorites found for user ${email}.`);
+      return NextResponse.json({ favorites: [], useLocalStorage: false });
+    }
+
+    const validFavorites = (attendeeWithFavorites.favorites || [])
+      .filter((item: FavoriteItem) => item && item.slug) // Ensure item and slug are present
+      .map((item: FavoriteItem) => ({
+        talkId: cleanReferenceId(item._id), // Ensure talk ID is clean
+        talkSlug: item.slug,
+        title: item.title
+      }));
+      
+    console.log(`GET /api/favorites: Found ${validFavorites.length} favorites for user ${email}.`);
     return NextResponse.json({ 
-      favorites: (favorites || [])
-        .filter((item: FavoriteItem) => item && item.slug)
-        .map((item: FavoriteItem) => ({
-          talkId: item._id,
-          talkSlug: item.slug,
-          title: item.title
-        }))
+      favorites: validFavorites,
+      useLocalStorage: false 
     });
+    
   } catch (error) {
-    console.error('Error fetching favorites:', error);
+    console.error(`GET /api/favorites: Error fetching favorites for user ${email}:`, error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    // For GET requests, if there's a server error, it's safer to also suggest localStorage
+    // as the data might be inconsistent or unavailable.
     return NextResponse.json({ 
-      error: 'Server error',
-      useLocalStorage: true
-    }, { status: 200 }); // Return 200 so frontend can still use localStorage
+      error: 'Server error fetching favorites',
+      details: errorMessage,
+      useLocalStorage: true // Fallback to localStorage on general GET errors
+    }, { status: 200 });
   }
 } 

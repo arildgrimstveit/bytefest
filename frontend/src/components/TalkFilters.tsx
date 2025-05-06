@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import TalkCard from './TalkCard';
 import HelpCard from './HelpCard';
 import { ClientTalkFiltersProps } from '@/types/props';
@@ -11,67 +11,98 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [favoriteTalkIds, setFavoriteTalkIds] = useState<string[]>([]);
-  const [useLocalStorage, setUseLocalStorage] = useState(false);
+  const [shouldRelyOnLocalStorage, setShouldRelyOnLocalStorage] = useState(false);
   
-  // Hide "IKKE MED:" talks by default - set to false to show them
   const hideIkkeMed = true;
-
   const durationRef = useRef<HTMLDivElement>(null);
 
-  // Function to fetch favorites - declared outside useEffect so it can be reused
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
+    let localFavorites: string[] = [];
     try {
-      // Try to get favorites from API first
+      const rawLocalFavorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
+      localFavorites = Array.isArray(rawLocalFavorites) ? [...new Set(rawLocalFavorites.filter(slug => typeof slug === 'string'))] : [];
+    } catch (e) {
+      console.error("[TalkFilters] Error reading/parsing local favorites:", e);
+      localFavorites = [];
+    }
+
+    try {
       const response = await fetch('/api/favorites');
       const data = await response.json();
       
       if (data.useLocalStorage) {
-        // API wants us to use localStorage
-        setUseLocalStorage(true);
-        const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-        setFavoriteTalkIds(favorites);
+        setFavoriteTalkIds(localFavorites);
+        setShouldRelyOnLocalStorage(true);
       } else if (response.ok && data.favorites) {
-        // Use API response - extract talk slugs
-        const slugs = data.favorites.map((fav: {talkSlug: string}) => fav.talkSlug);
-        setFavoriteTalkIds(slugs);
-        setUseLocalStorage(false);
+        if (data.favorites.length > 0) {
+          let slugs = data.favorites.map((fav: {talkSlug: string}) => fav.talkSlug).filter((slug: string | null) => slug);
+          slugs = [...new Set(slugs)];
+          setFavoriteTalkIds(slugs);
+          setShouldRelyOnLocalStorage(false);
+        } else {
+          if (localFavorites.length > 0) {
+            console.log("[TalkFilters] Auth user with no Sanity favorites; using local favorites.");
+            setFavoriteTalkIds(localFavorites);
+            setShouldRelyOnLocalStorage(true);
+          } else {
+            setFavoriteTalkIds([]);
+            setShouldRelyOnLocalStorage(false);
+          }
+        }
+      } else {
+        console.warn("[TalkFilters] API error/unexpected response for GET /api/favorites. Falling back to local.", { status: response.status, data });
+        setFavoriteTalkIds(localFavorites);
+        setShouldRelyOnLocalStorage(true);
       }
-    } catch {
-      // Fallback to localStorage if API fails
-      setUseLocalStorage(true);
-      const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-      setFavoriteTalkIds(favorites);
+    } catch (apiError) {
+      console.error("[TalkFilters] API fetch failed for GET /api/favorites. Falling back to local:", apiError);
+      setFavoriteTalkIds(localFavorites);
+      setShouldRelyOnLocalStorage(true);
     }
-  };
+  }, []);
 
-  // Set up an event listener to refresh favorites when localStorage changes
   useEffect(() => {
-    // Fetch on initial load
     fetchFavorites();
-    
-    // Set up a storage event listener to refresh favorites when localStorage changes
+  }, [fetchFavorites]);
+
+  useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'favoriteTalks') {
-        const favorites = e.newValue ? JSON.parse(e.newValue) : [];
-        setFavoriteTalkIds(favorites);
+        console.log("[TalkFilters] localStorage 'favoriteTalks' changed by other source. Re-evaluating favorites.");
+        fetchFavorites(); 
       }
     };
-    
     window.addEventListener('storage', handleStorageChange);
-    
-    // Also check periodically in case local component state changes localStorage
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [fetchFavorites]);
+
+  useEffect(() => {
+    if (!shouldRelyOnLocalStorage) {
+      return;
+    }
+    let lastKnownStringifiedFavorites = JSON.stringify(favoriteTalkIds);
+
     const intervalId = setInterval(() => {
-      if (useLocalStorage) {
-        const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-        setFavoriteTalkIds(favorites);
-      }
+        try {
+            const currentLocalFavorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
+            const uniqueCurrentLocalFavorites = Array.isArray(currentLocalFavorites) ? [...new Set(currentLocalFavorites.filter(slug => typeof slug === 'string'))] : [];
+            const stringifiedNewFavorites = JSON.stringify(uniqueCurrentLocalFavorites);
+
+            if (stringifiedNewFavorites !== lastKnownStringifiedFavorites) {
+                setFavoriteTalkIds(uniqueCurrentLocalFavorites);
+                lastKnownStringifiedFavorites = stringifiedNewFavorites;
+            }
+        } catch {
+            // Error already logged
+        }
     }, 1000);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       clearInterval(intervalId);
     };
-  }, [useLocalStorage]);
+  }, [shouldRelyOnLocalStorage]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -79,7 +110,6 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
         setIsDurationOpen(false);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -91,35 +121,30 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
     { label: '45 minutter', value: '45min' },
   ];
 
-  // Filter talks based on current filter state
-  const filteredTalks = talks.filter(talk => {
-    // Filter out "IKKE MED:" titles if the filter is active
+  const filteredTalks = talks.filter((talk) => {
+    const isTalkFavorited = favoriteTalkIds.includes(talk.slug.current);
     if (hideIkkeMed && talk.title && talk.title.trim().startsWith('IKKE MED:')) {
       return false;
     }
-
-    // Filter by duration
     if (selectedDuration && talk.duration !== selectedDuration) {
       return false;
     }
-
-    // Filter by favorites
-    if (showFavorites && !favoriteTalkIds.includes(talk.slug.current)) {
+    if (showFavorites && !isTalkFavorited) {
       return false;
     }
-
     return true;
   });
+
+  if (showFavorites && talks.length !== filteredTalks.length) {
+    console.log(`[TalkFilters] Filtering by favorites. Showing ${filteredTalks.length} of ${talks.length} talks.`);
+  }
 
   return (
     <>
       <div className="flex justify-center flex-wrap gap-4 mb-12">
-        {/* Varighet button */}
         <div className="relative" ref={durationRef}>
           <button
-            onClick={() => {
-              setIsDurationOpen(!isDurationOpen);
-            }}
+            onClick={() => setIsDurationOpen(!isDurationOpen)}
             className={`px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 ${
               selectedDuration ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'
             }`}
@@ -161,9 +186,8 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
           )}
         </div>
 
-        {/* Favoritter button */}
         <button
-          onClick={() => setShowFavorites(!showFavorites)}
+          onClick={() => setShowFavorites(prevShowFavorites => !prevShowFavorites)}
           className={`px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 ${
             showFavorites ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'
           }`}
@@ -179,25 +203,19 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
         </button>
       </div>
 
-      {/* Results */}
       {filteredTalks.length === 0 ? (
         <div className="text-center py-16">
           <p className="text-gray-300">Ingen foredrag funnet. Prøv å endre filtrene.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Help Card - Always first */}
           <HelpCard />
-          
-          {/* Talk Cards */}
           {filteredTalks.map((talk) => (
             <TalkCard 
               key={talk._id} 
               talk={talk} 
-              onFavoriteToggle={() => {
-                // Refresh favorites list after toggling, regardless of storage method
-                fetchFavorites();
-              }}
+              initialIsFavorite={favoriteTalkIds.includes(talk.slug.current)}
+              onFavoriteToggle={() => fetchFavorites()}
             />
           ))}
         </div>

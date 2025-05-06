@@ -249,9 +249,10 @@ export default async function TalkDetail({ params }: TalkProps) {
                           {similarTalk.speakers && similarTalk.speakers[0]?.picture?.asset?.url ? (
                             <Image
                               src={similarTalk.speakers[0].picture.asset.url}
-                              alt=""
+                              alt={similarTalk.speakers[0]?.name ? `Photo of ${similarTalk.speakers[0].name}` : similarTalk.title}
                               fill
                               className="object-cover object-center"
+                              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
