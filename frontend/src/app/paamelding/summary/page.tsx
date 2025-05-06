@@ -1,283 +1,214 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import { useUser } from "@/components/UserContext";
+import sanityClient from "@/sanityClient";
+import type { Attendee } from "@/types/attendee"; // Import from the renamed file
 
-// Export the interface
-export interface RegistrationSubmitData {
-  bu: string;
-  participationLocation: string;
-  wantsFood: string;
-  dietaryNeeds: string[];
-  attendsParty: string;
-  willPresent: string;
-  attendeeName?: string;
-  attendeeEmail?: string;
-}
+// Helper function to format dietary needs for display
+const formatDietaryNeeds = (needs?: string[]): string => {
+  if (!needs || needs.length === 0) {
+    return "Ingen spesifisert";
+  }
+  // Handle potential "Annet: ..." entries
+  return needs
+    .map(need => need.startsWith("Annet: ") ? need.substring("Annet: ".length) : need)
+    .join(", ");
+};
 
-export default function Summary() {
+export default function PaameldingSummary() {
   const router = useRouter();
-  const { user } = useUser(); // Only need user context here
-
-  // State for the form data retrieved from localStorage
-  const [formData, setFormData] = useState<RegistrationSubmitData>({
-    bu: '',
-    participationLocation: '',
-    wantsFood: '',
-    dietaryNeeds: [],
-    attendsParty: '',
-    willPresent: '',
-  });
-  const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user, isAuthenticated } = useUser();
+  const [registration, setRegistration] = useState<Attendee | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false); // State for deletion status
+  const [deleteError, setDeleteError] = useState<string | null>(null); // State for deletion error
 
   useEffect(() => {
-    // Retrieve data from localStorage using the keys set in the form page
-    const bu = localStorage.getItem('paameldingBu') || '';
-    const participationLocation = localStorage.getItem('paameldingParticipationLocation') || '';
-    const wantsFood = localStorage.getItem('paameldingWantsFood') || '';
-    const dietaryNeeds = JSON.parse(localStorage.getItem('paameldingDietaryNeeds') || '[]');
-    const attendsParty = localStorage.getItem('paameldingAttendsParty') || '';
-    const willPresent = localStorage.getItem('paameldingWillPresent') || '';
+    const fetchRegistration = async () => {
+      if (isAuthenticated && user?.email) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const query = `*[_type == "attendee" && attendeeEmail == $email][0]`;
+          const params = { email: user.email };
+          const data: Attendee | null = await sanityClient.fetch(query, params);
 
-    setFormData({
-      bu,
-      participationLocation,
-      wantsFood,
-      dietaryNeeds,
-      attendsParty,
-      willPresent,
-    });
-    setLoading(false);
-  }, []);
-
-  // --- Helper Functions for Display --- 
-
-  const getWantsFoodText = (value: string) => {
-    switch (value) {
-      case 'yes': return 'Ja';
-      case 'no': return 'Nei';
-      case 'digital': return 'Jeg deltar digitalt';
-      default: return '';
-    }
-  };
-
-  const getAttendsPartyText = (value: string) => {
-    switch (value) {
-      case 'yes': return 'Ja, jeg er med på det sosiale';
-      case 'no': return 'Nei, jeg kan dessverre ikke';
-      default: return '';
-    }
-  };
-
-  const getWillPresentText = (value: string) => {
-    switch (value) {
-      case 'yes': return 'Ja';
-      case 'no': return 'Nei';
-      default: return '';
-    }
-  };
-
-  // --- Event Handlers ---
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    const submitData: RegistrationSubmitData = {
-      ...formData,
-      attendeeName: user?.name || "",
-      attendeeEmail: user?.email || ""
+          if (data) {
+            setRegistration(data);
+          } else {
+            setError("Kunne ikke finne påmeldingsinformasjonen din.");
+            // Optional: Redirect back to form if no data found?
+            // router.push('/paamelding'); 
+          }
+        } catch (err) {
+          console.error("Error fetching registration:", err);
+          setError("En feil oppstod under henting av påmeldingsdata.");
+        } finally {
+          setIsLoading(false);
+        }
+      } else if (!isAuthenticated) {
+         // If user somehow lands here unauthenticated, redirect to login/form?
+         router.push('/paamelding');
+      }
     };
 
-    // console.log("Submitting registration data:", submitData);
+    fetchRegistration();
+  }, [isAuthenticated, user?.email, router]);
 
-    // ** Call the API route **
+  // --- Deregister Handler --- 
+  const handleDeregister = async () => {
+    if (!registration?._id) {
+      setDeleteError("Kan ikke melde av: Påmeldings-ID mangler.");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
     try {
-      const response = await fetch('/api/registerAttendance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData),
-      });
-
-      if (!response.ok) {
-         // Attempt to parse error details from the API response
-         let errorDetails = 'Unknown error';
-         try {
-            const errorBody = await response.json();
-            errorDetails = errorBody.error || errorBody.details || JSON.stringify(errorBody);
-         } catch (parseError) {
-             // Log the parsing error and fallback to text
-             console.warn("Failed to parse error response body as JSON:", parseError); 
-             errorDetails = await response.text(); // Fallback to raw text
-         }
-         throw new Error(`Failed to submit registration (${response.status}): ${errorDetails}`);
-      }
-      
-      // // Simulate API call delay -- REMOVED
-      // await new Promise(resolve => setTimeout(resolve, 1500)); 
-
-      // Clear localStorage items after successful API submission
-      // Re-enabled clearing on this page now that API call is added
-      localStorage.removeItem('paameldingBu');
-      localStorage.removeItem('paameldingParticipationLocation');
-      localStorage.removeItem('paameldingWantsFood');
-      localStorage.removeItem('paameldingDietaryNeeds');
-      localStorage.removeItem('paameldingAttendsParty');
-      localStorage.removeItem('paameldingWillPresent');
-      localStorage.removeItem('isReturningFromPaameldingSummary'); 
-      
-
-      // Redirect to confirmation page
-      router.push('/paamelding/confirmation'); // Use Next.js router
-
-    } catch (error) {
-      console.error('Error submitting registration:', error);
-      alert('Det oppstod en feil ved innsending av påmeldingen. Vennligst prøv igjen senere.');
-      setIsSubmitting(false);
+      console.log(`Attempting to delete registration: ${registration._id}`);
+      await sanityClient.delete(registration._id);
+      console.log("Registration deleted successfully");
+      // Redirect to homepage after successful deletion
+      router.push("/?deregistered=true");
+    } catch (err) {
+      console.error("Error deleting registration:", err);
+      setDeleteError("En feil oppstod under avmelding. Prøv igjen.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleGoBack = () => {
-    // Set flag so the form page knows to restore data
-    localStorage.setItem('isReturningFromPaameldingSummary', 'true');
-    router.push('/paamelding'); // Navigate back to the form
-  };
-
-  // --- Render Logic ---
-
-  if (loading) {
-    // Basic loading state while retrieving from localStorage
+  // --- Display Loading State --- 
+  if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        Laster oppsummering...
+      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+        <p className="text-white text-xl">Laster din påmelding...</p>
+        {/* Optional: Add a spinner here */}
       </div>
     );
   }
 
-  if (isSubmitting) {
-    // Display submitting state
+  // --- Display Error State --- 
+  if (error) {
     return (
-      <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
-        <div className="w-full max-w-4xl mx-auto my-8 relative">
-          <div className="relative bg-white p-6 sm:p-8 shadow-lg px-4 sm:px-10 md:px-20 break-words">
-            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
-            <div className="flex flex-col items-center justify-center py-10">
-              <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Sender inn...</h1>
-              <p className="text-center">Vennligst vent mens påmeldingen din blir registrert.</p>
-              {/* Optional: Add a spinner */}
-            </div>
-          </div>
-        </div>
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-16 text-center text-white">
+        <h1 className="text-3xl argent mb-4">Feil</h1>
+        <p className="text-red-400 mb-6">{error}</p>
+        <Link href="/paamelding" className="inline-block px-6 py-3 bg-white text-[#161E38] font-bold rounded hover:bg-gray-200 transition-colors">
+          Gå til påmelding
+        </Link>
       </div>
     );
   }
 
-  return (
-    <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4">
-      <div className="w-full max-w-4xl mx-auto my-8">
-         {/* Reuse the outer card structure */}
-        <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20">
-            <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
-          
-            <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Oppsummering</h1>
-          
-            <p className="mb-6">Ble det riktig? Se over det du har skrevet og gjør eventuelle endringer før du sender inn.</p>
-            
-             {/* Summary Box - Style similar to the first image */}
-            <div className="bg-[#FDF4E3] p-6 border-2 border-black space-y-4 mb-8">
-              
-              {/* BU */}
-              <div>
-                <h3 className="font-bold text-md mb-1">Hvilken BU tilhører du?</h3>
-                <p>{formData.bu || "Ikke valgt"}</p>
-              </div>
-              
-              {/* Participation Location */}
-              <div>
-                <h3 className="font-bold text-md mb-1">Hvor vil du delta?</h3>
-                <p>{formData.participationLocation || "Ikke valgt"}</p>
-              </div>
+  // --- Display Confirmation and Data --- 
+  if (registration) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-16">
+        <div className="relative bg-white pt-8 pb-10 px-6 sm:pt-10 sm:pb-12 sm:px-10 md:pt-12 md:pb-16 md:px-16 shadow-lg font-plex">
+          <h1 className="text-center text-5xl argent text-black mb-6">
+            Du er påmeldt!
+          </h1>
+          <p className="text-left text-lg mb-4">
+            Ble det riktig? Se over det du har fylt inn og gjør eventuelt endringer. Du kan endre
+            påmeldingen din senere ved å klikke på påmeldingslenken på nytt.
+          </p>
+          <p className="text-left text-lg mb-6">
+            Vi gleder oss til å se deg 5. juni!
+          </p>
 
-              {/* Wants Food - Conditionally shown? Or always? Let's show if not digital */}
-              {formData.participationLocation !== 'Digitalt' && (
-                <div>
-                  <h3 className="font-bold text-md mb-1">Ønsker du mat under arangementet?</h3>
-                  <p>{getWantsFoodText(formData.wantsFood) || "Ikke valgt"}</p>
-                </div>
-              )}
-
-              {/* Add Dietary Needs Display */}
-              {formData.dietaryNeeds.length > 0 && (
-                <div>
-                  <h3 className="font-bold text-md mb-1">Dietthensyn</h3>
-                  <p>{formData.dietaryNeeds.join(", ")}</p>
-                </div>
-              )}
-              
-               {/* Attends Party */}
+          {/* Summary Box - Updated background color, removed pixel-corners, kept border */}
+          <div className="bg-[#FDF2E5] p-6 sm:p-8 border-2 border-black mb-10">
+             <h2 className="text-3xl sm:text-4xl iceland text-black text-left mb-6 sm:mb-8">Oppsummering</h2>
+             <div className="space-y-4 text-md">
                <div>
-                  <h3 className="font-bold text-md mb-1">Ønsker du å delta på fest etter det faglige programmet?</h3>
-                  <p>{getAttendsPartyText(formData.attendsParty) || "Ikke valgt"}</p>
-                </div>
-
-                {/* Will Present */}
+                   <p className="font-bold">Hvilken BU tilhører du?</p>
+                   <p>{registration.bu}</p>
+               </div>
+               <div>
+                   <p className="font-bold">Hvor vil du delta?</p>
+                   <p>{registration.participationLocation}</p>
+               </div>
+                 {/* Only show food/diet if not digital */}
+                {registration.participationLocation !== 'Digitalt' && (
+                    <> 
+                    <div>
+                        <p className="font-bold">Ønsker du mat?</p>
+                        <p>{registration.wantsFood === 'yes' ? 'Ja' : 'Nei'}</p>
+                    </div>
+                        {registration.wantsFood === 'yes' && (
+                        <div>
+                            <p className="font-bold">Dietthensyn:</p>
+                            <p>{formatDietaryNeeds(registration.dietaryNeeds)}</p>
+                        </div>
+                        )}
+                    </>
+                 )}
                 <div>
-                  <h3 className="font-bold text-md mb-1">Skal du holde foredrag på Bytefest?</h3>
-                  <p>{getWillPresentText(formData.willPresent) || "Ikke valgt"}</p>
+                   <p className="font-bold">Delta på fest etter faglig program?</p>
+                   <p>{registration.attendsParty === 'yes' ? 'Ja, jeg er med på det sosiale' : 'Nei, jeg kan dessverre ikke'}</p>
                 </div>
-                
-                {/* Optional: Display User Info again? */}
-                {/* 
-                <div className="pt-4 mt-4 border-t border-gray-300">
-                   <h3 className="font-bold text-md mb-1">Påmeldt som:</h3>
-                   <p>{user?.name} ({user?.email})</p>
-                 </div> 
-                 */}
-            </div>
-            
-             {/* Button Container */}
-            <div className="flex justify-between items-center mt-8">
-              {/* Back Button (Left) */}
-              <button 
-                type="button"
-                onClick={handleGoBack}
-                className="cursor-pointer transition-transform active:scale-95 hover:opacity-80"
-                disabled={isSubmitting}
-              >
-                {/* Assuming you have a back button image, or use text */}
-                 <Image 
-                  src="/images/Tilbake.svg" 
-                  alt="Tilbake og endre" 
-                  width={211} // Adjust size as needed
-                  height={59}
-                  style={{ width: '250px', height: 'auto' }} 
-                />
-                {/* Alternative: <span className="underline hover:no-underline"> &lt; Endre påmelding</span> */}
-              </button>
-              
-              {/* Submit Button (Right) */}
-              <button 
-                type="button" 
-                onClick={handleSubmit}
-                className="cursor-pointer transition-transform active:scale-95 hover:opacity-80"
-                disabled={isSubmitting}
-              >
+                <div>
+                    <p className="font-bold">Har du meldt inn et foredrag og fått det godkjent?</p>
+                    <p>{registration.willPresent === 'yes' ? 'Ja' : 'Nei'}</p>
+                </div>
+             </div>
+             <p className="text-sm mt-4 pt-4">
+                Ved påmelding samtykker du til lagring av personopplysninger, les <Link href="/privacy-policy" className="underline hover:no-underline">personvernerklæring</Link>.
+             </p>
+          </div>
+
+          <div className="flex justify-between items-center mt-6">
+             <Link href="/paamelding?edit=true" className="cursor-pointer transition-transform active:scale-95 hover:opacity-80">
                 <Image 
-                    src="/images/SendInn.svg"
-                    alt="Send inn påmelding"
-                    width={211} 
-                    height={59}
-                    style={{ width: '250px', height: 'auto' }} 
+                   src="/images/EndrePaamelding.svg" 
+                   alt="Endre påmelding"
+                   width={280}
+                   height={70}
+                   style={{ width: 'auto', height: 'auto' }}
                 />
-              </button>
-            </div>
+             </Link>
+
+             {/* --- Deregister Button / Loading State --- */}
+             <div className="flex items-center justify-center" style={{ minWidth: 269, minHeight: 59 }}>
+                {isDeleting ? (
+                   <span className="iceland text-xl">Melder av...</span>
+                ) : (
+                  <button 
+                    onClick={handleDeregister} 
+                    className="cursor-pointer transition-transform active:scale-95 hover:opacity-80" 
+                    aria-label="Meld deg av"
+                    disabled={isDeleting} 
+                  >
+                      <Image 
+                         src="/images/MeldDegAv.svg" 
+                         alt="Meld deg av"
+                         width={269}
+                         height={59}
+                         style={{ width: 'auto', height: 'auto' }}
+                      />
+                  </button>
+                )}
+             </div>
+          </div>
+          
+          {/* Display deletion error if any */}
+          {deleteError && (
+            <p className="text-red-600 text-sm mt-4 text-right font-medium">{deleteError}</p>
+          )}
         </div>
       </div>
-    </div>
+    );
+  }
+
+  // Fallback if no registration, loading, or error (should ideally not be reached)
+  return (
+     <div className="text-center text-white py-16">Ingen påmeldingsdata funnet.</div>
   );
 } 

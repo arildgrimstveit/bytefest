@@ -11,6 +11,7 @@
   body {
     background-color: #161E38;
     min-height: 100vh;
+    font-family: 'IBMPlexSansVar', sans-serif;
   }
 }
 
@@ -46,6 +47,24 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'IBMPlexSansVar';
+  src: url(../../public/fonts/ibm-plex-sans/IBMPlexSans-VariableFont_wdth,wght.woff2) format('woff2'),
+       url(../../public/fonts/ibm-plex-sans/IBMPlexSans-VariableFont_wdth,wght.woff) format('woff');
+  font-weight: 100 700; /* Variable font weight range */
+  font-stretch: 75% 125%; /* Variable font width range if needed */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IBMPlexSansVar';
+  src: url(../../public/fonts/ibm-plex-sans/IBMPlexSans-Italic-VariableFont_wdth,wght.woff2) format('woff2'),
+       url(../../public/fonts/ibm-plex-sans/IBMPlexSans-Italic-VariableFont_wdth,wght.woff) format('woff');
+  font-weight: 100 700; /* Variable font weight range */
+  font-stretch: 75% 125%; /* Variable font width range if needed */
+  font-style: italic;
+}
+
 @theme {
   --breakpoint-xxxs: 320px;
   --breakpoint-xxs: 375px;
@@ -61,8 +80,8 @@
   font-family: 'Iceland', sans-serif;
 }
 
-body {
-  font-family: 'HurmeGeometricSans3', sans-serif;
+.font-plex {
+  font-family: 'IBMPlexSansVar', sans-serif;
 }
 
 html {
@@ -127,7 +146,6 @@ html {
   right: 0;
 }
 
-/* Ensure content doesn't get clipped */
 .pixel-corners > input,
 .pixel-corners > select,
 .pixel-corners > textarea {

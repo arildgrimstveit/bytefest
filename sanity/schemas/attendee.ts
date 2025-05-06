@@ -1,11 +1,9 @@
 import {defineField, defineType} from 'sanity'
 
-// Define options for choice fields based on frontend forms
 const buOptions = [
   {value: 'Applications', title: 'Applications'},
   {value: 'Digital Platform Services', title: 'Digital Platform Services'},
   {value: 'Advisory', title: 'Advisory'},
-  // Add other BUs from your frontend if needed
 ]
 
 const participationLocationOptions = [
@@ -40,26 +38,26 @@ const willPresentOptions = [
 
 export const attendee = defineType({
   name: 'attendee',
-  title: 'Attendee / Påmeldt',
+  title: 'Attendee',
   type: 'document',
   fields: [
     defineField({
       name: 'attendeeName',
-      title: 'Name / Navn',
+      title: 'Name',
       type: 'string',
       readOnly: true, // Set from SSO, should not be edited manually
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'attendeeEmail',
-      title: 'Email / E-post',
+      title: 'Email',
       type: 'string',
       readOnly: true, // Set from SSO, should not be edited manually
       validation: (Rule) => Rule.required().email(),
     }),
     defineField({
       name: 'bu',
-      title: 'Business Unit / BU',
+      title: 'Business Unit',
       type: 'string',
       options: {
         list: buOptions,
@@ -69,7 +67,7 @@ export const attendee = defineType({
     }),
     defineField({
       name: 'participationLocation',
-      title: 'Participation Location / Deltar fra',
+      title: 'Participation Location',
       type: 'string',
       options: {
         list: participationLocationOptions,
@@ -79,7 +77,7 @@ export const attendee = defineType({
     }),
     defineField({
       name: 'wantsFood',
-      title: 'Wants Food / Ønsker mat',
+      title: 'Wants Food',
       type: 'string',
       options: {
         list: wantsFoodOptions,
@@ -90,24 +88,13 @@ export const attendee = defineType({
     }),
     defineField({
       name: 'dietaryNeeds',
-      title: 'Dietary Needs / Dietthensyn',
+      title: 'Dietary Needs',
       type: 'array',
       of: [{type: 'string'}],
-      // Optional: Define specific allowed dietary needs as a list for consistency?
-      // options: {
-      //     list: [
-      //         { value: 'Vegetarisk', title: 'Vegetarisk' },
-      //         { value: 'Vegansk', title: 'Vegansk' },
-      //         { value: 'Glutenfritt', title: 'Glutenfritt' },
-      //         { value: 'Melkefritt', title: 'Melkefritt' },
-      //         { value: 'Laktosefritt', title: 'Laktosefritt' },
-      //         // How to handle 'Annet: ...' here needs consideration
-      //     ]
-      // }
     }),
     defineField({
       name: 'attendsParty',
-      title: 'Attends Party / Deltar på fest',
+      title: 'Attends Party',
       type: 'string',
       options: {
         list: attendsPartyOptions,
@@ -118,7 +105,7 @@ export const attendee = defineType({
     }),
     defineField({
       name: 'willPresent',
-      title: 'Will Present / Skal holde foredrag',
+      title: 'Will Present',
       type: 'string',
       options: {
         list: willPresentOptions,
@@ -127,16 +114,19 @@ export const attendee = defineType({
       },
       validation: (Rule) => Rule.required(),
     }),
-    // Optional: Add a timestamp for when the registration occurred
-    // defineField({
-    //     name: 'registeredAt',
-    //     title: 'Registered At',
-    //     type: 'datetime',
-    //     readOnly: true,
-    //     initialValue: () => new Date().toISOString(),
-    // }),
+    defineField({
+      name: 'registeredAt',
+      title: 'Time of Registration',
+      type: 'datetime',
+      readOnly: true,
+      initialValue: () => new Date().toISOString(),
+      options: {
+        dateFormat: 'YYYY-MM-DD',
+        timeFormat: 'HH:mm',
+        timeStep: 15,
+      },
+    }),
   ],
-  // Customize the preview in the studio
   preview: {
     select: {
       name: 'attendeeName',

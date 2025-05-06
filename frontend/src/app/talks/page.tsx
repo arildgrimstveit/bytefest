@@ -26,7 +26,14 @@ export default async function TalksPage() {
         </div>
         <div className="text-xl argent text-white mb-6">
           <p>
-            Bli med på en spennende reise inn i systemutviklingens verden! På Bytefest vil foredragsholderne fra Sopra Steria dele sine unike innsikter og erfaringer, og gi deg nye perspektiver som kan inspirere deg til å tenke kreativt og innovativt.
+          På Bytefest får du dypdykke i systemutvikling. 
+          Kompetente kolleger fra ulike fagbakgrunner deler kunnskap de mener er viktig. 
+          Her er det noe for enhver, enten du vil dykke dypere i ditt eget felt, 
+          eller få en innføring i noe du ikke kan så godt fra før.
+          </p>
+          <br />
+          <p>
+          Fullstendig program med tid og sted, kommer nærmere arrangementet.
           </p>
         </div>
 

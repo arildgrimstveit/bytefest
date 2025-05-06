@@ -24,14 +24,14 @@ const Header = () => {
 
   const mainNavItems: NavItem[] = useMemo(() => [
     { name: "PÅMELDING", path: "/", disabled: false },
-    { name: "BYTEFEST", path: "/bytefest", disabled: false },
-    { name: "ALLE FOREDRAG", path: "/talks", disabled: true },
+    { name: "OM BYTEFEST", path: "/bytefest", disabled: false },
+    { name: "ALLE FOREDRAG", path: "/talks", disabled: false },
     { name: "PROGRAM", path: "/program", disabled: true },
   ], []);
 
   const renderNavLink = useCallback((item: NavItem) => {
     // Check if current path is part of the registration flow
-    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder');
+    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder') || pathname.startsWith('/paamelding');
     
     // PÅMELDING should be highlighted for both root path and the registration flow
     const isActive = 
@@ -87,7 +87,7 @@ const Header = () => {
 
   const renderMobileNavLink = useCallback((item: NavItem) => {
     // Check if current path is part of the registration flow
-    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder');
+    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder') || pathname.startsWith('/paamelding');
     
     // PÅMELDING should be highlighted for both root path and the registration flow
     const isActive = 

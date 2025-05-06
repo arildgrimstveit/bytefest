@@ -84,8 +84,8 @@ export default function ClientTalkFilters({ talks, availableTags }: ClientTalkFi
             </svg>
           </button>
           {isTagsOpen && (
-            <div className="absolute z-50 mt-2 w-[400px] bg-white shadow-lg left-1/2 -translate-x-1/2">
-              <div className="p-4 grid grid-cols-2 gap-3">
+            <div className="absolute z-50 mt-2 w-[500px] bg-white shadow-lg left-1/2 -translate-x-1/2">
+              <div className="p-4 grid grid-cols-4 gap-3">
                 {availableTags.map((tag) => (
                   <button
                     key={tag}
