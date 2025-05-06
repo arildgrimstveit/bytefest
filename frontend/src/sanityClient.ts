@@ -1,29 +1,23 @@
-import { createClient, SanityClient } from "@sanity/client";
+import { createClient, type SanityClient } from "@sanity/client";
 
-// Ensure environment variables are set in .env.local
-const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const sanityDataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
-const sanityToken = process.env.NEXT_PUBLIC_SANITY_API_TOKEN;
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? process.env.SANITY_PROJECT_ID;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? process.env.SANITY_DATASET;
+const token = process.env.SANITY_API_TOKEN ?? process.env.NEXT_PUBLIC_SANITY_API_TOKEN;
 
-// Log loaded config (optional but helpful for debugging)
-console.log("Sanity Config Loaded:", {
-  projectId: sanityProjectId ? 'Found' : 'NOT Found',
-  dataset: sanityDataset ? 'Found' : 'NOT Found',
-  token: sanityToken ? 'Found (ends with ' + sanityToken.slice(-4) + ')' : 'NOT Found'
-});
-
-// Basic validation to prevent client creation with missing essential config
-if (!sanityProjectId || !sanityDataset) {
-  throw new Error("Missing required Sanity environment variables: NEXT_PUBLIC_SANITY_PROJECT_ID and/or NEXT_PUBLIC_SANITY_DATASET");
+if (!projectId || !dataset) {
+  throw new Error(
+    "Missing required Sanity environment variables: NEXT_PUBLIC_SANITY_PROJECT_ID or SANITY_PROJECT_ID, and NEXT_PUBLIC_SANITY_DATASET or SANITY_DATASET"
+  );
 }
 
 const client: SanityClient = createClient({
-  projectId: sanityProjectId,
-  dataset: sanityDataset,
-  apiVersion: "2023-01-01",
-  useCdn: false,      
-  token: sanityToken,
-  ignoreBrowserTokenWarning: sanityToken ? true : false,
+  projectId,
+  dataset,
+  apiVersion: "2024-05-05",
+  useCdn: false,
+  perspective: "previewDrafts",
+  token,
+  ignoreBrowserTokenWarning: Boolean(token),
 });
 
 export default client;

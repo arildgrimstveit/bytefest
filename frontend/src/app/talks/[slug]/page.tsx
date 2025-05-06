@@ -16,14 +16,16 @@ export default async function TalkDetail(props: TalkProps) {
     _id,
     title,
     slug,
-    "speakerImage": speakers[0]->picture.asset->url,
-    "speakerName": speakers[0]->name,
-    "speakerEmail": speakers[0]->email,
+    speakers[]{
+      _key,
+      name,
+      email,
+      picture { asset->{url} }
+    },
     publishedAt,
     description,
     duration,
     tags,
-    talkTime,
     forkunnskap
   }`;
 
@@ -33,19 +35,15 @@ export default async function TalkDetail(props: TalkProps) {
     return <p className="text-center text-gray-700">Talk not found</p>;
   }
 
-  // Fallback image if speaker image is not available
-  const imageUrl = talk.speakerImage || '/images/LitenFisk.svg';
-  const isFallbackImage = !talk.speakerImage;
-  
   // Format duration display
-  const durationDisplay = talk.duration ? 
-    talk.duration.replace('min', ' MIN') : 
+  const durationDisplay = talk.duration ?
+    talk.duration.replace('min', ' MIN') :
     '20 MIN'; // Default fallback
-    
+
   // Format required knowledge level
   const getKnowledgeLevelText = (value: string | undefined) => {
     if (!value) return 'Ikke spesifisert';
-    
+
     switch (value) {
       case 'none': return 'Ingen grad';
       case 'low': return 'Liten grad';
@@ -60,15 +58,15 @@ export default async function TalkDetail(props: TalkProps) {
       <div className="w-full max-w-4xl mx-auto my-8">
         <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20 break-words">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
-          
+
           {/* Header with title and talk time */}
           <div className="mb-8">
             <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Foredrag</h1>
           </div>
-          
+
           <div className="bg-[#F6EBD5] p-6 border-2 border-black">
             <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden">{talk.title}</h2>
-            
+
             <div className="grid grid-cols-1 gap-4 mb-6">
               <div className="flex items-center text-gray-700">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
@@ -77,25 +75,25 @@ export default async function TalkDetail(props: TalkProps) {
                 </svg>
                 <span className="text-sm">{durationDisplay}</span>
               </div>
-              
+
               <div className="flex items-center text-gray-700">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                  <path d="M5 19V5H19V19H5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 9H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 19V5H19V19H5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9 9H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span className="text-sm">Forkunnskap: {getKnowledgeLevelText(talk.forkunnskap)}</span>
               </div>
             </div>
-            
+
             {/* Tags */}
             {talk.tags && talk.tags.length > 0 && (
               <div className="mb-6">
                 <div className="flex flex-wrap gap-2">
                   {talk.tags.map((tag, index) => (
-                    <span 
-                      key={index} 
+                    <span
+                      key={index}
                       className="flex items-center bg-[#161E38] text-white px-4 py-1 mb-2 max-w-[160px] sm:max-w-[200px] md:max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap uppercase"
                     >
                       {tag}
@@ -104,7 +102,7 @@ export default async function TalkDetail(props: TalkProps) {
                 </div>
               </div>
             )}
-            
+
             {/* Talk description */}
             <div className="prose max-w-none text-gray-700 mb-8">
               <h2 className="text-xl font-semibold mb-4 text-gray-900">Om foredraget</h2>
@@ -116,36 +114,59 @@ export default async function TalkDetail(props: TalkProps) {
                 </p>
               )}
             </div>
-            
+
+            {/* Updated Speaker Section */}
             <div className="mt-8 pt-6 border-t-2 border-black">
-              <h3 className="font-medium mb-4">Foredragsholder:</h3>
-              <div className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
-                <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0 flex items-center justify-center">
-                  <Image
-                    src={imageUrl}
-                    alt={talk.speakerName || talk.title}
-                    width={128}
-                    height={128}
-                    className={isFallbackImage 
-                      ? 'object-contain w-auto h-auto max-h-[70%] max-w-[70%]' 
-                      : 'object-cover w-full h-full'
-                    }
-                  />
-                </div>
-                <div className="flex-1 text-left">
-                  <h3 className="text-xl font-medium mb-2 break-words overflow-hidden">{talk.speakerName || 'Speaker TBA'}</h3>
-                  <div className="flex flex-row items-end justify-start gap-2">
-                    <Image
-                      src="/images/Mail.svg"
-                      alt="Mail"
-                      width={16}
-                      height={16}
-                      className="shrink-0 w-3 h-3 sm:w-4 sm:h-4"
-                    />
-                    <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">{talk.speakerEmail || 'E-post ikke tilgjengelig'}</span>
-                  </div>
-                </div>
-                <div className="absolute right-30 h-full hidden md:flex md:items-center">
+              {/* Heading above speaker list */}
+              <h3 className="font-medium mb-4">Foredragsholder{talk.speakers && talk.speakers.length > 1 ? 'e' : ''}:</h3>
+
+              {/* Container for speaker list/fallback and absolute fish */}
+              <div className="relative">
+                {/* Check if speakers array exists and has items */}
+                {talk.speakers && talk.speakers.length > 0 ? (
+                  <div className="space-y-6 pr-12 md:pr-20">
+                    {talk.speakers.map((speaker) => {
+                      const speakerImageUrl = speaker?.picture?.asset?.url;
+                      const speakerImage = speakerImageUrl || '/images/LitenFisk.svg';
+                      const isFallback = !speakerImageUrl;
+                      return (
+                        <div key={speaker?._key || speaker?.name} className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
+                          {/* Speaker Image Div */}
+                          <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0 flex items-center justify-center overflow-hidden">
+                            <Image
+                              src={speakerImage}
+                              alt={speaker?.name || 'Speaker'}
+                              width={128}
+                              height={128}
+                              className={isFallback ? 'object-contain w-auto h-auto max-h-[70%] max-w-[70%]' : 'object-cover w-full h-full'}
+                              priority
+                            />
+                          </div>
+                          {/* Speaker Details Div */}
+                          <div className="flex-1 text-left">
+                            <h3 className="text-xl font-medium mb-2 break-words overflow-hidden">{speaker?.name || 'Speaker TBA'}</h3>
+                            <div className="flex flex-row items-end justify-start gap-2">
+                              <Image
+                                src="/images/Mail.svg"
+                                alt="Mail"
+                                width={16}
+                                height={16}
+                                className="shrink-0 w-3 h-3 sm:w-4 sm:h-4"
+                              />
+                              <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">{speaker?.email || 'E-post ikke tilgjengelig'}</span>
+                            </div>
+                          </div>
+                        </div> // Closing div for each speaker row
+                      );
+                    })}
+                  </div> // Closing div for speaker list container
+                ) : (
+                  // Fallback if no speakers found
+                  <p className="text-gray-600 pr-12 md:pr-20">Foredragsholder ikke oppgitt.</p>
+                )}
+
+                {/* Decorative Fish - Absolute, vertically centered, offset right */}
+                <div className="absolute top-1/2 right-8 transform -translate-y-1/2 hidden md:block">
                   <Image
                     src="/images/FargerikFisk.svg"
                     alt="FargerikFisk"
@@ -153,10 +174,10 @@ export default async function TalkDetail(props: TalkProps) {
                     height={36}
                   />
                 </div>
-              </div>
-            </div>
+              </div> {/* Closing relative container for list + fish */}
+            </div> {/* Closing main speaker section div */}
           </div>
-          
+
           <div className="mt-8">
             <Link href="/talks" className="inline-flex items-center text-gray-800 hover:text-gray-900">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
