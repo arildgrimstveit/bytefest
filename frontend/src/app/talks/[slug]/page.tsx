@@ -3,15 +3,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import type { Talk } from '@/types/talk';
+import FavoriteButtonWrapper from './favorite-button-wrapper';
 
-interface TalkProps {
-  params: Promise<{ slug: string }>;
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-[#161E38] text-white px-4 py-2 text-sm uppercase inline-block">
+      {children}
+    </div>
+  );
 }
 
-export default async function TalkDetail(props: TalkProps) {
-  const resolvedParams = await Promise.resolve(props.params);
-  const slug = resolvedParams.slug;
+interface TalkProps {
+  params: { slug: string };
+}
 
+export default async function TalkDetail({ params }: TalkProps) {
+  // Ensure params is resolved before accessing its properties
+  const resolvedParams = await Promise.resolve(params);
+  const slug = resolvedParams.slug;
+  
   const query = `*[_type == "talk" && slug.current == $slug][0]{
     _id,
     title,
@@ -26,13 +36,18 @@ export default async function TalkDetail(props: TalkProps) {
     description,
     duration,
     tags,
-    forkunnskap
+    forkunnskap,
+    location
   }`;
 
   const talk: Talk | null = await client.fetch(query, { slug });
 
   if (!talk) {
-    return <p className="text-center text-gray-700">Talk not found</p>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#2A1449]">
+        <div className="p-8 text-white">Foredraget ble ikke funnet</div>
+      </div>
+    );
   }
 
   // Format duration display
@@ -45,148 +60,235 @@ export default async function TalkDetail(props: TalkProps) {
     if (!value) return 'Ikke spesifisert';
 
     switch (value) {
-      case 'none': return 'Ingen grad';
-      case 'low': return 'Liten grad';
-      case 'medium': return 'Middels grad';
-      case 'high': return 'Stor grad';
+      case 'none': return 'Har ikke hørt om temaet';
+      case 'low': return 'Kjenner til temaet';
+      case 'medium': return 'Har jobbet med temaet';
+      case 'high': return 'Har bred erfaring med teamet';
       default: return value;
     }
   };
 
+  // Fetch similar talks based on tags
+  let similarTalks: Talk[] = [];
+  if (talk.tags && talk.tags.length > 0) {
+    const similarQuery = `*[_type == "talk" && _id != $talkId && count((tags)[@ in $tags]) > 0] | order(count((tags)[@ in $tags]) desc)[0...6]{
+      _id,
+      title,
+      slug,
+      speakers[]{
+        _key,
+        name,
+        picture { asset->{url} }
+      },
+      tags
+    }`;
+    
+    const allSimilarTalks = await client.fetch(similarQuery, { 
+      talkId: talk._id,
+      tags: talk.tags 
+    });
+    
+    // Filter out talks with titles starting with "IKKE MED:"
+    similarTalks = allSimilarTalks.filter((similarTalk: Talk) => 
+      !similarTalk.title || !similarTalk.title.trim().startsWith('IKKE MED:')
+    ).slice(0, 3); // Limit to 3 talks after filtering
+  }
+
   return (
-    <div className="flex min-h-[calc(100vh-99px)] items-center justify-center -mt-[99px] pt-[99px]">
-      <div className="w-full max-w-4xl mx-auto my-8">
-        <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20 break-words">
-          <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
-
-          {/* Header with title and talk time */}
-          <div className="mb-8">
-            <h1 className="text-4xl sm:text-5xl argent text-center mb-6">Foredrag</h1>
-          </div>
-
-          <div className="bg-[#F6EBD5] p-6 border-2 border-black">
-            <h2 className="text-2xl font-medium mb-4 break-words overflow-hidden">{talk.title}</h2>
-
-            <div className="grid grid-cols-1 gap-4 mb-6">
-              <div className="flex items-center text-gray-700">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                  <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                <span className="text-sm">{durationDisplay}</span>
+    <div className="min-h-screen py-8 sm:py-16">
+      <div className="max-w-4xl mx-auto px-4">
+        <Link href="/talks" className="text-[#2A1449] flex items-center mb-6">
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Tilbake
+        </Link>
+        
+        <div className="relative bg-[#F6EBD5] pt-8 pb-10 px-6 sm:pt-10 sm:pb-12 sm:px-10 md:pt-12 md:pb-16 md:px-16 shadow-lg font-plex">
+          <div className="flex flex-col">
+            {/* Time/location indicators with favorite button aligned */}
+            <div className="flex justify-between items-center mb-4 text-[#2A1449]">
+              <div className="flex items-center">
+                <div className="flex items-center mr-4">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                    <path d="M12 8v4l3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  <span>{durationDisplay}</span>
+                </div>
+                <div className="flex items-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  <span>{talk.location || 'TBA'}</span>
+                </div>
               </div>
-
-              <div className="flex items-center text-gray-700">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
-                  <path d="M5 19V5H19V19H5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M9 15H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M9 12H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M9 9H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="text-sm">Forkunnskap: {getKnowledgeLevelText(talk.forkunnskap)}</span>
+              
+              {/* Star/favorite button aligned with time/location */}
+              <div>
+                <FavoriteButtonWrapper talkSlug={talk.slug.current} />
               </div>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-4xl sm:text-5xl argent text-[#2A1449] mb-6 mt-3">
+              {talk.title}
+            </h1>
+
+            {/* Talk description */}
+            <div className="max-w-none mb-8">
+              {talk.description ? (
+                <PortableText value={talk.description} />
+              ) : (
+                <p>
+                  Informasjon om foredraget kommer snart.
+                </p>
+              )}
+            </div>
+
+            {/* Tiltenkt publikum */}
+            <div className="mb-6">
+              <h2 className="text-3xl iceland mb-2">Tiltenkt publikum</h2>
+              <p className="text-[#2A1449]">{getKnowledgeLevelText(talk.forkunnskap)}</p>
             </div>
 
             {/* Tags */}
             {talk.tags && talk.tags.length > 0 && (
-              <div className="mb-6">
-                <div className="flex flex-wrap gap-2">
+              <div className="mb-8">
+                <h2 className="text-3xl iceland mb-2">Tags</h2>
+                <div className="flex flex-wrap gap-3">
                   {talk.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="flex items-center bg-[#161E38] text-white px-4 py-1 mb-2 max-w-[160px] sm:max-w-[200px] md:max-w-[300px] overflow-hidden text-ellipsis whitespace-nowrap uppercase"
-                    >
+                    <Tag key={index}>
                       {tag}
-                    </span>
+                    </Tag>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Talk description */}
-            <div className="prose max-w-none text-gray-700 mb-8">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">Om foredraget</h2>
-              {talk.description ? (
-                <PortableText value={talk.description} />
-              ) : (
-                <p className="text-gray-700">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
-                </p>
-              )}
-            </div>
-
-            {/* Updated Speaker Section */}
-            <div className="mt-8 pt-6 border-t-2 border-black">
-              {/* Heading above speaker list */}
-              <h3 className="font-medium mb-4">Foredragsholder{talk.speakers && talk.speakers.length > 1 ? 'e' : ''}:</h3>
-
-              {/* Container for speaker list/fallback and absolute fish */}
-              <div className="relative">
-                {/* Check if speakers array exists and has items */}
-                {talk.speakers && talk.speakers.length > 0 ? (
-                  <div className="space-y-6 pr-12 md:pr-20">
-                    {talk.speakers.map((speaker) => {
-                      const speakerImageUrl = speaker?.picture?.asset?.url;
-                      const speakerImage = speakerImageUrl || '/images/LitenFisk.svg';
-                      const isFallback = !speakerImageUrl;
-                      return (
-                        <div key={speaker?._key || speaker?.name} className="flex flex-col items-start sm:flex-row sm:items-center gap-6">
-                          {/* Speaker Image Div */}
-                          <div className="w-24 h-24 sm:w-32 sm:h-32 border-2 border-black shrink-0 flex items-center justify-center overflow-hidden">
+            {/* Speaker information - remove border-t and add orange backdrop to image */}
+            {talk.speakers && talk.speakers.length > 0 && (
+              <div className="mt-8">
+                {talk.speakers.map((speaker) => {
+                  const speakerImageUrl = speaker?.picture?.asset?.url;
+                  const speakerImage = speakerImageUrl || '/images/LitenFisk.svg';
+                  const isFallback = !speakerImageUrl;
+                  
+                  return (
+                    <div key={speaker?._key || speaker?.name} className="flex flex-col sm:flex-row sm:items-center gap-6">
+                      {/* Speaker image with orange backdrop shadow only on right and bottom */}
+                      <div className="relative flex-shrink-0" style={{ filter: "drop-shadow(4px 4px 0px #ffaf35)" }}>
+                        <div className="relative w-32 h-32 sm:w-48 sm:h-48 border-2 border-[#2A1449] overflow-hidden bg-[#2A1449]">
+                          <Image
+                            src={speakerImage}
+                            alt={speaker?.name || 'Speaker'}
+                            width={400}
+                            height={400}
+                            className={isFallback ? 'object-contain p-4' : 'object-cover w-full h-full'}
+                            quality={100}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Speaker details - centered vertically */}
+                      <div className="flex-1 flex flex-col justify-center">
+                        <h3 className="text-2xl iceland text-[#2A1449] mb-2">{speaker?.name || 'Speaker TBA'}</h3>
+                        {speaker?.email && (
+                          <div className="flex items-center">
                             <Image
-                              src={speakerImage}
-                              alt={speaker?.name || 'Speaker'}
-                              width={128}
-                              height={128}
-                              className={isFallback ? 'object-contain w-auto h-auto max-h-[70%] max-w-[70%]' : 'object-cover w-full h-full'}
-                              priority
+                              src="/images/Mail.svg"
+                              alt="Mail"
+                              width={16}
+                              height={16}
+                              className="shrink-0 w-4 h-4 mr-2"
                             />
+                            <span className="text-sm text-[#2A1449]">{speaker.email}</span>
                           </div>
-                          {/* Speaker Details Div */}
-                          <div className="flex-1 text-left">
-                            <h3 className="text-xl font-medium mb-2 break-words overflow-hidden">{speaker?.name || 'Speaker TBA'}</h3>
-                            <div className="flex flex-row items-end justify-start gap-2">
-                              <Image
-                                src="/images/Mail.svg"
-                                alt="Mail"
-                                width={16}
-                                height={16}
-                                className="shrink-0 w-3 h-3 sm:w-4 sm:h-4"
-                              />
-                              <span className="text-gray-700 text-xs sm:text-sm sm:text-base break-all translate-y-[2px]">{speaker?.email || 'E-post ikke tilgjengelig'}</span>
-                            </div>
-                          </div>
-                        </div> // Closing div for each speaker row
-                      );
-                    })}
-                  </div> // Closing div for speaker list container
-                ) : (
-                  // Fallback if no speakers found
-                  <p className="text-gray-600 pr-12 md:pr-20">Foredragsholder ikke oppgitt.</p>
-                )}
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
-                {/* Decorative Fish - Absolute, vertically centered, offset right */}
-                <div className="absolute top-1/2 right-8 transform -translate-y-1/2 hidden md:block">
-                  <Image
-                    src="/images/FargerikFisk.svg"
-                    alt="FargerikFisk"
-                    width={36}
-                    height={36}
-                  />
-                </div>
-              </div> {/* Closing relative container for list + fish */}
-            </div> {/* Closing main speaker section div */}
-          </div>
-
-          <div className="mt-8">
-            <Link href="/talks" className="inline-flex items-center text-gray-800 hover:text-gray-900">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-              </svg>
-              Tilbake til program
-            </Link>
+            {/* Social sharing */}
+            <div className="flex justify-end gap-4 mt-8">
+              <a href="#" className="text-[#2A1449]">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+              <a href="#" className="text-[#2A1449]">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
+
+        {/* Similar talks - with centered title and cards */}
+        {similarTalks.length > 0 && (
+          <div className="mt-12 text-center">
+            <h2 className="text-3xl iceland text-white mb-8">Lignende foredrag</h2>
+            <div className="flex justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl">
+                {similarTalks.map(similarTalk => (
+                  <Link key={similarTalk._id} href={`/talks/${similarTalk.slug?.current}`} className="block group pt-2 pl-2">
+                    <div className="relative h-full">
+                      {/* Orange backdrop */}
+                      <div className="absolute bg-[#ffaf35] top-0 left-0 w-full h-full -z-10"></div>
+                      
+                      {/* Main card container */}
+                      <div className="relative h-full flex flex-col bg-[#2A1449] -translate-y-1 -translate-x-1 transition-transform group-hover:-translate-y-2 group-hover:-translate-x-2">
+                        
+                        {/* Image Container */}
+                        <div className="flex-grow relative min-h-[200px] bg-[#2A1449] overflow-hidden">
+                          {similarTalk.speakers && similarTalk.speakers[0]?.picture?.asset?.url ? (
+                            <Image
+                              src={similarTalk.speakers[0].picture.asset.url}
+                              alt=""
+                              fill
+                              className="object-cover object-center"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Image
+                                src="/images/LitenFisk.svg"
+                                alt=""
+                                width={90}
+                                height={90}
+                                className="object-contain"
+                                style={{ imageRendering: 'pixelated' }}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="bg-[#F6EBD5] w-full">
+                          <div className="p-5 relative text-left">
+                            <h3 className="text-xl iceland text-[#2A1449] leading-tight text-left">
+                              {similarTalk.title}
+                            </h3>
+                            
+                            {similarTalk.speakers && similarTalk.speakers[0]?.name && (
+                              <p className="text-lg iceland text-[#2A1449] text-left">
+                                {similarTalk.speakers[0].name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

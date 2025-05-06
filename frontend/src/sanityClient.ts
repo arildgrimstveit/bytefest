@@ -15,7 +15,7 @@ const client: SanityClient = createClient({
   dataset,
   apiVersion: "2024-05-05",
   useCdn: false,
-  perspective: "previewDrafts",
+  perspective: "published",
   token,
   ignoreBrowserTokenWarning: Boolean(token),
 });

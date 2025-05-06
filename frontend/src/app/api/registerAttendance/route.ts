@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     // Prepare the document to be created in Sanity
     const attendeeDocument = {
       _type: "attendee",
+      _id: `attendee.${data.attendeeEmail.replace(/[^a-zA-Z0-9]/g, '-')}`,
       attendeeName: data.attendeeName,
       attendeeEmail: data.attendeeEmail,
       bu: data.bu,
@@ -55,14 +56,35 @@ export async function POST(request: Request) {
       dietaryNeeds: data.dietaryNeeds, // Directly pass the array of strings
       attendsParty: data.attendsParty,
       willPresent: data.willPresent,
-      // Optional: Add registeredAt timestamp if schema supports it
-      // registeredAt: new Date().toISOString(),
+      // Initialize empty favoriteTalks array to ensure it exists
+      favoriteTalks: [],
+      // Add registeredAt timestamp
+      registeredAt: new Date().toISOString(),
     };
 
-    // Use the Sanity client to create the document
-    console.log("Creating attendee document:", attendeeDocument);
-    const createdAttendee = await sanityClient.create(attendeeDocument);
-    console.log("Attendee document created:", createdAttendee);
+    // Check if an attendee with this email already exists
+    const existingAttendee = await sanityClient.fetch(
+      `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`,
+      { email: data.attendeeEmail }
+    );
+
+    let createdAttendee;
+    
+    if (existingAttendee) {
+      console.log(`Updating existing attendee document with ID ${existingAttendee._id}`);
+      // Update existing document and ensure it's published
+      createdAttendee = await sanityClient
+        .patch(existingAttendee._id)
+        .set(attendeeDocument)
+        .commit();
+      
+      console.log("Attendee document updated:", createdAttendee);
+    } else {
+      // Create a new document using createOrReplace to ensure it's published
+      console.log("Creating new attendee document");
+      createdAttendee = await sanityClient.createOrReplace(attendeeDocument);
+      console.log("Attendee document created:", createdAttendee);
+    }
 
     // Return a success response
     return NextResponse.json(

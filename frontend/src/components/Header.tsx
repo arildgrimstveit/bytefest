@@ -28,7 +28,7 @@ const Header = () => {
     { name: "PÅMELDING", path: "/", disabled: false },
     { name: "OM BYTEFEST", path: "/bytefest", disabled: false },
     { name: "ALLE FOREDRAG", path: "/talks", disabled: false },
-    { name: "PROGRAM", path: "/program", disabled: false },
+    { name: "PROGRAM", path: "/program", disabled: true },
   ], []);
 
   // Renders a single desktop navigation link with active state styling
@@ -39,7 +39,8 @@ const Header = () => {
     // PÅMELDING should be highlighted for both root path and the registration flow
     const isActive = 
       pathname === item.path || 
-      (item.path === "/" && isRegistrationFlow);
+      (item.path === "/" && isRegistrationFlow) ||
+      (item.path === "/talks" && pathname.startsWith('/talks/'));
     
     // If the item is disabled, render a div instead of a link
     if (item.disabled) {
@@ -95,7 +96,8 @@ const Header = () => {
     // PÅMELDING should be highlighted for both root path and the registration flow
     const isActive = 
       pathname === item.path || 
-      (item.path === "/" && isRegistrationFlow);
+      (item.path === "/" && isRegistrationFlow) ||
+      (item.path === "/talks" && pathname.startsWith('/talks/'));
     
     // If the item is disabled, render a div instead of a link
     if (item.disabled) {

@@ -12,6 +12,7 @@ export interface ClientTalkFiltersProps {
 
 export interface TalkCardProps {
   talk: Talk;
+  onFavoriteToggle?: () => void;
 }
 
 export interface PixelInputProps {

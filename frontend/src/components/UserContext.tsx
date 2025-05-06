@@ -31,12 +31,19 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                 name: activeAccount.name || "",
                 email: activeAccount.username
             };
+            
+            // Set a cookie with the user email for server-side API access
+            document.cookie = `userEmail=${encodeURIComponent(user.email)}; path=/; max-age=86400; SameSite=Lax`;
+            
             setAuthState({
                 isAuthenticated: true,
                 user,
                 activeAccount
             });
         } else {
+            // Clear the email cookie on logout
+            document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
+            
             setAuthState({
                 isAuthenticated: false,
                 user: null,
@@ -92,6 +99,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
     // Function to initiate the MSAL logout redirect flow
     const logout = useCallback(() => {
+        // Clear the email cookie on logout
+        document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
         instance.logoutRedirect().catch((e) => console.error("Logout failed:", e));
     }, [instance]);
 

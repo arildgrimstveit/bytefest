@@ -122,6 +122,24 @@ export const attendee = defineType({
         hotspot: true,
       },
     }),
+    defineField({
+      name: 'registeredAt',
+      title: 'Registered At',
+      type: 'datetime',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'favoriteTalks',
+      title: 'Favorite Talks',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'talk' }]
+        }
+      ],
+      description: 'Talks this attendee has marked as favorites',
+    }),
   ],
   preview: {
     select: {
