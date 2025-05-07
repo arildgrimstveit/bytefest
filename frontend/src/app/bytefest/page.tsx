@@ -50,13 +50,13 @@ export default function Bytefest() {
         <div className="px-5 sm:px-16 text-white pt-15 lg:pt-20">
           <h2 className="text-2xl lg:text-3xl iceland font-bold">Hva er Bytefest?</h2>
           <p className="text-xl mt-4">
-            Bytefest er en ettermiddag fylt med interessante foredrag om systemutvikling, 
-            og en kveld med sosialisering med kollegene dine. 
+            Bytefest er en ettermiddag fylt med interessante foredrag om systemutvikling,
+            og en kveld med sosialisering med kollegene dine.
           </p>
           <p className="text-xl mt-4">
-            Den arrangeres av og for utviklermiljøet i Sopra Steria, 
-            og foregår på kontorene våre over hele landet, 
-            med foredrag som streames mellom byene. 
+            Minikonferansen holdes 5.juni 2025 fra 16.00-23.00.
+            Den foregår på Sopra Steria-kontorer over hele landet,
+            med foredrag som streames mellom byene.
           </p>
         </div>
       </div>
@@ -70,19 +70,19 @@ export default function Bytefest() {
               <p className="text-2xl md:text-3xl iceland font-bold text-[#2A1449] lg:pl-15">Sosial arena</p>
               <p className="text-lg md:text-xl text-[#2A1449] mt-4 lg:pr-30 lg:pl-15">
                 Bytefest har fokus på læring, deling og det sosiale.
-                Her får du mulighet til å utveksle erfaringer, lære nye 
+                Her får du mulighet til å utveksle erfaringer, lære nye
                 teknologier og bygge nettverk.
               </p>
               <div className="mt-10 lg:pl-15">
-                <Link 
-                  href="/paamelding" 
+                <Link
+                  href="/paamelding"
                   className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
                 >
-                  <Image 
-                    src="/images/MeldDegPaa.svg" 
-                    alt="Meld deg på" 
-                    width={263} 
-                    height={55} 
+                  <Image
+                    src="/images/MeldDegPaa.svg"
+                    alt="Meld deg på"
+                    width={263}
+                    height={55}
                     style={{ height: 'auto' }}
                   />
                 </Link>
@@ -90,27 +90,88 @@ export default function Bytefest() {
             </div>
 
             <div className="relative w-full lg:w-[484px] lg:-ml-16 mt-6 lg:mt-0">
-              <Image 
-                src="/images/Forsamling.webp" 
-                alt="forsamling" 
-                width={484} 
+              <Image
+                src="/images/Forsamling.webp"
+                alt="forsamling"
+                width={484}
                 height={424}
                 className="w-full h-auto"
               />
             </div>
           </div>
         </div>
-        
-        {/* First Crab */}
+
+        {/* Crab */}
         <div className="flex justify-center items-center z-10 my-12 md:my-16">
-          <Image 
-            src="/images/Krabbe.svg" 
-            alt="Krabbe" 
-            width={50} 
+          <Image
+            src="/images/Krabbe.svg"
+            alt="Krabbe"
+            width={50}
             height={39}
           />
         </div>
-        
+
+        {/* Description 2*/}
+        <div className="max-w-5xl mx-auto mt-[-20]">
+          <div className="px-5 sm:px-16 text-white">
+            <h2 className="text-2xl lg:text-3xl iceland font-bold">Spennende foredrag</h2>
+            <p className="text-xl mt-4">
+              På Bytefest får du dypdykke i systemutvikling.
+              Kompetente kolleger fra ulike fagbakgrunner vil holde spennende foredrag om temaer som vibe coding, AI, arkitektur, .NET, OpenAPI og mer.
+              Se oversikten over <Link href="/talks" className="underline hover:cursor-pointer">alle foredrag.</Link>
+            </p>
+            <p className="text-xl mt-4">
+              I oversikten kan du stjernemerke foredrag du har lyst til å gå på.
+              Det gjør det enkelt for deg å finne dem igjen.
+              I tillegg hjelper du oss å planlegge hvilke foredrag som trenger mer plass enn andre.
+            </p>
+          </div>
+        </div>
+
+        {/* Description 3*/}
+        <div className="max-w-5xl mx-auto mt-15">
+          <div className="px-5 sm:px-16 text-white">
+            <h2 className="text-2xl lg:text-3xl iceland font-bold">Hvordan gjennomføres Bytefest forskjellige steder?</h2>
+            <p className="text-xl mt-4">
+              Bytefest arrangeres på Sopra Sterias kontorer i Norge og Danmark.
+              De fleste foredragene blir holdt i Oslo og streames til de andre kontorene,
+              men vi streamer fra flere andre byer også.
+            </p>
+            <p className="text-xl mt-4">
+              Programmet er lagt opp i fire spor, og vil vises i fire ulike rom på hvert sted.
+              Detaljert program kommer nærmere arrangementet.
+            </p>
+            <p className="text-xl mt-4">
+              Bytefest er et både faglig og sosialt arrangement.
+              Etter foredragene blir det gode muligheter til å bli bedre kjent med kollegene dine og å bli kjent med nye.
+              Det er opp til folk på hvert kontor å planlegge noe sosialt.
+            </p>
+          </div>
+        </div>
+
+        {/* Description 4*/}
+        <div className="max-w-5xl mx-auto mt-15">
+          <div className="px-5 sm:px-16 text-white">
+            <h2 className="text-2xl lg:text-3xl iceland font-bold">Mat og drikke?</h2>
+            <p className="text-xl mt-4">
+              Vi byr på mat som en start på Bytefest,
+              i tillegg til drikke og snacks utover kvelden.
+              I påmeldingsskjemaet får du mulighet til å gi beskjed om hvilke behov du har med tanke på mat.
+              Send oss en e-post hvis du har behov som ikke dekkes i skjemaet.
+            </p>
+          </div>
+        </div>
+
+        {/* Crab */}
+        <div className="flex justify-center items-center z-10 my-12 md:my-16">
+          <Image
+            src="/images/Krabbe.svg"
+            alt="Krabbe"
+            width={50}
+            height={39}
+          />
+        </div>
+
         {/* Container 2 - Stats box */}
         <div className="w-full max-w-5xl mx-auto px-4">
           <div className="flex flex-col items-center justify-center mx-1 sm:mx-12">
@@ -134,25 +195,62 @@ export default function Bytefest() {
             </div>
           </div>
         </div>
-        
-        {/* Second Crab */}
+
+        {/* Crab */}
         <div className="flex justify-center items-center z-10 my-12 md:my-16">
-          <Image 
-            src="/images/Krabbe.svg" 
-            alt="Krabbe" 
-            width={50} 
+          <Image
+            src="/images/Krabbe.svg"
+            alt="Krabbe"
+            width={50}
             height={39}
           />
         </div>
-        
-        {/* Container 3 - Last box and image */}
+
+        {/* Description 5*/}
+        <div className="max-w-5xl mx-auto my-[-20]">
+          <div className="px-5 sm:px-16 text-white">
+            <h2 className="text-2xl lg:text-3xl iceland font-bold">Vil du hjelpe til?</h2>
+            <p className="text-xl mt-4">
+              Vi trenger hjelp til å arrangere Bytefest på de ulike lokasjonene.
+              Spesifikt trenger vi hjelp til:
+            </p>
+            <p className="text-xl mt-4">
+              <p className="font-bold">Streaming</p>
+              Foredragene skal streames mellom kontorene. Vi trenger folk til å sørge for at det skjer i Oslo, Fredrikstad, Kristiansand, Stavanger, Bergen, Trondheim.
+            </p>
+            <p className="text-xl mt-4">
+              <p className="font-bold">Praktisk hjelp</p>
+              Vi trenger folk til å hjelpe til med praktiske ting som å bestille og hente mat og drikke.
+            </p>
+            <p className="text-xl mt-4">
+              <p className="font-bold">Planlegge og gjennomføre sosialt program</p>
+              Vi trenger folk som vil planlegge årets fest. Hver lokasjon står fritt til å planlegge sitt sosiale program.
+            </p>
+            <p className="text-xl mt-4">
+              <p className="font-bold">Ja, jeg vil hjelpe til!</p>
+              Supert! Send en e-post til bytefest@soprasteria.com, så setter vi deg i gang. Få gjerne med deg noen andre fra ditt kontor!
+            </p>
+          </div>
+        </div>
+
+        {/* Crab */}
+        <div className="flex justify-center items-center z-10 my-12 md:my-16">
+          <Image
+            src="/images/Krabbe.svg"
+            alt="Krabbe"
+            width={50}
+            height={39}
+          />
+        </div>
+
+        {/* Container 3 */}
         <div className="w-full max-w-5xl mx-auto px-4">
           <div className="flex flex-col-reverse lg:flex-row items-center justify-center mx-1 sm:mx-12">
             <div className="relative w-full lg:w-[484px] lg:-mr-16 mt-6 lg:mt-0">
-              <Image 
-                src="/images/TommelOpp.webp" 
-                alt="Tommel opp" 
-                width={484} 
+              <Image
+                src="/images/TommelOpp.webp"
+                alt="Tommel opp"
+                width={484}
                 height={425}
                 className="w-full h-auto"
               />
@@ -166,17 +264,17 @@ export default function Bytefest() {
                 - Kjell Rusti
               </p>
               <div className="mt-10 flex justify-start lg:justify-end lg:pl-30 lg:pr-15">
-                <a 
+                <a
                   href="https://www.kode24.no/annonse/bytefest-systemutviklernes-woodstock/81547688"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
                 >
-                  <Image 
-                    src="/images/LesMerOransje.svg" 
-                    alt="Les Mer" 
-                    width={209} 
-                    height={56} 
+                  <Image
+                    src="/images/LesMerOransje.svg"
+                    alt="Les Mer"
+                    width={209}
+                    height={56}
                     style={{ height: 'auto' }}
                   />
                 </a>
