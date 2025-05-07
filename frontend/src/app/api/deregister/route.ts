@@ -8,6 +8,7 @@ async function getAuthenticatedUserEmail(): Promise<string | null> {
   return cookieStore.get("userEmail")?.value || null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(_request: Request) {
   const userEmail = await getAuthenticatedUserEmail();
 
