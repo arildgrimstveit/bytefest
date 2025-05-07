@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TalkCard from './TalkCard';
 import HelpCard from './HelpCard';
 import { ClientTalkFiltersProps } from '@/types/props';

@@ -59,11 +59,7 @@ export const lsStore: FavoriteStore = {
 };
 
 // Factory function for Sanity store - NOW USES /api/favorites for mutations
-export const sanityStoreFactory = (_attendeeId: string): FavoriteStore => {
-  // The attendeeId is implicitly handled by the API route via user cookie, 
-  // but having it might be useful for certain GQL/other API designs.
-  // For RESTful /api/favorites, it's not directly passed in body for mutations.
-
+export const sanityStoreFactory = (): FavoriteStore => {
   const storeInstance: FavoriteStore = {
     get: async () => {
       try {

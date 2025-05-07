@@ -8,7 +8,7 @@ async function getAuthenticatedUserEmail(): Promise<string | null> {
   return cookieStore.get("userEmail")?.value || null;
 }
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   const userEmail = await getAuthenticatedUserEmail();
 
   if (!userEmail) {

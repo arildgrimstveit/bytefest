@@ -1,6 +1,6 @@
 "use client";
 
-import { Configuration, PublicClientApplication, EventType } from "@azure/msal-browser";
+import { Configuration, PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import { useEffect, useState } from "react";
 

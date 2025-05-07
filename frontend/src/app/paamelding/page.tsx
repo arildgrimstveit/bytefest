@@ -56,7 +56,6 @@ function Paamelding() {
   const [showWillPresentError, setShowWillPresentError] = useState(false);
 
   const [annetText, setAnnetText] = useState("");
-  const [existingRegistrationId, setExistingRegistrationId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
@@ -100,7 +99,7 @@ function Paamelding() {
             if (isEditMode) {
               console.log("Edit mode: Found existing registration, populating form.", existingData);
               const fullData = existingData as Attendee; // Type assertion using imported type
-              setExistingRegistrationId(fullData._id); // Store ID for update
+              setIsCheckingRegistration(false); // Allow rendering form
               // Populate form state
               setBu(fullData.bu || "");
               setParticipationLocation(fullData.participationLocation || "");
@@ -118,7 +117,6 @@ function Paamelding() {
               }
               setAttendsParty(fullData.attendsParty || "");
               setWillPresent(fullData.willPresent || "");
-              setIsCheckingRegistration(false); // Allow rendering form
             } else {
               // Not edit mode, but found registration -> redirect to summary
               console.log("User already registered (not in edit mode). Redirecting to summary.");
@@ -128,19 +126,16 @@ function Paamelding() {
           } else {
             // No existing registration found
             console.log("No existing registration found. Ready for new registration.");
-            setExistingRegistrationId(null); // Ensure ID is null for create
             setIsCheckingRegistration(false); // Allow rendering form
           }
         } catch (error) {
           console.error("Error checking/fetching registration from Sanity:", error);
-          setExistingRegistrationId(null); // Assume new registration on error
           setIsCheckingRegistration(false); // Allow rendering form (with potential error state later?)
         }
       } else if (!isAuthenticated && inProgress === InteractionStatus.None) {
         setIsCheckingRegistration(false); // Not logged in, allow login form render
       } else if (inProgress === InteractionStatus.None) {
         setIsCheckingRegistration(false); // Logged in but user info pending?
-        setExistingRegistrationId(null);
       }
       // While inProgress, isCheckingRegistration remains true
     };

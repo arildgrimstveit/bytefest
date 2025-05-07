@@ -119,8 +119,9 @@ export async function POST(request: Request) {
     console.error("[API Error] Error during registration process:", error);
     // Simplify error logging, avoid exposing too many details unless in dev mode
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    const errorDetails = process.env.NODE_ENV === "development" && error instanceof Error && (error as any).response?.body 
-                         ? (error as any).response.body 
+    const typedError = error as Error & { response?: { body?: unknown } };
+    const errorDetails = process.env.NODE_ENV === "development" && typedError.response?.body
+                         ? typedError.response.body
                          : undefined;
 
     return NextResponse.json(

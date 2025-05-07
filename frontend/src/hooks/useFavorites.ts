@@ -48,7 +48,7 @@ export const useFavorites = () => {
               setMigrationAttemptedForCurrentAttendee(false); // Reset migration attempt status for new/changed attendee
               setAttendeeId(attendeeData._id);
             }
-            currentAttendeeSanityStore = sanityStoreFactory(attendeeData._id);
+            currentAttendeeSanityStore = sanityStoreFactory();
             setActiveFavoriteStore(currentAttendeeSanityStore);
 
             // **** MIGRATION LOGIC ****
@@ -107,7 +107,7 @@ export const useFavorites = () => {
     };
 
     initializeStoreAndMigrate();
-  }, [user, isAuthenticated, attendeeId]); // Depend on `user` and `isAuthenticated` from your context
+  }, [user, isAuthenticated, attendeeId, migrationAttemptedForCurrentAttendee]); // Depend on `user` and `isAuthenticated` from your context
 
   // Effect to load favorites once the store is initialized (or favs have been optimistically set by migration)
   useEffect(() => {
