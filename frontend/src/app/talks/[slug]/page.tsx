@@ -18,10 +18,8 @@ interface TalkProps {
 }
 
 export default async function TalkDetail({ params }: TalkProps) {
-  // Ensure params is resolved before accessing its properties
-  const resolvedParams = await Promise.resolve(params);
-  const slug = resolvedParams.slug;
-  
+  const slug = params.slug;
+
   const query = `*[_type == "talk" && slug.current == $slug][0]{
     _id,
     title,
@@ -82,14 +80,14 @@ export default async function TalkDetail({ params }: TalkProps) {
       },
       tags
     }`;
-    
-    const allSimilarTalks = await client.fetch(similarQuery, { 
+
+    const allSimilarTalks = await client.fetch(similarQuery, {
       talkId: talk._id,
-      tags: talk.tags 
+      tags: talk.tags
     });
-    
+
     // Filter out talks with titles starting with "IKKE MED:"
-    similarTalks = allSimilarTalks.filter((similarTalk: Talk) => 
+    similarTalks = allSimilarTalks.filter((similarTalk: Talk) =>
       !similarTalk.title || !similarTalk.title.trim().startsWith('IKKE MED:')
     ).slice(0, 3); // Limit to 3 talks after filtering
   }
@@ -103,7 +101,7 @@ export default async function TalkDetail({ params }: TalkProps) {
           </svg>
           Tilbake
         </Link>
-        
+
         <div className="relative bg-[#F6EBD5] pt-8 pb-10 px-6 sm:pt-10 sm:pb-12 sm:px-10 md:pt-12 md:pb-16 md:px-16 shadow-lg font-plex">
           <div className="flex flex-col">
             {/* Time/location indicators with favorite button aligned */}
@@ -124,7 +122,7 @@ export default async function TalkDetail({ params }: TalkProps) {
                   <span>{talk.location || 'TBA'}</span>
                 </div>
               </div>
-              
+
               {/* Star/favorite button aligned with time/location */}
               <div>
                 <FavoriteButtonWrapper talkSlug={talk.slug.current} />
@@ -174,7 +172,7 @@ export default async function TalkDetail({ params }: TalkProps) {
                   const speakerImageUrl = speaker?.picture?.asset?.url;
                   const speakerImage = speakerImageUrl || '/images/LitenFisk.svg';
                   const isFallback = !speakerImageUrl;
-                  
+
                   return (
                     <div key={speaker?._key || speaker?.name} className="flex flex-col sm:flex-row sm:items-center gap-6">
                       {/* Speaker image with orange backdrop shadow only on right and bottom */}
@@ -190,7 +188,7 @@ export default async function TalkDetail({ params }: TalkProps) {
                           />
                         </div>
                       </div>
-                      
+
                       {/* Speaker details - centered vertically */}
                       <div className="flex-1 flex flex-col justify-center">
                         <h3 className="text-2xl iceland text-[#2A1449] mb-2">{speaker?.name || 'Speaker TBA'}</h3>
@@ -217,12 +215,12 @@ export default async function TalkDetail({ params }: TalkProps) {
             <div className="flex justify-end gap-4 mt-8">
               <a href="#" className="text-[#2A1449]">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                 </svg>
               </a>
               <a href="#" className="text-[#2A1449]">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
                 </svg>
               </a>
             </div>
@@ -240,10 +238,10 @@ export default async function TalkDetail({ params }: TalkProps) {
                     <div className="relative h-full">
                       {/* Orange backdrop */}
                       <div className="absolute bg-[#ffaf35] top-0 left-0 w-full h-full -z-10"></div>
-                      
+
                       {/* Main card container */}
                       <div className="relative h-full flex flex-col bg-[#2A1449] -translate-y-1 -translate-x-1 transition-transform group-hover:-translate-y-2 group-hover:-translate-x-2">
-                        
+
                         {/* Image Container */}
                         <div className="flex-grow relative min-h-[200px] bg-[#2A1449] overflow-hidden">
                           {similarTalk.speakers && similarTalk.speakers[0]?.picture?.asset?.url ? (
@@ -274,7 +272,7 @@ export default async function TalkDetail({ params }: TalkProps) {
                             <h3 className="text-xl iceland text-[#2A1449] leading-tight text-left">
                               {similarTalk.title}
                             </h3>
-                            
+
                             {similarTalk.speakers && similarTalk.speakers[0]?.name && (
                               <p className="text-lg iceland text-[#2A1449] text-left">
                                 {similarTalk.speakers[0].name}
