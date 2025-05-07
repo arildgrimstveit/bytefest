@@ -13,11 +13,12 @@ function Tag({ children }: { children: React.ReactNode }) {
   );
 }
 
-interface TalkProps {
+interface TalkPageActualProps {
   params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function TalkDetail({ params }: TalkProps) {
+export default async function TalkDetail({ params, searchParams: _searchParams }: TalkPageActualProps) {
   const slug = params.slug;
 
   const query = `*[_type == "talk" && slug.current == $slug][0]{
