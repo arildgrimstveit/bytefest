@@ -25,28 +25,28 @@ const HelpCard = () => {
       <div className="relative h-full">
         {/* Orange backdrop */}
         <div className="absolute bg-[#ffaf35] top-0 left-0 w-full h-full -z-10"></div>
-        
+
         {/* Main card container */}
         <div className="relative h-full flex flex-col bg-[#F6EBD5] -translate-y-1 -translate-x-1 transition-transform hover:-translate-y-2 hover:-translate-x-2">
-          
+
           {/* Content Area - Full height */}
           <div className="p-5 flex flex-col h-full">
             <h3 className="text-2xl iceland text-[#2A1449] leading-tight mb-4 mt-10">
               Hjelp oss i planleggingen
             </h3>
-            
+
             <p className="text-[#2A1449] mb-6 flex-grow">
-              Klikk på sjøstjerna for de foredragene du har mest lyst til å få med deg. 
+              Klikk på sjøstjerna for de foredragene du har mest lyst til å få med deg.
               Vi bruker markeringene deres til å planlegge hvilke rom vi skal bruke til hvilke foredrag.
             </p>
-            
+
             {/* Star icon centered at bottom */}
             <div className="flex justify-center mt-auto">
               <button
                 onClick={toggleFavorite}
-                className="p-2 transition-transform active:scale-95 cursor-pointer"
+                className="p-2 transition-transform active:scale-95 cursor-pointer hover:opacity-75"
               >
-                <Image 
+                <Image
                   src={isFavorite ? '/images/SeaStarFilled.svg' : '/images/SeaStar.svg'}
                   alt={isFavorite ? 'Favoritt' : 'Legg til som favoritt'}
                   width={40}

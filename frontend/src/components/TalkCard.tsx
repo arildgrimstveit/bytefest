@@ -2,96 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, FC } from "react";
+import { FC } from "react";
 import type { TalkCardProps } from '@/types/props';
 
-const TalkCard: FC<TalkCardProps> = ({ talk, onFavoriteToggle, initialIsFavorite }) => {
-  const [isFavorite, setIsFavorite] = useState(initialIsFavorite || false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [shouldCardUseLocalStorageForPost, setShouldCardUseLocalStorageForPost] = useState(false);
+// Updated TalkCardProps to expect isFavorite and onToggleFavorite
+interface ExtendedTalkCardProps extends TalkCardProps {
+  isFavorite: boolean;
+  onToggleFavorite: (slug: string) => void; // Expects a function that takes the slug
+  // Pass down global loading/error states if card needs to react to them individually
+  // For optimistic updates, card-specific loading for the toggle itself is minimal.
+  isLoadingGlobalFavs: boolean;
+  isStoreReady: boolean; // Renamed from isStoreInitialized for clarity as prop
+  globalFavsError?: string | null;
+}
 
-  useEffect(() => {
-    setIsFavorite(initialIsFavorite || false);
-    setIsLoading(false);
-  }, [initialIsFavorite]);
+const TalkCard: FC<ExtendedTalkCardProps> = ({
+  talk,
+  isFavorite,
+  onToggleFavorite,
+  isLoadingGlobalFavs,
+  isStoreReady,
+  globalFavsError
+}) => {
 
-  const toggleFavorite = async (e: React.MouseEvent) => {
+  const handleToggleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    const newIsFavorite = !isFavorite;
-
-    if (shouldCardUseLocalStorageForPost) {
-      const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-      let newFavoritesArray;
-      if (newIsFavorite) {
-        newFavoritesArray = [...new Set([...favorites, talk.slug.current])];
-      } else {
-        newFavoritesArray = favorites.filter((slug: string) => slug !== talk.slug.current);
-      }
-      localStorage.setItem('favoriteTalks', JSON.stringify(newFavoritesArray));
-      setIsFavorite(newIsFavorite);
-      if (onFavoriteToggle) onFavoriteToggle();
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      const response = await fetch('/api/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ talkSlug: talk.slug.current, favorite: newIsFavorite }),
-      });
-      const data = await response.json();
-      
-      if (data.useLocalStorage) {
-        setShouldCardUseLocalStorageForPost(true);
-        const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-        let newFavoritesArray;
-        if (newIsFavorite) {
-          newFavoritesArray = [...new Set([...favorites, talk.slug.current])];
-        } else {
-          newFavoritesArray = favorites.filter((slug: string) => slug !== talk.slug.current);
-        }
-        localStorage.setItem('favoriteTalks', JSON.stringify(newFavoritesArray));
-        setIsFavorite(newIsFavorite);
-      } else if (response.ok) {
-        setIsFavorite(newIsFavorite);
-        setShouldCardUseLocalStorageForPost(false);
-      } else {
-        console.warn('TalkCard: POST /api/favorites failed, falling back to localStorage for this action.');
-        setShouldCardUseLocalStorageForPost(true);
-        const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-        let newFavoritesArray;
-        if (newIsFavorite) {
-          newFavoritesArray = [...new Set([...favorites, talk.slug.current])];
-        } else {
-          newFavoritesArray = favorites.filter((slug: string) => slug !== talk.slug.current);
-        }
-        localStorage.setItem('favoriteTalks', JSON.stringify(newFavoritesArray));
-        setIsFavorite(newIsFavorite);
-      }
-      if (onFavoriteToggle) onFavoriteToggle();
-    } catch (error) {
-      console.error('TalkCard: Error toggling favorite:', error, 'Falling back to localStorage.');
-      setShouldCardUseLocalStorageForPost(true);
-      const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-      let newFavoritesArray;
-      if (newIsFavorite) {
-        newFavoritesArray = [...new Set([...favorites, talk.slug.current])];
-      } else {
-        newFavoritesArray = favorites.filter((slug: string) => slug !== talk.slug.current);
-      }
-      localStorage.setItem('favoriteTalks', JSON.stringify(newFavoritesArray));
-      setIsFavorite(newIsFavorite);
-      if (onFavoriteToggle) onFavoriteToggle();
-    } finally {
-      setIsLoading(false);
-    }
+    e.stopPropagation();
+    onToggleFavorite(talk.slug.current); // Call the passed-in toggle function with the slug
   };
 
+  // Use passed-in global loading state for the favorite button's initial state
+  const showLoader = !isStoreReady || isLoadingGlobalFavs;
+
+  // Image logic from your original, visually correct card structure
   const speakerImages = talk.speakers?.filter(s => s.picture?.asset?.url) || [];
-  const fallbackImageUrl = '/images/LitenFisk.svg';
+  const fallbackImageUrl = '/images/LitenFisk.svg'; // Your original fallback
+  const displayImageUrl = speakerImages.length > 0 ? speakerImages[0].picture!.asset!.url! : fallbackImageUrl;
+  const displayImageAlt = speakerImages.length > 0
+    ? (speakerImages[0]?.name ? `Photo of ${speakerImages[0].name}` : talk.title)
+    : talk.title || "Fallback talk image";
 
   return (
     <Link href={`/talks/${talk.slug?.current}`} className="block group h-full pt-2 pl-2">
@@ -102,8 +51,8 @@ const TalkCard: FC<TalkCardProps> = ({ talk, onFavoriteToggle, initialIsFavorite
             {speakerImages.length > 0 ? (
               <div className="w-full h-full relative">
                 <Image
-                  src={speakerImages[0].picture?.asset?.url || fallbackImageUrl}
-                  alt={speakerImages[0]?.name ? `Photo of ${speakerImages[0].name}` : talk.title}
+                  src={displayImageUrl}
+                  alt={displayImageAlt}
                   fill
                   className="object-cover object-center"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
@@ -140,22 +89,30 @@ const TalkCard: FC<TalkCardProps> = ({ talk, onFavoriteToggle, initialIsFavorite
                   </p>
                 )}
               </div>
-              <button
-                onClick={toggleFavorite}
-                className="absolute bottom-5 right-5 transition-transform active:scale-95 cursor-pointer"
-              >
-                {isLoading ? (
+              {/* Favorite Button using useFavorites hook data */}
+              <div className="absolute bottom-5 right-5">
+                {showLoader ? (
                   <div className="w-7 h-7 animate-pulse bg-gray-200 rounded-full"></div>
+                ) : globalFavsError ? (
+                  <div className="w-7 h-7 flex items-center justify-center text-red-500" title={globalFavsError}>
+                    ! {/* Simple error display */}
+                  </div>
                 ) : (
-                  <Image 
-                    src={isFavorite ? '/images/SeaStarFilled.svg' : '/images/SeaStar.svg'}
-                    alt={isFavorite ? 'Favoritt' : 'Legg til som favoritt'}
-                    width={24}
-                    height={24}
-                    className="w-7 h-7"
-                  />
+                  <button
+                    onClick={handleToggleFavoriteClick}
+                    className="transition-transform active:scale-95 cursor-pointer flex items-center hover:opacity-75"
+                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Image
+                      src={isFavorite ? '/images/SeaStarFilled.svg' : '/images/SeaStar.svg'}
+                      alt={isFavorite ? 'Favoritt' : 'Legg til som favoritt'}
+                      width={24} // Original size from old card
+                      height={24} // Original size from old card
+                      className="w-7 h-7" // Original class from old card
+                    />
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
           </div>
         </div>

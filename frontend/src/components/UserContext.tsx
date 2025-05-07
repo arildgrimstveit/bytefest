@@ -25,32 +25,36 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     // Updates the authState based on the current MSAL active account
     const updateAuthState = useCallback(() => {
         const activeAccount = instance.getActiveAccount();
+        const currentEmail = authState.user?.email;
+        const currentIsAuth = authState.isAuthenticated;
 
         if (activeAccount) {
-            const user = {
-                name: activeAccount.name || "",
-                email: activeAccount.username
-            };
-            
-            // Set a cookie with the user email for server-side API access
-            document.cookie = `userEmail=${encodeURIComponent(user.email)}; path=/; max-age=86400; SameSite=Lax`;
-            
-            setAuthState({
-                isAuthenticated: true,
-                user,
-                activeAccount
-            });
+            const newEmail = activeAccount.username;
+            // Only update if account or email has actually changed, or if not currently authenticated
+            if (authState.activeAccount?.homeAccountId !== activeAccount.homeAccountId || currentEmail !== newEmail || !currentIsAuth) {
+                const userDetails = {
+                    name: activeAccount.name || "",
+                    email: newEmail
+                };
+                document.cookie = `userEmail=${encodeURIComponent(userDetails.email)}; path=/; max-age=86400; SameSite=Lax`;
+                setAuthState({
+                    isAuthenticated: true,
+                    user: userDetails,
+                    activeAccount
+                });
+            }
         } else {
-            // Clear the email cookie on logout
-            document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
-            
-            setAuthState({
-                isAuthenticated: false,
-                user: null,
-                activeAccount: null
-            });
+            // Only update if state was previously authenticated
+            if (currentIsAuth) {
+                document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
+                setAuthState({
+                    isAuthenticated: false,
+                    user: null,
+                    activeAccount: null
+                });
+            }
         }
-    }, [instance]);
+    }, [instance, authState.activeAccount, authState.isAuthenticated, authState.user?.email]);
 
     // Effect to initialize auth state and set up MSAL event listeners
     useEffect(() => {
@@ -99,8 +103,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
     // Function to initiate the MSAL logout redirect flow
     const logout = useCallback(() => {
-        // Clear the email cookie on logout
-        document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
+        document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax"; // Ensure cookie is cleared immediately
         instance.logoutRedirect().catch((e) => console.error("Logout failed:", e));
     }, [instance]);
 
@@ -114,8 +117,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             });
             return response.accessToken;
         } catch (error) {
-            console.warn("Silent token acquisition failed:", error);
-            return null; // Return null on failure
+            // This can happen if user interaction is required, e.g., consent or MFA
+            // It's not necessarily a critical error for all silent token calls.
+            console.warn("Silent token acquisition failed (may require interaction):", error);
+            return null;
         }
     }, [instance, authState.activeAccount]);
 
@@ -137,11 +142,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 export const useUser = (): UserContextType => {
     const context = useContext(UserContext);
     if (!context) {
-        console.error(
-            "useUser hook was called outside of UserProvider. " +
-            "Make sure your component is wrapped in UserProvider."
-        );
-        throw new Error("useUser must be used within a UserProvider");
+        // This error is critical as it indicates a fundamental setup problem.
+        throw new Error("useUser must be used within a UserProvider. Ensure your component tree is correctly wrapped.");
     }
     return context;
 }; 

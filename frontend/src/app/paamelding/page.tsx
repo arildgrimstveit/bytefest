@@ -15,7 +15,7 @@ import type { Attendee } from "@/types/attendee";
 // Wrap the main component export in Suspense for useSearchParams
 export default function PaameldingPage() {
   return (
-    <Suspense fallback={<LoadingFallback />}> 
+    <Suspense fallback={<LoadingFallback />}>
       <Paamelding />
     </Suspense>
   );
@@ -24,10 +24,10 @@ export default function PaameldingPage() {
 // Loading component shown while Suspense is resolving
 function LoadingFallback() {
   return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <p className="text-white text-xl">Laster...</p>
-      </div>
-    );
+    <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+      <p className="text-white text-xl">Laster...</p>
+    </div>
+  );
 }
 
 function Paamelding() {
@@ -90,9 +90,9 @@ function Paamelding() {
         console.log(`Checking/Fetching registration for: ${user.email}, Edit Mode: ${isEditMode}`);
         try {
           // Fetch full data or just ID based on edit mode
-          const query = isEditMode 
-             ? `*[_type == "attendee" && attendeeEmail == $email][0]` // Fetch full data for edit
-             : `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`; // Fetch only ID for initial check
+          const query = isEditMode
+            ? `*[_type == "attendee" && attendeeEmail == $email][0]` // Fetch full data for edit
+            : `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`; // Fetch only ID for initial check
           const params = { email: user.email };
           const existingData: Attendee | { _id: string } | null = await sanityClient.fetch(query, params);
 
@@ -109,12 +109,12 @@ function Paamelding() {
               const annetEntry = fetchedDietaryNeeds.find((need: string) => need.startsWith("Annet: "));
               const otherNeeds = fetchedDietaryNeeds.filter((need: string) => !need.startsWith("Annet: "));
               if (annetEntry) {
-                  const text = annetEntry.substring("Annet: ".length);
-                  setAnnetText(text);
-                  setDietaryNeeds(["Annet", ...otherNeeds]);
+                const text = annetEntry.substring("Annet: ".length);
+                setAnnetText(text);
+                setDietaryNeeds(["Annet", ...otherNeeds]);
               } else {
-                  setAnnetText("");
-                  setDietaryNeeds(otherNeeds);
+                setAnnetText("");
+                setDietaryNeeds(otherNeeds);
               }
               setAttendsParty(fullData.attendsParty || "");
               setWillPresent(fullData.willPresent || "");
@@ -137,10 +137,10 @@ function Paamelding() {
           setIsCheckingRegistration(false); // Allow rendering form (with potential error state later?)
         }
       } else if (!isAuthenticated && inProgress === InteractionStatus.None) {
-         setIsCheckingRegistration(false); // Not logged in, allow login form render
+        setIsCheckingRegistration(false); // Not logged in, allow login form render
       } else if (inProgress === InteractionStatus.None) {
-         setIsCheckingRegistration(false); // Logged in but user info pending?
-         setExistingRegistrationId(null);
+        setIsCheckingRegistration(false); // Logged in but user info pending?
+        setExistingRegistrationId(null);
       }
       // While inProgress, isCheckingRegistration remains true
     };
@@ -184,8 +184,8 @@ function Paamelding() {
     setShowWantsFoodError(false);
 
     if (newValue !== 'yes') {
-        setDietaryNeeds([]);
-        setAnnetText("");
+      setDietaryNeeds([]);
+      setAnnetText("");
     }
   };
 
@@ -226,96 +226,113 @@ function Paamelding() {
       setShowBuError(true);
       isValid = false;
       if (!firstErrorElement) {
-          firstErrorElement = document.querySelector('[aria-controls="bu-dropdown"]');
+        firstErrorElement = document.querySelector('[aria-controls="bu-dropdown"]');
       }
     }
     if (!participationLocation) {
       setShowParticipationLocationError(true);
       isValid = false;
       if (!firstErrorElement) {
-          firstErrorElement = document.querySelector('[aria-controls="participation-location-dropdown"]');
+        firstErrorElement = document.querySelector('[aria-controls="participation-location-dropdown"]');
       }
     }
     if (!wantsFood) {
       setShowWantsFoodError(true);
       isValid = false;
-       if (!firstErrorElement) {
-            firstErrorElement = document.querySelector('input[name="wantsFood"]');
-        }
+      if (!firstErrorElement) {
+        firstErrorElement = document.querySelector('input[name="wantsFood"]');
+      }
     }
     if (!attendsParty) {
       setShowAttendsPartyError(true);
       isValid = false;
       if (!firstErrorElement) {
-            firstErrorElement = document.querySelector('input[name="attendsParty"]');
-        }
+        firstErrorElement = document.querySelector('input[name="attendsParty"]');
+      }
     }
     if (!willPresent) {
       setShowWillPresentError(true);
       isValid = false;
       if (!firstErrorElement) {
-            firstErrorElement = document.querySelector('input[name="willPresent"]');
-        }
+        firstErrorElement = document.querySelector('input[name="willPresent"]');
+      }
     }
 
     if (!isValid && firstErrorElement) {
-        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
+      firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
     }
 
     if (!user?.email || !user?.name) {
-        setSubmitError("Brukerinformasjon mangler. Prøv å logge ut og inn igjen.");
-        return;
+      setSubmitError("Brukerinformasjon mangler. Prøv å logge ut og inn igjen.");
+      return;
     }
 
     setIsSubmitting(true);
 
-    const needsToSubmit = dietaryNeeds.filter((need: string) => need !== "Annet");
+    const finalDietaryNeeds = dietaryNeeds.filter((need: string) => need !== "Annet");
     if (dietaryNeeds.includes("Annet") && annetText.trim()) {
-      needsToSubmit.push(`Annet: ${annetText.trim()}`);
+      finalDietaryNeeds.push(`Annet: ${annetText.trim()}`);
     }
 
-    const registrationData = {
-      _type: 'attendee',
+    // Attempt to read favorite talk slugs from local storage for migration
+    let localFavoriteSlugsForApi: string[] = [];
+    try {
+      const item = localStorage.getItem('favoriteTalks');
+      if (item) {
+        const parsedSlugs = JSON.parse(item);
+        if (Array.isArray(parsedSlugs) && parsedSlugs.every(slug => typeof slug === 'string')) {
+          localFavoriteSlugsForApi = parsedSlugs;
+        } else {
+          console.warn("Local favorites format is invalid, not migrating.");
+        }
+      }
+    } catch (error) {
+      console.error("Error reading local favorites for migration:", error);
+      // Proceed without local favorites if there's an error reading/parsing
+    }
+
+    const submissionData = {
       attendeeName: user.name,
       attendeeEmail: user.email,
       bu: bu,
       participationLocation: participationLocation,
       wantsFood: wantsFood,
-      dietaryNeeds: needsToSubmit,
+      dietaryNeeds: finalDietaryNeeds,
       attendsParty: attendsParty,
       willPresent: willPresent,
+      localFavoriteSlugs: localFavoriteSlugsForApi, // Pass the fetched slugs
     };
 
     try {
-      let result;
-      if (existingRegistrationId) {
-        // --- Update existing document --- 
-        console.log(`Updating registration for ID: ${existingRegistrationId}`);
-        result = await sanityClient
-          .patch(existingRegistrationId)
-          .set(registrationData) // Pass the whole object
-          .commit();
-        console.log("Update successful:", result);
-      } else {
-        // --- Create new document --- 
-        // Add registeredAt timestamp ONLY when creating
-        const dataToCreate = {
-          ...registrationData, 
-          _type: 'attendee', // Ensure _type is present for create
-          registeredAt: new Date().toISOString() // Add the timestamp here
-        };
-        console.log("Creating new registration:", dataToCreate);
-        result = await sanityClient.create(dataToCreate); 
-        console.log("Create successful:", result);
+      console.log("Submitting registration data to API:", submissionData);
+      const response = await fetch('/api/registerAttendance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Log the full error from the API if available
+        console.error("API Error Response:", result);
+        throw new Error(result.error || result.details || `Network response was not ok (status: ${response.status})`);
       }
-      
+
+      console.log("API Success Response:", result);
       // --- Navigate on success --- 
       router.push("/paamelding/summary");
 
     } catch (error) {
-      console.error("Error submitting registration to Sanity:", error);
-      setSubmitError("Kunne ikke sende inn påmeldingen. Prøv igjen senere.");
+      console.error("Error submitting registration via API:", error);
+      if (error instanceof Error) {
+        setSubmitError(`Kunne ikke sende inn påmeldingen: ${error.message}`);
+      } else {
+        setSubmitError("Kunne ikke sende inn påmeldingen. En ukjent feil oppstod.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -353,7 +370,7 @@ function Paamelding() {
     return (
       <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4 mb-12 sm:mb-0">
         <div className="w-full max-w-sm mt-8 sm:mt-0">
-          <LoginForm title="Meld deg på" /> 
+          <LoginForm title="Meld deg på" />
         </div>
       </div>
     );
@@ -456,15 +473,15 @@ function Paamelding() {
             <label className="mb-3 block text-md font-bold">Ønsker du mat under arangementet?</label>
             <div className="space-y-3">
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="wantsFood" value="yes" checked={wantsFood === 'yes'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="wantsFood" value="yes" checked={wantsFood === 'yes'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Ja</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="wantsFood" value="no" checked={wantsFood === 'no'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="wantsFood" value="no" checked={wantsFood === 'no'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Nei</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="wantsFood" value="digital" checked={wantsFood === 'digital'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="wantsFood" value="digital" checked={wantsFood === 'digital'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Jeg deltar digitalt og skal ikke ha mat</span>
               </label>
             </div>
@@ -476,16 +493,16 @@ function Paamelding() {
           </div>
 
           {wantsFood === 'yes' && (
-            <div className="w-full"> 
+            <div className="w-full">
               <label className="mb-3 block text-md font-bold">Dietthensyn (valgfritt)</label>
               <div className="flex flex-col space-y-3">
                 <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
                   <div className="relative w-5 h-5">
-                    <input 
-                      type="checkbox" 
-                      value="Vegetarisk" 
-                      checked={dietaryNeeds.includes('Vegetarisk')} 
-                      onChange={handleDietaryNeedsChange} 
+                    <input
+                      type="checkbox"
+                      value="Vegetarisk"
+                      checked={dietaryNeeds.includes('Vegetarisk')}
+                      onChange={handleDietaryNeedsChange}
                       className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
                     />
                     {dietaryNeeds.includes('Vegetarisk') && (
@@ -502,11 +519,11 @@ function Paamelding() {
                 </label>
                 <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
                   <div className="relative w-5 h-5">
-                    <input 
-                      type="checkbox" 
-                      value="Vegansk" 
-                      checked={dietaryNeeds.includes('Vegansk')} 
-                      onChange={handleDietaryNeedsChange} 
+                    <input
+                      type="checkbox"
+                      value="Vegansk"
+                      checked={dietaryNeeds.includes('Vegansk')}
+                      onChange={handleDietaryNeedsChange}
                       className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
                     />
                     {dietaryNeeds.includes('Vegansk') && (
@@ -521,11 +538,11 @@ function Paamelding() {
                 </label>
                 <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
                   <div className="relative w-5 h-5">
-                    <input 
-                      type="checkbox" 
-                      value="Glutenfritt" 
-                      checked={dietaryNeeds.includes('Glutenfritt')} 
-                      onChange={handleDietaryNeedsChange} 
+                    <input
+                      type="checkbox"
+                      value="Glutenfritt"
+                      checked={dietaryNeeds.includes('Glutenfritt')}
+                      onChange={handleDietaryNeedsChange}
                       className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
                     />
                     {dietaryNeeds.includes('Glutenfritt') && (
@@ -540,11 +557,11 @@ function Paamelding() {
                 </label>
                 <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
                   <div className="relative w-5 h-5">
-                    <input 
-                      type="checkbox" 
-                      value="Melkefritt" 
-                      checked={dietaryNeeds.includes('Melkefritt')} 
-                      onChange={handleDietaryNeedsChange} 
+                    <input
+                      type="checkbox"
+                      value="Melkefritt"
+                      checked={dietaryNeeds.includes('Melkefritt')}
+                      onChange={handleDietaryNeedsChange}
                       className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
                     />
                     {dietaryNeeds.includes('Melkefritt') && (
@@ -559,11 +576,11 @@ function Paamelding() {
                 </label>
                 <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
                   <div className="relative w-5 h-5">
-                    <input 
-                      type="checkbox" 
-                      value="Laktosefritt" 
-                      checked={dietaryNeeds.includes('Laktosefritt')} 
-                      onChange={handleDietaryNeedsChange} 
+                    <input
+                      type="checkbox"
+                      value="Laktosefritt"
+                      checked={dietaryNeeds.includes('Laktosefritt')}
+                      onChange={handleDietaryNeedsChange}
                       className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
                     />
                     {dietaryNeeds.includes('Laktosefritt') && (
@@ -578,12 +595,12 @@ function Paamelding() {
                 </label>
                 <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit flex-shrink-0">
                   <div className="relative w-5 h-5">
-                    <input 
+                    <input
                       id="diet-other"
-                      type="checkbox" 
-                      value="Annet" 
-                      checked={dietaryNeeds.includes('Annet')} 
-                      onChange={handleDietaryNeedsChange} 
+                      type="checkbox"
+                      value="Annet"
+                      checked={dietaryNeeds.includes('Annet')}
+                      onChange={handleDietaryNeedsChange}
                       className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
                     />
                     {dietaryNeeds.includes('Annet') && (
@@ -609,8 +626,9 @@ function Paamelding() {
                   placeholder="Spesifiser"
                   maxLength={75}
                   className="w-full p-3 bg-white focus:outline-none"
-                  value={annetText} 
+                  value={annetText}
                   onChange={(e) => setAnnetText(e.target.value)}
+                  autoComplete="off"
                 />
               </PixelInput>
             </div>
@@ -620,11 +638,11 @@ function Paamelding() {
             <label className="mb-3 block text-md font-bold">Ønsker du å delta på fest etter det faglige programmet?</label>
             <div className="space-y-3">
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="attendsParty" value="yes" checked={attendsParty === 'yes'} onChange={handleAttendsPartyChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="attendsParty" value="yes" checked={attendsParty === 'yes'} onChange={handleAttendsPartyChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Ja, jeg er med på det sosiale</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="attendsParty" value="no" checked={attendsParty === 'no'} onChange={handleAttendsPartyChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="attendsParty" value="no" checked={attendsParty === 'no'} onChange={handleAttendsPartyChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Nei, jeg kan dessverre ikke</span>
               </label>
             </div>
@@ -639,11 +657,11 @@ function Paamelding() {
             <label className="mb-3 block text-md font-bold">Har du meldt inn et foredrag og fått det godkjent?</label>
             <div className="space-y-3">
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="willPresent" value="yes" checked={willPresent === 'yes'} onChange={handleWillPresentChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="willPresent" value="yes" checked={willPresent === 'yes'} onChange={handleWillPresentChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Ja</span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="willPresent" value="no" checked={willPresent === 'no'} onChange={handleWillPresentChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"/>
+                <input type="radio" name="willPresent" value="no" checked={willPresent === 'no'} onChange={handleWillPresentChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
                 <span>Nei</span>
               </label>
             </div>

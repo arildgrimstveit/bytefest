@@ -25,3 +25,8 @@ export interface LoginFormProps extends ComponentPropsWithoutRef<"div"> {
   buttonText?: string;
   className?: string;
 }
+
+export interface FavoriteButtonProps {
+  talkSlug: string;
+  onFavoriteToggle?: () => void;
+}

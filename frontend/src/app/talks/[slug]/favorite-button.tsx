@@ -1,141 +1,54 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-
-interface FavoriteButtonProps {
-  talkSlug: string;
-  onFavoriteToggle?: () => void;
-}
+import Image from "next/image";
+import { useFavorites } from "@/hooks/useFavorites"; // Adjust path if necessary
+import type { FavoriteButtonProps } from "@/types/props"; // Import from types folder
 
 export default function FavoriteButton({ talkSlug, onFavoriteToggle }: FavoriteButtonProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [useLocalStorage, setUseLocalStorage] = useState(false);
+  const { favs, toggleFavorite, isLoadingFavs, errorFavs, isStoreInitialized } = useFavorites();
 
-  // Check if the talk is favorited on component mount
-  useEffect(() => {
-    async function checkFavoriteStatus() {
-      setIsLoading(true);
-      try {
-        // Try the API first using slug
-        const response = await fetch(`/api/favorites?talkSlug=${talkSlug}`);
-        const data = await response.json();
-        
-        if (data.useLocalStorage) {
-          // Use localStorage as directed by the API
-          setUseLocalStorage(true);
-          const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-          setIsFavorite(favorites.includes(talkSlug));
-        } else if (response.ok) {
-          // Use API response
-          setIsFavorite(data.isFavorite);
-        }
-      } catch {
-        // Fallback to localStorage if API fails
-        setUseLocalStorage(true);
-        const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-        setIsFavorite(favorites.includes(talkSlug));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    checkFavoriteStatus();
-  }, [talkSlug]);
+  // Determine if the current talk is favorited based on the favs array from the hook
+  const isFavorite = favs.includes(talkSlug);
 
-  const toggleFavorite = async (e: React.MouseEvent) => {
+  const handleToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsLoading(true);
-    
-    if (useLocalStorage) {
-      // Handle directly in localStorage
-      const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-      let newFavorites;
-      
-      if (isFavorite) {
-        newFavorites = favorites.filter((slug: string) => slug !== talkSlug);
-      } else {
-        newFavorites = [...favorites, talkSlug];
-      }
-      
-      localStorage.setItem('favoriteTalks', JSON.stringify(newFavorites));
-      setIsFavorite(!isFavorite);
-      if (onFavoriteToggle) onFavoriteToggle();
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      // Try API
-      const response = await fetch('/api/favorites', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          talkSlug,
-          favorite: !isFavorite,
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.useLocalStorage) {
-        // API wants us to use localStorage
-        setUseLocalStorage(true);
-        const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-        let newFavorites;
-        
-        if (isFavorite) {
-          newFavorites = favorites.filter((slug: string) => slug !== talkSlug);
-        } else {
-          newFavorites = [...favorites, talkSlug];
-        }
-        
-        localStorage.setItem('favoriteTalks', JSON.stringify(newFavorites));
-        setIsFavorite(!isFavorite);
-      } else if (response.ok) {
-        // API operation successful
-        setIsFavorite(!isFavorite);
-      }
-      
-      // Call the callback if provided
-      if (onFavoriteToggle) onFavoriteToggle();
-    } catch {
-      // API failed, fallback to localStorage
-      setUseLocalStorage(true);
-      const favorites = JSON.parse(localStorage.getItem('favoriteTalks') || '[]');
-      let newFavorites;
-      
-      if (isFavorite) {
-        newFavorites = favorites.filter((slug: string) => slug !== talkSlug);
-      } else {
-        newFavorites = [...favorites, talkSlug];
-      }
-      
-      localStorage.setItem('favoriteTalks', JSON.stringify(newFavorites));
-      setIsFavorite(!isFavorite);
-      if (onFavoriteToggle) onFavoriteToggle();
-    } finally {
-      setIsLoading(false);
+
+    // Optimistically toggle, then let the hook handle the background update and potential revert.
+    await toggleFavorite(talkSlug);
+
+    if (onFavoriteToggle) {
+      onFavoriteToggle();
     }
   };
 
-  if (isLoading) {
+  // Show loading spinner only if the store is not yet initialized OR if explicitly loading favs
+  // This prevents flashing the loader during optimistic updates if favs are already available.
+  if (!isStoreInitialized || isLoadingFavs) {
     return (
-      <div className="w-7 h-7 animate-pulse bg-gray-200 rounded-full"></div>
+      <div className="w-7 h-7 animate-pulse bg-gray-300 rounded-full"></div>
+    );
+  }
+
+  // Optionally, display an error state from the hook
+  if (errorFavs) {
+    return (
+      <div className="w-7 h-7 flex items-center justify-center" title={errorFavs}>
+        <span className="text-red-500">!</span> {/* Simple error indicator */}
+      </div>
     );
   }
 
   return (
-    <button 
-      onClick={toggleFavorite}
-      className="transition-transform active:scale-95 cursor-pointer flex items-center"
+    <button
+      onClick={handleToggle}
+      className="transition-transform active:scale-95 cursor-pointer flex items-center hover:opacity-75"
       aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+      // Disable button if store isn't ready or if a background load is explicitly in progress.
+      // The toggleFavorite itself is optimistic and doesn't set isLoadingFavs.
+      disabled={!isStoreInitialized || isLoadingFavs}
     >
-      <Image 
+      <Image
         src={isFavorite ? '/images/SeaStarFilled.svg' : '/images/SeaStar.svg'}
         alt={isFavorite ? 'Favoritt' : 'Legg til som favoritt'}
         width={20}
