@@ -100,7 +100,7 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
                       );
                       setIsDurationOpen(false);
                     }}
-                    className={`block w-full px-3 py-2 text-xs text-left transition-colors font-medium ${selectedDuration === duration.value
+                    className={`block w-full px-3 py-2 text-xs text-left transition-colors font-medium cursor-pointer ${selectedDuration === duration.value
                       ? 'bg-[#F8F5D3] text-[#2A1449]'
                       : 'hover:bg-gray-100 text-[#2A1449]'
                       }`}

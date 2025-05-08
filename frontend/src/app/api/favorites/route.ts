@@ -96,14 +96,19 @@ export async function POST(request: NextRequest) {
 
     } else { // favorite === false (to remove)
       if (!isAlreadyFavorited) {
+        // If the talk is not in the favorites list, there's nothing to remove.
+        // This can happen if multiple remove requests were sent and one already processed it.
+        // Or if the client's state was out of sync.
         return NextResponse.json({ success: true, message: 'Talk not in favorites to remove.', action: 'not_found' });
       }
       
-      const updatedFavorites = existingFavoriteIds.filter((id: string) => id !== talkReferenceId);
+      // Use Sanity's atomic unset operation to remove the reference from the array
+      // This targets items in the 'favoriteTalks' array where _ref matches talkReferenceId
       await client
         .patch(attendee._id)
-        .set({ favoriteTalks: updatedFavorites.map((id: string) => ({ _type: 'reference', _ref: id, _key: id }))})
+        .unset([`favoriteTalks[_ref=="${talkReferenceId}"]`])
         .commit();
+        
       return NextResponse.json({ success: true, message: 'Favorite removed.', action: 'removed' });
     }
 

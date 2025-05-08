@@ -215,19 +215,23 @@ export default function Bytefest() {
               Spesifikt trenger vi hjelp til:
             </p>
             <p className="text-xl mt-4">
-              <p className="font-bold">Streaming</p>
+              <strong className="iceland">Streaming</strong>
+              <br />
               Foredragene skal streames mellom kontorene. Vi trenger folk til å sørge for at det skjer i Oslo, Fredrikstad, Kristiansand, Stavanger, Bergen, Trondheim.
             </p>
             <p className="text-xl mt-4">
-              <p className="font-bold">Praktisk hjelp</p>
+              <strong className="iceland">Praktisk hjelp</strong>
+              <br />
               Vi trenger folk til å hjelpe til med praktiske ting som å bestille og hente mat og drikke.
             </p>
             <p className="text-xl mt-4">
-              <p className="font-bold">Planlegge og gjennomføre sosialt program</p>
+              <strong className="iceland">Planlegge og gjennomføre sosialt program</strong>
+              <br />
               Vi trenger folk som vil planlegge årets fest. Hver lokasjon står fritt til å planlegge sitt sosiale program.
             </p>
             <p className="text-xl mt-4">
-              <p className="font-bold">Ja, jeg vil hjelpe til!</p>
+              <strong className="iceland">Ja, jeg vil hjelpe til!</strong>
+              <br />
               Supert! Send en e-post til bytefest@soprasteria.com, så setter vi deg i gang. Få gjerne med deg noen andre fra ditt kontor!
             </p>
           </div>
