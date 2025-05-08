@@ -320,7 +320,7 @@ function Paamelding() {
     { value: "Applications", label: "Applications" },
     { value: "Digital Platform Services", label: "Digital Platform Services" },
     { value: "Advisory", label: "Advisory" },
-    { value: "Business Development", label: "Business Development" },
+    { value: "Andre", label: "Andre" },
   ];
 
   const participationLocationOptions = [

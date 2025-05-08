@@ -10,7 +10,7 @@ const Footer = () => {
       <div className="relative">
         <KelpForest />
       </div>
-      <footer className="bg-[#141B33] text-white pt-15 pb-16">
+      <footer className="bg-[#17072B] text-white pt-15 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Top section with logo and columns */}
           <div className="flex flex-col md:flex-row justify-center gap-16 lg:gap-28 mb-15">

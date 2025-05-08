@@ -4,7 +4,7 @@ const buOptions = [
   {value: 'Applications', title: 'Applications'},
   {value: 'Digital Platform Services', title: 'Digital Platform Services'},
   {value: 'Advisory', title: 'Advisory'},
-  {value: 'Business Development', title: 'Business Development'},
+  {value: 'Andre', title: 'Andre'},
 ]
 
 const participationLocationOptions = [

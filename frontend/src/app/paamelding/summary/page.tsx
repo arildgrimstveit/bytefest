@@ -182,10 +182,10 @@ export default function PaameldingSummary() {
             </p>
           </div>
 
-          {/* Button container - stack vertically, center items, row on sm+ */}
+          {/* Button container - stack vertically left-aligned, row on sm+ */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-6">
-            {/* Edit Button - Added flex justify-center */}
-            <Link href="/paamelding?edit=true" className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 block w-full sm:w-auto flex justify-center">
+            {/* Edit Button - Removed flex justify-center */}
+            <Link href="/paamelding?edit=true" className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 block w-full sm:w-auto">
               <Image
                 src="/images/EndrePaamelding.svg"
                 alt="Endre påmelding"
@@ -194,8 +194,8 @@ export default function PaameldingSummary() {
               />
             </Link>
 
-            {/* Deregister Button / Loading State - Container already centers */}
-            <div className="flex items-center justify-center w-full sm:w-auto">
+            {/* Deregister Button / Loading State - Removed justify-center */}
+            <div className="flex items-center w-full sm:w-auto">
               {isDeleting ? (
                 <span className="iceland text-xl h-[59px] flex items-center justify-center">Melder av...</span>
               ) : (
