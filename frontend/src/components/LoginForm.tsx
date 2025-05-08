@@ -4,7 +4,6 @@ import Image from "next/image"
 import { useMsal } from "@azure/msal-react";
 import { InteractionStatus } from "@azure/msal-browser";
 import { loginRequest } from "@/config/AuthConfig";
-import { usePathname } from "next/navigation";
 import { LoginFormProps } from "@/types/props";
 
 export function LoginForm({
@@ -14,7 +13,6 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const { instance, inProgress } = useMsal();
-  const currentPath = usePathname();
 
   const handleLogin = async () => {
     // Only proceed if no interaction is in progress
@@ -25,12 +23,15 @@ export function LoginForm({
     
     try {
       console.log("Starting login process from button click");
-      // Store redirect information before initiating login
-      localStorage.removeItem('returnToFormAfterLogin');
       
-      if (currentPath.includes('/bli-foredragsholder')) {
+      // Check URL params for registration intent before clearing localStorage flags
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('intent') === 'paamelding') {
         localStorage.setItem('returnToFormAfterLogin', 'true');
-        console.log("Will return to bli-foredragsholder after login");
+        console.log("Setting flag to return to paamelding after login");
+      } else {
+        // Ensure flag is cleared if intent is not present or different
+        localStorage.removeItem('returnToFormAfterLogin');
       }
 
       // Use loginRedirect with minimal configuration

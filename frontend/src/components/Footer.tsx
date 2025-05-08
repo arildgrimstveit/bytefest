@@ -43,8 +43,8 @@ const Footer = () => {
                 <Link href="/bytefest" className="text-sm text-gray-300 hover:text-white transition-colors">
                   OM BYTEFEST
                 </Link>
-                <Link href="/bli-foredragsholder" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  BLI FOREDRAGSHOLDER
+                <Link href="/talks" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  ALLE FOREDRAG
                 </Link>
               </div>
             </div>

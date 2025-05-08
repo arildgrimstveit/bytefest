@@ -2,8 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useUser } from "@/components/UserContext";
 
 export default function Bytefest() {
+  const { isAuthenticated } = useUser();
+
+  const paameldingHref = isAuthenticated ? "/paamelding" : "/login?intent=paamelding";
+
   return (
     <div className="py-10">
       <div className="max-w-5xl mx-auto">
@@ -75,7 +80,7 @@ export default function Bytefest() {
               </p>
               <div className="mt-10 lg:pl-15">
                 <Link
-                  href="/paamelding"
+                  href={paameldingHref}
                   className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer"
                 >
                   <Image

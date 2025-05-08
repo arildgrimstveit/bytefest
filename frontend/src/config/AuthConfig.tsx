@@ -61,7 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           window.dispatchEvent(new Event('msal:login:complete')); // Notify app
 
           if (shouldRedirectToForm) {
-            window.location.href = '/bli-foredragsholder';
+            localStorage.removeItem('returnToFormAfterLogin'); // Clear the flag
+            window.location.href = '/paamelding'; // Redirect to paamelding
           } else if (window.location.pathname === '/login') {
             window.location.href = '/';
           }

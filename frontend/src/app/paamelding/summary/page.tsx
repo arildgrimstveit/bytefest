@@ -186,25 +186,26 @@ export default function PaameldingSummary() {
             </p>
           </div>
 
-          <div className="flex justify-between items-center mt-6">
-            <Link href="/paamelding?edit=true" className="cursor-pointer transition-transform active:scale-95 hover:opacity-80">
+          {/* Button container - stack vertically, center items, row on sm+ */}
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-6">
+            {/* Edit Button - Added flex justify-center */}
+            <Link href="/paamelding?edit=true" className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 block w-full sm:w-auto flex justify-center">
               <Image
                 src="/images/EndrePaamelding.svg"
                 alt="Endre påmelding"
                 width={280}
                 height={70}
-                style={{ width: 'auto', height: 'auto' }}
               />
             </Link>
 
-            {/* --- Deregister Button / Loading State --- */}
-            <div className="flex items-center justify-center" style={{ minWidth: 269, minHeight: 59 }}>
+            {/* Deregister Button / Loading State - Container already centers */}
+            <div className="flex items-center justify-center w-full sm:w-auto">
               {isDeleting ? (
-                <span className="iceland text-xl">Melder av...</span>
+                <span className="iceland text-xl h-[59px] flex items-center justify-center">Melder av...</span>
               ) : (
                 <button
                   onClick={handleDeregister}
-                  className="cursor-pointer transition-transform active:scale-95 hover:opacity-80"
+                  className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 block"
                   aria-label="Meld deg av"
                   disabled={isDeleting}
                 >
@@ -213,7 +214,6 @@ export default function PaameldingSummary() {
                     alt="Meld deg av"
                     width={269}
                     height={59}
-                    style={{ width: 'auto', height: 'auto' }}
                   />
                 </button>
               )}

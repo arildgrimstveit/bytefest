@@ -37,3 +37,9 @@ yarn-error.log*
 #Yarn
 .yarn/
 .gz
+
+# Sanity Studio build output
+sanity/dist/
+
+# Next.js build output and cache
+frontend/.next/

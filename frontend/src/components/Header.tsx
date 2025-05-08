@@ -34,7 +34,7 @@ const Header = () => {
   // Renders a single desktop navigation link with active state styling
   const renderNavLink = useCallback((item: NavItem) => {
     // Check if current path is part of the registration flow
-    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder') || pathname.startsWith('/paamelding');
+    const isRegistrationFlow = pathname.startsWith('/paamelding');
     
     // PÅMELDING should be highlighted for both root path and the registration flow
     const isActive = 
@@ -91,7 +91,7 @@ const Header = () => {
   // Renders a single mobile navigation link
   const renderMobileNavLink = useCallback((item: NavItem) => {
     // Check if current path is part of the registration flow
-    const isRegistrationFlow = pathname.startsWith('/bli-foredragsholder') || pathname.startsWith('/paamelding');
+    const isRegistrationFlow = pathname.startsWith('/paamelding');
     
     // PÅMELDING should be highlighted for both root path and the registration flow
     const isActive = 
