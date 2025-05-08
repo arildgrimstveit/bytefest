@@ -18,7 +18,6 @@ interface TalkPageActualProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default async function TalkDetail({ params: paramsProxy, searchParams: searchParamsProxy }: TalkPageActualProps) {
   const { slug } = await paramsProxy; // Destructure after awaiting
 
