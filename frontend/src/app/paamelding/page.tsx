@@ -41,7 +41,6 @@ function Paamelding() {
   const [wantsFood, setWantsFood] = useState("");
   const [dietaryNeeds, setDietaryNeeds] = useState<string[]>([]);
   const [attendsParty, setAttendsParty] = useState("");
-  const [willPresent, setWillPresent] = useState("");
 
   const [isBuDropdownOpen, setIsBuDropdownOpen] = useState(false);
   const [isParticipationLocationDropdownOpen, setIsParticipationLocationDropdownOpen] = useState(false);
@@ -53,7 +52,6 @@ function Paamelding() {
   const [showParticipationLocationError, setShowParticipationLocationError] = useState(false);
   const [showWantsFoodError, setShowWantsFoodError] = useState(false);
   const [showAttendsPartyError, setShowAttendsPartyError] = useState(false);
-  const [showWillPresentError, setShowWillPresentError] = useState(false);
 
   const [annetText, setAnnetText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,7 +114,6 @@ function Paamelding() {
                 setDietaryNeeds(otherNeeds);
               }
               setAttendsParty(fullData.attendsParty || "");
-              setWillPresent(fullData.willPresent || "");
             } else {
               // Not edit mode, but found registration -> redirect to summary
               console.log("User already registered (not in edit mode). Redirecting to summary.");
@@ -199,11 +196,6 @@ function Paamelding() {
     setShowAttendsPartyError(false);
   };
 
-  const handleWillPresentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWillPresent(e.target.value);
-    setShowWillPresentError(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -215,7 +207,6 @@ function Paamelding() {
     setShowParticipationLocationError(false);
     setShowWantsFoodError(false);
     setShowAttendsPartyError(false);
-    setShowWillPresentError(false);
 
     if (!bu) {
       setShowBuError(true);
@@ -243,13 +234,6 @@ function Paamelding() {
       isValid = false;
       if (!firstErrorElement) {
         firstErrorElement = document.querySelector('input[name="attendsParty"]');
-      }
-    }
-    if (!willPresent) {
-      setShowWillPresentError(true);
-      isValid = false;
-      if (!firstErrorElement) {
-        firstErrorElement = document.querySelector('input[name="willPresent"]');
       }
     }
 
@@ -295,7 +279,6 @@ function Paamelding() {
       wantsFood: wantsFood,
       dietaryNeeds: finalDietaryNeeds,
       attendsParty: attendsParty,
-      willPresent: willPresent,
       localFavoriteSlugs: localFavoriteSlugsForApi, // Pass the fetched slugs
     };
 
@@ -337,6 +320,7 @@ function Paamelding() {
     { value: "Applications", label: "Applications" },
     { value: "Digital Platform Services", label: "Digital Platform Services" },
     { value: "Advisory", label: "Advisory" },
+    { value: "Business Development", label: "Business Development" },
   ];
 
   const participationLocationOptions = [
@@ -644,25 +628,6 @@ function Paamelding() {
             {showAttendsPartyError && (
               <p className="text-red-600 text-sm mt-1 font-medium px-1">
                 Vennligst svar på om du vil delta på festen
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-3 block text-md font-bold">Har du meldt inn et foredrag og fått det godkjent?</label>
-            <div className="space-y-3">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="willPresent" value="yes" checked={willPresent === 'yes'} onChange={handleWillPresentChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Ja</span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="willPresent" value="no" checked={willPresent === 'no'} onChange={handleWillPresentChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Nei</span>
-              </label>
-            </div>
-            {showWillPresentError && (
-              <p className="text-red-600 text-sm mt-1 font-medium px-1">
-                Vennligst svar på om du skal holde foredrag
               </p>
             )}
           </div>

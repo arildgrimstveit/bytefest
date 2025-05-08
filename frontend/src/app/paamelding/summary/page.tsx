@@ -176,10 +176,6 @@ export default function PaameldingSummary() {
                 <p className="font-bold">Delta på fest etter faglig program?</p>
                 <p>{registration.attendsParty === 'yes' ? 'Ja, jeg er med på det sosiale' : 'Nei, jeg kan dessverre ikke'}</p>
               </div>
-              <div>
-                <p className="font-bold">Har du meldt inn et foredrag og fått det godkjent?</p>
-                <p>{registration.willPresent === 'yes' ? 'Ja' : 'Nei'}</p>
-              </div>
             </div>
             <p className="text-sm mt-4 pt-4">
               Ved påmelding samtykker du til lagring av personopplysninger, les <Link href="/privacy-policy" className="underline hover:no-underline">personvernerklæring</Link>.

@@ -10,8 +10,8 @@ export interface Attendee {
   bu: string;
   participationLocation: string;
   wantsFood: 'yes' | 'no' | 'digital';
-  dietaryNeeds?: string[]; // Optional array of strings
+  dietaryNeeds?: string[];
   attendsParty: 'yes' | 'no';
-  willPresent: 'yes' | 'no';
-  registeredAt?: string; // Add the optional timestamp field
+  registeredAt?: string;
+  favoriteTalks?: {_key: string, _ref: string, _type: 'reference'}[];
 }

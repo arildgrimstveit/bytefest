@@ -4,6 +4,7 @@ const buOptions = [
   {value: 'Applications', title: 'Applications'},
   {value: 'Digital Platform Services', title: 'Digital Platform Services'},
   {value: 'Advisory', title: 'Advisory'},
+  {value: 'Business Development', title: 'Business Development'},
 ]
 
 const participationLocationOptions = [
@@ -29,11 +30,6 @@ const wantsFoodOptions = [
 const attendsPartyOptions = [
   {value: 'yes', title: 'Ja, er med på det sosiale'},
   {value: 'no', title: 'Nei, kan dessverre ikke'},
-]
-
-const willPresentOptions = [
-  {value: 'yes', title: 'Ja'},
-  {value: 'no', title: 'Nei'},
 ]
 
 export const attendee = defineType({
@@ -98,17 +94,6 @@ export const attendee = defineType({
       type: 'string',
       options: {
         list: attendsPartyOptions,
-        layout: 'radio',
-        direction: 'vertical',
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'willPresent',
-      title: 'Will Present',
-      type: 'string',
-      options: {
-        list: willPresentOptions,
         layout: 'radio',
         direction: 'vertical',
       },

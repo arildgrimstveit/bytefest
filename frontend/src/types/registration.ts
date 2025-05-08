@@ -4,7 +4,6 @@ export interface RegistrationSubmitData {
   wantsFood: string;
   dietaryNeeds: string[];
   attendsParty: string;
-  willPresent: string;
   attendeeName: string;
   attendeeEmail: string;
   localFavoriteSlugs?: string[];

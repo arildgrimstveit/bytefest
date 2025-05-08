@@ -20,8 +20,6 @@ function isValidRegistrationData(
     potentialData.dietaryNeeds.every(item => typeof item === 'string') &&
     typeof potentialData.attendsParty === "string" &&
     ["yes", "no"].includes(potentialData.attendsParty as string) &&
-    typeof potentialData.willPresent === "string" &&
-    ["yes", "no"].includes(potentialData.willPresent as string) &&
     typeof potentialData.attendeeName === "string" &&
     typeof potentialData.attendeeEmail === "string" &&
     (potentialData.localFavoriteSlugs === undefined || 
@@ -50,7 +48,6 @@ export async function POST(request: Request) {
         wantsFood: data.wantsFood,
         dietaryNeeds: data.dietaryNeeds,
         attendsParty: data.attendsParty,
-        willPresent: data.willPresent,
         registeredAt: new Date().toISOString(),
     };
 
