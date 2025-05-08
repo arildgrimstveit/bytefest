@@ -217,7 +217,7 @@ export default function Bytefest() {
             <p className="text-xl mt-4">
               <strong className="iceland">Streaming</strong>
               <br />
-              Foredragene skal streames mellom kontorene. Vi trenger folk til å sørge for at det skjer i Oslo, Fredrikstad, Kristiansand, Stavanger, Bergen, Trondheim.
+              Foredragene skal streames mellom kontorene. Vi trenger folk til å sørge for at det skjer i Oslo, Kristiansand, Stavanger, Bergen, Trondheim.
             </p>
             <p className="text-xl mt-4">
               <strong className="iceland">Praktisk hjelp</strong>
