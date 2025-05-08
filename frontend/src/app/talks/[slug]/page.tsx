@@ -14,7 +14,7 @@ function Tag({ children }: { children: React.ReactNode }) {
 }
 
 interface TalkPageActualProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
