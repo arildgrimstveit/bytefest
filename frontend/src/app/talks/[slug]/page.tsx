@@ -15,12 +15,18 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 interface TalkPageActualProps {
   params: Promise<{ slug: string }>;
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default async function TalkDetail({ params: paramsProxy, searchParams: _searchParams }: TalkPageActualProps) {
+export default async function TalkDetail({ params: paramsProxy, searchParams: searchParamsProxy }: TalkPageActualProps) {
   const { slug } = await paramsProxy; // Destructure after awaiting
+
+  // If searchParamsProxy exists, await it to acknowledge the proxy, even if not used.
+  // This helps satisfy Next.js's expectations for these props.
+  if (searchParamsProxy) {
+    await searchParamsProxy;
+  }
 
   const query = `*[_type == "talk" && slug.current == $slug][0]{
     _id,
