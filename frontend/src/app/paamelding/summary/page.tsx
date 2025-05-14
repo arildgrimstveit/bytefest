@@ -42,9 +42,7 @@ export default function PaameldingSummary() {
           if (data) {
             setRegistration(data);
           } else {
-            setError("Kunne ikke finne påmeldingsinformasjonen din.");
-            // Optional: Redirect back to form if no data found?
-            // router.push('/paamelding'); 
+            router.push("/paamelding?status=registration_not_found"); // Redirect to registration page
           }
         } catch (err) {
           console.error("Error fetching registration:", err);
@@ -53,7 +51,7 @@ export default function PaameldingSummary() {
           setIsLoading(false);
         }
       } else if (!isAuthenticated) {
-        // If user somehow lands here unauthenticated, redirect to login/form?
+        // If user somehow lands here unauthenticated, redirect to login/form
         router.push('/paamelding');
       }
     };
@@ -63,15 +61,10 @@ export default function PaameldingSummary() {
 
   // --- Deregister Handler --- 
   const handleDeregister = async () => {
-    // The user object from useUser() context should be the source of truth for identity
     if (!user?.email) {
       setDeleteError("Brukerinformasjon ikke funnet. Kan ikke melde av.");
       return;
     }
-
-    // The registration._id is from the initially fetched registration data.
-    // The API route will verify the user via cookie and delete based on that.
-    // Sending registration._id in the body is optional but can be used for logging/confirmation on API if desired.
 
     setIsDeleting(true);
     setDeleteError(null);
@@ -93,7 +86,7 @@ export default function PaameldingSummary() {
       }
 
       console.log("Deregistration successful via API");
-      router.push("/?deregistered=true"); // Redirect to homepage or a confirmation page
+      router.push("/?deregistered=true");
 
     } catch (err) {
       console.error("Error during deregistration call:", err);
@@ -145,7 +138,7 @@ export default function PaameldingSummary() {
             Vi gleder oss til å se deg 5. juni!
           </p>
 
-          {/* Summary Box - Updated background color, removed pixel-corners, kept border */}
+          {/* Summary Box */}
           <div className="bg-[#FDF2E5] p-6 sm:p-8 border-2 border-black mb-10">
             <h2 className="text-3xl sm:text-4xl iceland text-black text-left mb-6 sm:mb-8">Oppsummering</h2>
             <div className="space-y-4 text-md">
@@ -182,9 +175,9 @@ export default function PaameldingSummary() {
             </p>
           </div>
 
-          {/* Button container - stack vertically left-aligned, row on sm+ */}
+          {/* Button container */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-6">
-            {/* Edit Button - Removed flex justify-center */}
+            {/* Edit Button */}
             <Link href="/paamelding?edit=true" className="cursor-pointer transition-transform active:scale-95 hover:opacity-80 block w-full sm:w-auto">
               <Image
                 src="/images/EndrePaamelding.svg"
@@ -194,7 +187,7 @@ export default function PaameldingSummary() {
               />
             </Link>
 
-            {/* Deregister Button / Loading State - Removed justify-center */}
+            {/* Deregister Button / Loading State */}
             <div className="flex items-center w-full sm:w-auto">
               {isDeleting ? (
                 <span className="iceland text-xl h-[59px] flex items-center justify-center">Melder av...</span>

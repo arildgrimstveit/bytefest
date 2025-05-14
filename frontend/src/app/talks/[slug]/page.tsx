@@ -173,7 +173,7 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
               </div>
             )}
 
-            {/* Speaker information - remove border-t and add orange backdrop to image */}
+            {/* Speaker information */}
             {talk.speakers && talk.speakers.length > 0 && (
               <div className="mt-8">
                 {talk.speakers.map((speaker) => {
@@ -183,7 +183,7 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
 
                   return (
                     <div key={speaker?._key || speaker?.name} className="flex flex-col sm:flex-row sm:items-center gap-6">
-                      {/* Speaker image with orange backdrop shadow only on right and bottom */}
+                      {/* Speaker image */}
                       <div className="relative flex-shrink-0" style={{ filter: "drop-shadow(4px 4px 0px #ffaf35)" }}>
                         <div className="relative w-32 h-32 sm:w-48 sm:h-48 border-2 border-[#2A1449] overflow-hidden bg-[#2A1449]">
                           <Image
@@ -197,7 +197,7 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
                         </div>
                       </div>
 
-                      {/* Speaker details - centered vertically */}
+                      {/* Speaker details */}
                       <div className="flex-1 flex flex-col justify-center">
                         <h3 className="text-2xl iceland text-[#2A1449] mb-2">{speaker?.name || 'Speaker TBA'}</h3>
                         {speaker?.email && (
@@ -226,7 +226,7 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
           </div>
         </div>
 
-        {/* Similar talks - with centered title and cards */}
+        {/* Similar talks */}
         {similarTalks.length > 0 && (
           <div className="mt-12 text-center">
             <h2 className="text-3xl iceland text-white mb-8">Lignende foredrag</h2>

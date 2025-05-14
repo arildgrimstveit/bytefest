@@ -1,10 +1,10 @@
 "use client";
 
 import { LoginForm } from "@/components/LoginForm"
-import {useRouter, useSearchParams} from "next/navigation";
-import {useMsal} from "@azure/msal-react";
-import {useEffect, useState, useCallback} from "react";
-import {InteractionStatus} from "@azure/msal-browser";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMsal } from "@azure/msal-react";
+import { useEffect, useState, useCallback } from "react";
+import { InteractionStatus } from "@azure/msal-browser";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -16,16 +16,16 @@ export default function LoginPage() {
     const handleAuthSuccess = useCallback(() => {
         // Trigger a re-render of the app
         window.dispatchEvent(new Event('msal:login:complete'));
-        
-        // Check if we should redirect back to the registration form (now /paamelding)
+
+        // Check if we should redirect back to the registration form (/paamelding)
         const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
-        
+
         // Clear the flag
         localStorage.removeItem('returnToFormAfterLogin');
-        
+
         // Navigate to the appropriate page
         if (shouldRedirectToForm) {
-            router.push("/paamelding"); // Corrected redirect target
+            router.push("/paamelding");
         } else {
             router.push("/");
         }
@@ -45,13 +45,13 @@ export default function LoginPage() {
 
         // Set flag to prevent multiple processing attempts
         setIsRedirectHandled(true);
-        
+
         // Handle redirect response
         (async () => {
             try {
                 console.log("Attempting to handle redirect response");
                 const response = await instance.handleRedirectPromise();
-                
+
                 if (response?.account) {
                     // Valid account returned from redirect flow
                     console.log("Redirect handled with account", response.account.username);
@@ -77,25 +77,17 @@ export default function LoginPage() {
     useEffect(() => {
         // Check accounts array to see if user is logged in
         if (inProgress === InteractionStatus.None && accounts && accounts.length > 0) {
-            const shouldRedirect = searchParams.get("from") === "registerSpeaker";
-            // Check if we should redirect to the paamelding page (previously bli-foredragsholder)
-            if (shouldRedirect) {
-                // Or just redirect directly if user is already authenticated via accounts array check
-                console.log("Redirecting authenticated user from login to paamelding page.");
-                router.push("/paamelding"); // Changed target page
-            } else {
-                // If authenticated and not coming from registerSpeaker, redirect away from login
-                console.log("User is authenticated, redirecting away from login page.");
-                router.push("/"); 
-            }
+            // If authenticated and not coming from registerSpeaker, redirect away from login
+            console.log("User is authenticated, redirecting away from login page.");
+            router.push("/");
         }
-    }, [router, searchParams, inProgress, accounts]);
+    }, [router, inProgress, accounts]);
 
     return (
         <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4 mb-12 sm:mb-0">
             <div className="w-full max-w-sm mt-8 sm:mt-0">
-                <LoginForm 
-                  title="Velkommen" 
+                <LoginForm
+                    title="Velkommen"
                 />
             </div>
         </div>

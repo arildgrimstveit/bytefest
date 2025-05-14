@@ -91,7 +91,7 @@ function Paamelding() {
             ? `*[_type == "attendee" && attendeeEmail == $email][0]` // Fetch full data for edit
             : `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`; // Fetch only ID for initial check
           const params = { email: user.email };
-          const existingData: Attendee | { _id: string } | null = await sanityClient.fetch(query, params);
+          const existingData: Attendee | { _id: string } | null = await sanityClient.withConfig({ useCdn: false }).fetch(query, params);
 
           if (existingData) {
             if (isEditMode) {
