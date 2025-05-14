@@ -30,16 +30,7 @@ corepack prepare yarn@4.7.0 --activate # Or your project's specified Yarn versio
 # Install dependencies
 yarn install --immutable # Matches deployment script for consistency
 
-# Create .env.local with required variables (see .env.example if available, or use below structure)
-# For local development, you'll need to acquire these values from your Sanity project and any other services.
-echo "NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
-NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_TOKEN=your_sanity_api_token
-# Add other local environment variables as needed, e.g., for MSAL if used locally
-# NEXT_PUBLIC_MSAL_CLIENT_ID=your_msal_client_id_local
-# NEXT_PUBLIC_MSAL_REDIRECT_URI=http://localhost:3000
-# NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN=your_msal_authority_token_local
-" > .env.local
+# Create .env.local with required variables (see .env.example)
 
 # Start the development server
 yarn dev
