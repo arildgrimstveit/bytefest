@@ -14,16 +14,14 @@ function Tag({ children }: { children: React.ReactNode }) {
   );
 }
 
-interface TalkPageActualProps {
+interface TalkPageProps {
   params: Promise<{ slug: string }>;
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function TalkDetail({ params: paramsProxy, searchParams: searchParamsProxy }: TalkPageActualProps) {
-  const { slug } = await paramsProxy; // Destructure after awaiting
+export default async function TalkDetail({ params: paramsProxy, searchParams: searchParamsProxy }: TalkPageProps) {
+  const { slug } = await paramsProxy;
 
-  // If searchParamsProxy exists, await it to acknowledge the proxy, even if not used.
-  // This helps satisfy Next.js's expectations for these props.
   if (searchParamsProxy) {
     await searchParamsProxy;
   }

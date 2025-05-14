@@ -1,14 +1,13 @@
 "use client";
 
 import { LoginForm } from "@/components/LoginForm"
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useMsal } from "@azure/msal-react";
 import { useEffect, useState, useCallback } from "react";
 import { InteractionStatus } from "@azure/msal-browser";
 
 export default function LoginPage() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const { instance, inProgress, accounts } = useMsal();
     const [isRedirectHandled, setIsRedirectHandled] = useState(false);
 
