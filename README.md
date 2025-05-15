@@ -4,8 +4,8 @@ This repository contains the website for Bytefest 2025, primarily built with Nex
 
 ## Prerequisites
 
-- Node.js (LTS version, specifically 20.x as used in deployment)
-- Yarn package manager (version 4.7.0 or as managed by Corepack)
+- Node.js (LTS version, 20.x)
+- Yarn package manager (version 4.7.0)
 
 ## Quick Start
 
@@ -13,24 +13,20 @@ Follow these steps to get the application running locally:
 
 ### 1. Clone the repository
 
-```bash
-git clone https://github.com/Sopra-Steria-Norge/landingsside-bytefest-2025.git
-cd landingsside-bytefest-2025
-```
-
 ### 2. Set up and run the frontend
 
 ```bash
 cd frontend
 
-# Enable Corepack to manage Yarn version (if not already enabled)
+# Enable Corepack to manage Yarn version
 corepack enable
-corepack prepare yarn@4.7.0 --activate # Or your project's specified Yarn version
+corepack prepare yarn@4.7.0 --activate
 
 # Install dependencies
-yarn install --immutable # Matches deployment script for consistency
+yarn install
 
-# Create .env.local with required variables (see .env.example)
+# Create .env.local with required variables
+(see .env.example)
 
 # Start the development server
 yarn dev
