@@ -57,13 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (response?.account) {
           pca.setActiveAccount(response.account);
           const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
-          localStorage.removeItem('returnToFormAfterLogin');
+          localStorage.removeItem('returnToFormAfterLogin'); // Clear the flag after checking it
           window.dispatchEvent(new Event('msal:login:complete')); // Notify app
 
-          if (shouldRedirectToForm) {
-            localStorage.removeItem('returnToFormAfterLogin'); // Clear the flag
-            window.location.href = '/paamelding'; // Redirect to paamelding
-          } else if (window.location.pathname === '/login') {
+          if (window.location.pathname === '/login' && !shouldRedirectToForm) { // only redirect from /login if not intending to go to form
             window.location.href = '/';
           }
         } else {
