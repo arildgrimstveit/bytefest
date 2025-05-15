@@ -5,10 +5,10 @@ import { MsalProvider } from "@azure/msal-react";
 import { useEffect, useState } from "react";
 
 // Define redirect URI
-const fallbackRedirectUri = typeof window !== "undefined"
-  ? window.location.origin
-  : "https://bytefest.azurewebsites.net";
-const redirectUri = process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI || fallbackRedirectUri;
+const redirectUri =
+  (typeof window !== "undefined" && window.location.origin) ||
+  process.env.NEXT_PUBLIC_MSAL_REDIRECT_URI ||
+  "https://bytefest.soprasteria.no/";
 
 // MSAL configuration
 const msalConfig: Configuration = {
