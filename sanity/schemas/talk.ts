@@ -37,6 +37,28 @@ export const talk = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'track',
+      title: 'Track',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Sosial sone', value: 'sosial' },
+          { title: 'Lysefjorden', value: 'lysefjorden' },
+          { title: 'Riskafjorden', value: 'riskafjorden' },
+          { title: 'Hafrsfjord', value: 'hafrsfjord' },
+          { title: 'Annet', value: 'annet' },
+        ],
+        layout: 'radio'
+      },
+      description: 'Which track the talk belongs to'
+    }),
+    defineField({
+      name: 'time',
+      title: 'Time',
+      type: 'datetime',
+      description: 'Time of the talk'
+    }),
+    defineField({
       name: 'duration',
       title: 'Duration',
       type: 'string',
