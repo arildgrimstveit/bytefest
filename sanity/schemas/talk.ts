@@ -42,11 +42,11 @@ export const talk = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Sosial sone', value: 'sosial' },
-          { title: 'Lysefjorden', value: 'lysefjorden' },
-          { title: 'Riskafjorden', value: 'riskafjorden' },
-          { title: 'Hafrsfjord', value: 'hafrsfjord' },
-          { title: 'Annet', value: 'annet' },
+          { title: '1', value: '1' },
+          { title: '2', value: '2' },
+          { title: '3', value: '3' },
+          { title: '4', value: '4' },
+          { title: 'Other', value: 'other' },
         ],
         layout: 'radio'
       },
