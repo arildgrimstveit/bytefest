@@ -22,6 +22,7 @@ function isValidRegistrationData(
     ["yes", "no"].includes(potentialData.attendsParty as string) &&
     typeof potentialData.attendeeName === "string" &&
     typeof potentialData.attendeeEmail === "string" &&
+    (typeof potentialData.phoneNumber === "string" || potentialData.phoneNumber === undefined) &&
     (potentialData.localFavoriteSlugs === undefined || 
      (Array.isArray(potentialData.localFavoriteSlugs) && 
       potentialData.localFavoriteSlugs.every(item => typeof item === 'string')))
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
     const formFields = {
         attendeeName: data.attendeeName,
         attendeeEmail: data.attendeeEmail,
+        phoneNumber: data.phoneNumber || "",
         bu: data.bu,
         participationLocation: data.participationLocation,
         wantsFood: data.wantsFood,

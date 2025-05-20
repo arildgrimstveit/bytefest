@@ -12,6 +12,280 @@ import { LoginForm } from "@/components/LoginForm";
 import sanityClient from "@/sanityClient";
 import type { Attendee } from "@/types/attendee";
 
+interface BusinessUnitInputProps {
+  bu: string;
+  setBu: (value: string) => void;
+  isBuDropdownOpen: boolean;
+  setIsBuDropdownOpen: (isOpen: boolean) => void;
+  showBuError: boolean;
+  setShowBuError: (show: boolean) => void;
+  buDropdownRef: React.RefObject<HTMLDivElement | null>;
+  buOptions: Array<{ value: string; label: string }>;
+}
+
+const BusinessUnitInput: React.FC<BusinessUnitInputProps> = ({
+  bu,
+  setBu,
+  isBuDropdownOpen,
+  setIsBuDropdownOpen,
+  showBuError,
+  setShowBuError,
+  buDropdownRef,
+  buOptions,
+}) => {
+  return (
+    <div>
+      <label htmlFor="bu" className="mb-3 block text-md font-bold">Hvilken BU tilhører du?</label>
+      <div className="w-full relative" ref={buDropdownRef}>
+        <PixelInput>
+          <button
+            type="button"
+            className="w-full p-3 bg-white focus:outline-none appearance-none cursor-pointer text-left flex justify-between items-center"
+            onClick={() => setIsBuDropdownOpen(!isBuDropdownOpen)}
+            aria-expanded={isBuDropdownOpen}
+            aria-controls="bu-dropdown"
+          >
+            <span className={bu ? "" : "text-gray-500"}>
+              {buOptions.find(opt => opt.value === bu)?.label || "Velg"}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isBuDropdownOpen ? 'rotate-180' : ''}`}>
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </PixelInput>
+        {showBuError && (
+          <p className="text-red-600 text-sm mt-1 font-medium px-1">
+            Vennligst velg din BU
+          </p>
+        )}
+        {isBuDropdownOpen && (
+          <div id="bu-dropdown" className="absolute z-20 w-full mt-1 border-2 border-black bg-white max-h-60 overflow-auto p-0 shadow-lg">
+            {buOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`w-full px-4 py-2 text-left hover:bg-[#F8F5D3] cursor-pointer ${bu === option.value ? 'bg-[#F8F5D3]' : 'bg-white'}`}
+                onClick={() => { setBu(option.value); setIsBuDropdownOpen(false); setShowBuError(false); }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface ParticipationLocationInputProps {
+  participationLocation: string;
+  setParticipationLocation: (value: string) => void;
+  isDropdownOpen: boolean;
+  setIsDropdownOpen: (isOpen: boolean) => void;
+  showError: boolean;
+  setShowError: (show: boolean) => void;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
+  options: Array<{ value: string; label: string }>;
+}
+
+const ParticipationLocationInput: React.FC<ParticipationLocationInputProps> = ({
+  participationLocation,
+  setParticipationLocation,
+  isDropdownOpen,
+  setIsDropdownOpen,
+  showError,
+  setShowError,
+  dropdownRef,
+  options,
+}) => {
+  return (
+    <div>
+      <label htmlFor="participation-location" className="mb-3 block text-md font-bold">Hvor vil du delta?</label>
+      <div className="w-full relative" ref={dropdownRef}>
+        <PixelInput>
+          <button
+            type="button"
+            className="w-full p-3 bg-white focus:outline-none appearance-none cursor-pointer text-left flex justify-between items-center"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-expanded={isDropdownOpen}
+            aria-controls="participation-location-dropdown"
+          >
+            <span className={participationLocation ? "" : "text-gray-500"}>
+              {options.find(opt => opt.value === participationLocation)?.label || "Velg"}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}>
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </PixelInput>
+        {showError && (
+          <p className="text-red-600 text-sm mt-1 font-medium px-1">
+            Vennligst velg hvor du vil delta
+          </p>
+        )}
+        {isDropdownOpen && (
+          <div id="participation-location-dropdown" className="absolute z-20 w-full mt-1 border-2 border-black bg-white max-h-60 overflow-auto p-0 shadow-lg">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`w-full px-4 py-2 text-left hover:bg-[#F8F5D3] cursor-pointer ${participationLocation === option.value ? 'bg-[#F8F5D3]' : 'bg-white'}`}
+                onClick={() => { setParticipationLocation(option.value); setIsDropdownOpen(false); setShowError(false); }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+interface FoodPreferencesSectionProps {
+  wantsFood: string;
+  setWantsFood: (value: string) => void;
+  showWantsFoodError: boolean;
+  setShowWantsFoodError: (show: boolean) => void;
+  dietaryNeeds: string[];
+  setDietaryNeeds: React.Dispatch<React.SetStateAction<string[]>>;
+  annetText: string;
+  setAnnetText: (value: string) => void;
+}
+
+const FoodPreferencesSection: React.FC<FoodPreferencesSectionProps> = ({
+  wantsFood,
+  setWantsFood,
+  showWantsFoodError,
+  setShowWantsFoodError,
+  dietaryNeeds,
+  setDietaryNeeds,
+  annetText,
+  setAnnetText,
+}) => {
+  const dietaryOptionsList = [
+    { value: "Vegetarisk", label: "Vegetarisk" },
+    { value: "Vegansk", label: "Vegansk" },
+    { value: "Glutenfritt", label: "Glutenfritt" },
+    { value: "Melkefritt", label: "Melkefritt" },
+    { value: "Laktosefritt", label: "Laktosefritt" },
+    { value: "Annet", label: "Annet", id: "diet-other" }
+  ];
+
+  return (
+    <>
+      <div>
+        <label className="mb-3 block text-md font-bold">Ønsker du mat under arangementet?</label>
+        <div className="space-y-3">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="wantsFood" value="yes" checked={wantsFood === 'yes'} onChange={(e) => { setWantsFood(e.target.value); setShowWantsFoodError(false); }} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
+            <span>Ja</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="wantsFood" value="no" checked={wantsFood === 'no'} onChange={(e) => { setWantsFood(e.target.value); setShowWantsFoodError(false); if (e.target.value !== 'yes') { setDietaryNeeds([]); setAnnetText("");} }} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
+            <span>Nei</span>
+          </label>
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input type="radio" name="wantsFood" value="digital" checked={wantsFood === 'digital'} onChange={(e) => { setWantsFood(e.target.value); setShowWantsFoodError(false); if (e.target.value !== 'yes') { setDietaryNeeds([]); setAnnetText("");} }} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
+            <span>Jeg deltar digitalt og skal ikke ha mat</span>
+          </label>
+        </div>
+        {showWantsFoodError && (
+          <p className="text-red-600 text-sm mt-1 font-medium px-1">
+            Vennligst svar på om du ønsker mat
+          </p>
+        )}
+      </div>
+
+      {wantsFood === 'yes' && (
+        <div className="w-full">
+          <label className="mb-3 block text-md font-bold">Dietthensyn (valgfritt)</label>
+          <div className="flex flex-col space-y-3">
+            {dietaryOptionsList.map(option => (
+              <label key={option.value} className="inline-flex items-center space-x-2 cursor-pointer max-w-fit flex-shrink-0">
+                <div className="relative w-5 h-5">
+                  <input
+                    id={option.id}
+                    type="checkbox"
+                    value={option.value}
+                    checked={dietaryNeeds.includes(option.value)}
+                    onChange={(e) => {
+                        const { value, checked } = e.target;
+                        setDietaryNeeds(prev => checked ? [...prev, value] : prev.filter(need => need !== value));
+                        if (value === 'Annet' && !checked) setAnnetText("");
+                    }}
+                    className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
+                  />
+                  {dietaryNeeds.includes(option.value) && (
+                    <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </span>
+                  )}
+                </div>
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {wantsFood === 'yes' && dietaryNeeds.includes('Annet') && (
+        <div className="w-full mt-3">
+          <PixelInput>
+            <input
+              id="diet-other-text"
+              type="text"
+              placeholder="Spesifiser"
+              maxLength={75}
+              className="w-full p-3 bg-white focus:outline-none"
+              value={annetText}
+              onChange={(e) => setAnnetText(e.target.value)}
+              autoComplete="off"
+            />
+          </PixelInput>
+        </div>
+      )}
+    </>
+  );
+};
+
+interface PartyAttendanceSectionProps {
+  attendsParty: string;
+  setAttendsParty: (value: string) => void;
+  showAttendsPartyError: boolean;
+  setShowAttendsPartyError: (show: boolean) => void;
+}
+
+const PartyAttendanceSection: React.FC<PartyAttendanceSectionProps> = ({
+  attendsParty,
+  setAttendsParty,
+  showAttendsPartyError,
+  setShowAttendsPartyError,
+}) => {
+  return (
+    <div>
+      <label className="mb-3 block text-md font-bold">Ønsker du å delta på fest etter det faglige programmet?</label>
+      <div className="space-y-3">
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input type="radio" name="attendsParty" value="yes" checked={attendsParty === 'yes'} onChange={(e) => { setAttendsParty(e.target.value); setShowAttendsPartyError(false);}} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
+          <span>Ja, jeg er med på det sosiale</span>
+        </label>
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input type="radio" name="attendsParty" value="no" checked={attendsParty === 'no'} onChange={(e) => { setAttendsParty(e.target.value); setShowAttendsPartyError(false);}} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
+          <span>Nei, jeg kan dessverre ikke</span>
+        </label>
+      </div>
+      {showAttendsPartyError && (
+        <p className="text-red-600 text-sm mt-1 font-medium px-1">
+          Vennligst svar på om du vil delta på festen
+        </p>
+      )}
+    </div>
+  );
+};
+
 // Wrap the main component export in Suspense for useSearchParams
 export default function PaameldingPage() {
   return (
@@ -32,116 +306,150 @@ function LoadingFallback() {
 
 function Paamelding() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Hook to read search params
+  const searchParams = useSearchParams();
   const { user, isAuthenticated } = useUser();
   const { instance, inProgress } = useMsal();
 
+  // Form field states
   const [bu, setBu] = useState("");
   const [participationLocation, setParticipationLocation] = useState("");
   const [wantsFood, setWantsFood] = useState("");
   const [dietaryNeeds, setDietaryNeeds] = useState<string[]>([]);
   const [attendsParty, setAttendsParty] = useState("");
 
+  // UI state for dropdowns
   const [isBuDropdownOpen, setIsBuDropdownOpen] = useState(false);
   const [isParticipationLocationDropdownOpen, setIsParticipationLocationDropdownOpen] = useState(false);
+  const buDropdownRef = useRef<HTMLDivElement | null>(null);
+  const participationLocationDropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const buDropdownRef = useRef<HTMLDivElement>(null);
-  const participationLocationDropdownRef = useRef<HTMLDivElement>(null);
-
+  // Validation error states
   const [showBuError, setShowBuError] = useState(false);
   const [showParticipationLocationError, setShowParticipationLocationError] = useState(false);
   const [showWantsFoodError, setShowWantsFoodError] = useState(false);
   const [showAttendsPartyError, setShowAttendsPartyError] = useState(false);
 
+  // Other form states
   const [annetText, setAnnetText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
 
+  // Component/Page lifecycle states
+  const [pageStatus, setPageStatus] = useState<'loading' | 'authenticating' | 'checkingRegistration' | 'formReady' | 'loginRequired'>('loading');
+
+  const buOptionsList = [
+    { value: "Applications", label: "Applications" },
+    { value: "Digital Platform Services", label: "Digital Platform Services" },
+    { value: "Advisory", label: "Advisory" },
+    { value: "Andre", label: "Andre" },
+  ];
+
+  const mapDepartmentToBu = (adDepartment: string | undefined): string => {
+    if (!adDepartment) return "";
+    if (adDepartment.includes("Application services")) return "Applications";
+    if (adDepartment.includes("DPS Consulting")) return "Digital Platform Services";
+    if (adDepartment.includes("Advisory")) return "Advisory";
+    return "Andre";
+  };
+
+  const mapOfficeLocationToParticipationLocation = (officeLocation: string | undefined): string => {
+    if (!officeLocation) return "";
+    const city = officeLocation.split(" ")[0]; // Assuming city is the first word
+    // Find a match in participationLocationOptions, case-insensitive for robustness
+    const matchedOption = participationLocationOptions.find(opt => opt.value.toLowerCase() === city.toLowerCase());
+    return matchedOption ? matchedOption.value : ""; // Return the matched value or empty if no match
+  };
+
+  // Effect 1: Handle MSAL redirect and initial authentication status
   useEffect(() => {
-    if (inProgress === InteractionStatus.None) {
-      (async () => {
-        try {
-          const response = await instance.handleRedirectPromise();
-          if (response) {
-            console.log("Authentication successful, redirect response:", response);
-            instance.setActiveAccount(response.account);
-            window.setTimeout(() => {
-              window.dispatchEvent(new Event('msal:login:complete'));
-            }, 100);
-          } else if (isAuthenticated) {
-            console.log("User already authenticated");
-          }
-        } catch (error) {
-          console.error("Error handling redirect:", error);
-        }
-      })();
+    if (inProgress === InteractionStatus.Startup) {
+        setPageStatus('authenticating'); // MSAL is starting up
+        return;
     }
-  }, [instance, inProgress, isAuthenticated]);
+    if (inProgress === InteractionStatus.HandleRedirect) {
+        setPageStatus('authenticating'); // MSAL is handling redirect
+        instance.handleRedirectPromise().then((response) => {
+            if (response) {
+                instance.setActiveAccount(response.account);
+                window.setTimeout(() => window.dispatchEvent(new Event('msal:login:complete')), 100);
+            }
+            // After handling, UserContext will update isAuthenticated, triggering other effects
+        }).catch(error => {
+            console.error("Error handling redirect in PaameldingPage:", error);
+            setPageStatus('loginRequired'); // Or some error state
+        });
+        return;
+    }
 
+    if (inProgress === InteractionStatus.None) {
+        if (isAuthenticated) {
+            setPageStatus('checkingRegistration');
+        } else {
+            setPageStatus('loginRequired');
+        }
+    }
+  }, [inProgress, isAuthenticated, instance]);
+
+  // Effect 2: Fetch existing registration or prepare for new registration
   useEffect(() => {
+    if (pageStatus !== 'checkingRegistration' || !isAuthenticated || !user?.email) {
+      return; // Only run if auth is confirmed and user email is available
+    }
+
     const isEditMode = searchParams.get('edit') === 'true';
 
-    const checkAndFetchRegistration = async () => {
-      if (isAuthenticated && user?.email) {
-        console.log(`Checking/Fetching registration for: ${user.email}, Edit Mode: ${isEditMode}`);
-        try {
-          // Fetch full data or just ID based on edit mode
-          const query = isEditMode
-            ? `*[_type == "attendee" && attendeeEmail == $email][0]` // Fetch full data for edit
-            : `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`; // Fetch only ID for initial check
-          const params = { email: user.email };
-          const existingData: Attendee | { _id: string } | null = await sanityClient.withConfig({ useCdn: false }).fetch(query, params);
+    const loadRegistrationData = async () => {
+      try {
+        const query = isEditMode
+          ? `*[_type == "attendee" && attendeeEmail == $email][0]`
+          : `*[_type == "attendee" && attendeeEmail == $email][0]{_id}`;
+        const params = { email: user.email! }; // user.email is checked above
+        const existingData: Attendee | { _id: string } | null = await sanityClient.withConfig({ useCdn: false }).fetch(query, params);
 
-          if (existingData) {
-            if (isEditMode) {
-              console.log("Edit mode: Found existing registration, populating form.", existingData);
-              const fullData = existingData as Attendee; // Type assertion using imported type
-              setIsCheckingRegistration(false); // Allow rendering form
-              // Populate form state
-              setBu(fullData.bu || "");
-              setParticipationLocation(fullData.participationLocation || "");
-              setWantsFood(fullData.wantsFood || "");
-              const fetchedDietaryNeeds = fullData.dietaryNeeds || [];
-              const annetEntry = fetchedDietaryNeeds.find((need: string) => need.startsWith("Annet: "));
-              const otherNeeds = fetchedDietaryNeeds.filter((need: string) => !need.startsWith("Annet: "));
-              if (annetEntry) {
-                const text = annetEntry.substring("Annet: ".length);
-                setAnnetText(text);
-                setDietaryNeeds(["Annet", ...otherNeeds]);
-              } else {
-                setAnnetText("");
-                setDietaryNeeds(otherNeeds);
-              }
-              setAttendsParty(fullData.attendsParty || "");
+        if (existingData) {
+          if (isEditMode) {
+            const fullData = existingData as Attendee;
+            setBu(fullData.bu || "");
+            setParticipationLocation(fullData.participationLocation || "");
+            setWantsFood(fullData.wantsFood || "");
+            const fetchedDietaryNeeds = fullData.dietaryNeeds || [];
+            const annetEntry = fetchedDietaryNeeds.find((need: string) => need.startsWith("Annet: "));
+            const otherNeeds = fetchedDietaryNeeds.filter((need: string) => !need.startsWith("Annet: "));
+            if (annetEntry) {
+              setAnnetText(annetEntry.substring("Annet: ".length));
+              setDietaryNeeds(["Annet", ...otherNeeds]);
             } else {
-              // Not edit mode, but found registration -> redirect to summary
-              console.log("User already registered (not in edit mode). Redirecting to summary.");
-              router.push("/paamelding/summary");
-              return; // Prevent further state updates
+              setAnnetText("");
+              setDietaryNeeds(otherNeeds);
             }
+            setAttendsParty(fullData.attendsParty || "");
+            setPageStatus('formReady');
           } else {
-            // No existing registration found
-            console.log("No existing registration found. Ready for new registration.");
-            setIsCheckingRegistration(false); // Allow rendering form
+            router.push("/paamelding/summary");
+            return;
           }
-        } catch (error) {
-          console.error("Error checking/fetching registration from Sanity:", error);
-          setIsCheckingRegistration(false); // Allow rendering form (with potential error state later?)
+        } else {
+          // New registration: prefill BU if department exists
+          if (user?.department) {
+            setBu(mapDepartmentToBu(user.department));
+          }
+          // New registration: prefill participationLocation if officeLocation exists
+          if (user?.officeLocation) {
+            setParticipationLocation(mapOfficeLocationToParticipationLocation(user.officeLocation));
+          }
+          setPageStatus('formReady');
         }
-      } else if (!isAuthenticated && inProgress === InteractionStatus.None) {
-        setIsCheckingRegistration(false); // Not logged in, allow login form render
-      } else if (inProgress === InteractionStatus.None) {
-        setIsCheckingRegistration(false); // Logged in but user info pending?
+      } catch (error) {
+        console.error("Error in loadRegistrationData:", error);
+        setSubmitError("Feil ved lasting av påmeldingsdata.");
+        setPageStatus('formReady'); // Allow showing form even if data load fails, with an error
       }
-      // While inProgress, isCheckingRegistration remains true
     };
 
-    setIsCheckingRegistration(true); // Reset on dependency change
-    checkAndFetchRegistration();
+    loadRegistrationData();
+  }, [pageStatus, isAuthenticated, user?.email, user?.department, user?.officeLocation, searchParams, router, instance, mapDepartmentToBu]); // mapDepartmentToBu is stable
 
-  }, [isAuthenticated, user?.email, inProgress, router, searchParams]); // Added searchParams dependency
-
+  // Effect for dropdown clicks (no change)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (buDropdownRef.current && !buDropdownRef.current.contains(event.target as Node)) {
@@ -151,58 +459,15 @@ function Paamelding() {
         setIsParticipationLocationDropdownOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleBuSelect = (value: string) => {
-    setBu(value);
-    setIsBuDropdownOpen(false);
-    setShowBuError(false);
-  };
-
-  const handleParticipationLocationSelect = (value: string) => {
-    setParticipationLocation(value);
-    setIsParticipationLocationDropdownOpen(false);
-    setShowParticipationLocationError(false);
-  };
-
-  const handleWantsFoodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setWantsFood(newValue);
-    setShowWantsFoodError(false);
-
-    if (newValue !== 'yes') {
-      setDietaryNeeds([]);
-      setAnnetText("");
-    }
-  };
-
-  const handleDietaryNeedsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
-    setDietaryNeeds(prev =>
-      checked ? [...prev, value] : prev.filter(need => need !== value)
-    );
-    if (value === 'Annet' && !checked) {
-      setAnnetText("");
-    }
-  };
-
-  const handleAttendsPartyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAttendsParty(e.target.value);
-    setShowAttendsPartyError(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError(null);
-
+  const validateForm = (): boolean => {
     let isValid = true;
     let firstErrorElement: HTMLElement | null = null;
 
+    // Reset all error states
     setShowBuError(false);
     setShowParticipationLocationError(false);
     setShowWantsFoodError(false);
@@ -226,6 +491,7 @@ function Paamelding() {
       setShowWantsFoodError(true);
       isValid = false;
       if (!firstErrorElement) {
+        // Attempt to find the first radio button of the group
         firstErrorElement = document.querySelector('input[name="wantsFood"]');
       }
     }
@@ -233,12 +499,56 @@ function Paamelding() {
       setShowAttendsPartyError(true);
       isValid = false;
       if (!firstErrorElement) {
+        // Attempt to find the first radio button of the group
         firstErrorElement = document.querySelector('input[name="attendsParty"]');
       }
     }
 
     if (!isValid && firstErrorElement) {
       firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return isValid;
+  };
+
+  const prepareSubmissionData = () => {
+    const finalDietaryNeeds = dietaryNeeds.filter((need: string) => need !== "Annet");
+    if (dietaryNeeds.includes("Annet") && annetText.trim()) {
+      finalDietaryNeeds.push(`Annet: ${annetText.trim()}`);
+    }
+
+    let localFavoriteSlugsForApi: string[] = [];
+    try {
+      const item = localStorage.getItem('favoriteTalks');
+      if (item) {
+        const parsedSlugs = JSON.parse(item);
+        if (Array.isArray(parsedSlugs) && parsedSlugs.every(slug => typeof slug === 'string')) {
+          localFavoriteSlugsForApi = parsedSlugs;
+        }
+      }
+    } catch (error) {
+      console.error("Error reading local favorites for migration:", error);
+      // Optionally, inform the user or send a report, but for now, just log and continue
+    }
+
+    // user.name and user.email are confirmed to exist by the check in handleSubmit before this would be called
+    return {
+      attendeeName: user!.name!,
+      attendeeEmail: user!.email!,
+      phoneNumber: user!.phoneNumber || "",
+      bu: bu,
+      participationLocation: participationLocation,
+      wantsFood: wantsFood,
+      dietaryNeeds: finalDietaryNeeds,
+      attendsParty: attendsParty,
+      localFavoriteSlugs: localFavoriteSlugsForApi,
+    };
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError(null);
+
+    if (!validateForm()) {
       return;
     }
 
@@ -249,41 +559,9 @@ function Paamelding() {
 
     setIsSubmitting(true);
 
-    const finalDietaryNeeds = dietaryNeeds.filter((need: string) => need !== "Annet");
-    if (dietaryNeeds.includes("Annet") && annetText.trim()) {
-      finalDietaryNeeds.push(`Annet: ${annetText.trim()}`);
-    }
-
-    // Attempt to read favorite talk slugs from local storage for migration
-    let localFavoriteSlugsForApi: string[] = [];
-    try {
-      const item = localStorage.getItem('favoriteTalks');
-      if (item) {
-        const parsedSlugs = JSON.parse(item);
-        if (Array.isArray(parsedSlugs) && parsedSlugs.every(slug => typeof slug === 'string')) {
-          localFavoriteSlugsForApi = parsedSlugs;
-        } else {
-          console.warn("Local favorites format is invalid, not migrating.");
-        }
-      }
-    } catch (error) {
-      console.error("Error reading local favorites for migration:", error);
-      // Proceed without local favorites if there's an error reading/parsing
-    }
-
-    const submissionData = {
-      attendeeName: user.name,
-      attendeeEmail: user.email,
-      bu: bu,
-      participationLocation: participationLocation,
-      wantsFood: wantsFood,
-      dietaryNeeds: finalDietaryNeeds,
-      attendsParty: attendsParty,
-      localFavoriteSlugs: localFavoriteSlugsForApi, // Pass the fetched slugs
-    };
+    const submissionData = prepareSubmissionData();
 
     try {
-      console.log("Submitting registration data to API:", submissionData);
       const response = await fetch('/api/registerAttendance', {
         method: 'POST',
         headers: {
@@ -295,13 +573,9 @@ function Paamelding() {
       const result = await response.json();
 
       if (!response.ok) {
-        // Log the full error from the API if available
         console.error("API Error Response:", result);
         throw new Error(result.error || result.details || `Network response was not ok (status: ${response.status})`);
       }
-
-      console.log("API Success Response:", result);
-      // --- Navigate on success --- 
       router.push("/paamelding/summary");
 
     } catch (error) {
@@ -316,12 +590,7 @@ function Paamelding() {
     }
   };
 
-  const buOptions = [
-    { value: "Applications", label: "Applications" },
-    { value: "Digital Platform Services", label: "Digital Platform Services" },
-    { value: "Advisory", label: "Advisory" },
-    { value: "Andre", label: "Andre" },
-  ];
+  const buOptions = buOptionsList; // Use the defined list for rendering
 
   const participationLocationOptions = [
     { value: "Bergen", label: "Bergen" },
@@ -337,21 +606,40 @@ function Paamelding() {
     { value: "Digitalt", label: "Digitalt" },
   ];
 
-  if (isCheckingRegistration) {
+  // --- Conditional Rendering based on pageStatus ---
+  if (pageStatus === 'loading' || pageStatus === 'authenticating') {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <p className="text-white text-xl">Laster påmelding...</p>
+        <p className="text-white text-xl">Laster påmeldingsskjema...</p>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
+  if (pageStatus === 'loginRequired') {
     return (
       <div className="flex sm:min-h-[calc(100vh-99px-220px)] items-start sm:items-center justify-center -mt-[99px] pt-[99px] px-4 mb-12 sm:mb-0">
         <div className="w-full max-w-sm mt-8 sm:mt-0">
           <LoginForm title="Meld deg på" />
         </div>
       </div>
+    );
+  }
+
+  if (pageStatus === 'checkingRegistration') {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+        <p className="text-white text-xl">Sjekker din påmeldingsstatus...</p>
+      </div>
+    );
+  }
+  
+  // Only render form if pageStatus is 'formReady'
+  if (pageStatus !== 'formReady') {
+    // This is a fallback, should ideally be handled by one of the specific status returns above
+    return (
+        <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+            <p className="text-white text-xl">Laster...</p>
+        </div>
     );
   }
 
@@ -366,271 +654,45 @@ function Paamelding() {
             Takk for at du vil delta på Bytefest! Hvis du lurer på noe før du melder deg på, kan du finne mer informasjon på <Link href="/bytefest" className="underline hover:no-underline">Bytefestsiden</Link>.
           </p>
 
-          <div>
-            <label htmlFor="bu" className="mb-3 block text-md font-bold">Hvilken BU tilhører du?</label>
-            <div className="w-full relative" ref={buDropdownRef}>
-              <PixelInput>
-                <button
-                  type="button"
-                  className="w-full p-3 bg-white focus:outline-none appearance-none cursor-pointer text-left flex justify-between items-center"
-                  onClick={() => setIsBuDropdownOpen(!isBuDropdownOpen)}
-                  aria-expanded={isBuDropdownOpen}
-                  aria-controls="bu-dropdown"
-                >
-                  <span className={bu ? "" : "text-gray-500"}>
-                    {bu || "Velg"}
-                  </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isBuDropdownOpen ? 'rotate-180' : ''}`}>
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-              </PixelInput>
-              {showBuError && (
-                <p className="text-red-600 text-sm mt-1 font-medium px-1">
-                  Vennligst velg din BU
-                </p>
-              )}
-              {isBuDropdownOpen && (
-                <div id="bu-dropdown" className="absolute z-20 w-full mt-1 border-2 border-black bg-white max-h-60 overflow-auto p-0 shadow-lg">
-                  {buOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`w-full px-4 py-2 text-left hover:bg-[#F8F5D3] cursor-pointer ${bu === option.value ? 'bg-[#F8F5D3]' : 'bg-white'}`}
-                      onClick={() => handleBuSelect(option.value)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <BusinessUnitInput
+            bu={bu}
+            setBu={setBu}
+            isBuDropdownOpen={isBuDropdownOpen}
+            setIsBuDropdownOpen={setIsBuDropdownOpen}
+            showBuError={showBuError}
+            setShowBuError={setShowBuError}
+            buDropdownRef={buDropdownRef}
+            buOptions={buOptions}
+          />
 
-          <div>
-            <label htmlFor="participation-location" className="mb-3 block text-md font-bold">Hvor vil du delta?</label>
-            <div className="w-full relative" ref={participationLocationDropdownRef}>
-              <PixelInput>
-                <button
-                  type="button"
-                  className="w-full p-3 bg-white focus:outline-none appearance-none cursor-pointer text-left flex justify-between items-center"
-                  onClick={() => setIsParticipationLocationDropdownOpen(!isParticipationLocationDropdownOpen)}
-                  aria-expanded={isParticipationLocationDropdownOpen}
-                  aria-controls="participation-location-dropdown"
-                >
-                  <span className={participationLocation ? "" : "text-gray-500"}>
-                    {participationLocation || "Velg"}
-                  </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isParticipationLocationDropdownOpen ? 'rotate-180' : ''}`}>
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                  </svg>
-                </button>
-              </PixelInput>
-              {showParticipationLocationError && (
-                <p className="text-red-600 text-sm mt-1 font-medium px-1">
-                  Vennligst velg hvor du vil delta
-                </p>
-              )}
-              {isParticipationLocationDropdownOpen && (
-                <div id="participation-location-dropdown" className="absolute z-20 w-full mt-1 border-2 border-black bg-white max-h-60 overflow-auto p-0 shadow-lg">
-                  {participationLocationOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`w-full px-4 py-2 text-left hover:bg-[#F8F5D3] cursor-pointer ${participationLocation === option.value ? 'bg-[#F8F5D3]' : 'bg-white'}`}
-                      onClick={() => handleParticipationLocationSelect(option.value)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <ParticipationLocationInput
+            participationLocation={participationLocation}
+            setParticipationLocation={setParticipationLocation}
+            isDropdownOpen={isParticipationLocationDropdownOpen}
+            setIsDropdownOpen={setIsParticipationLocationDropdownOpen}
+            showError={showParticipationLocationError}
+            setShowError={setShowParticipationLocationError}
+            dropdownRef={participationLocationDropdownRef}
+            options={participationLocationOptions}
+          />
 
-          <div>
-            <label className="mb-3 block text-md font-bold">Ønsker du mat under arangementet?</label>
-            <div className="space-y-3">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="wantsFood" value="yes" checked={wantsFood === 'yes'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Ja</span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="wantsFood" value="no" checked={wantsFood === 'no'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Nei</span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="wantsFood" value="digital" checked={wantsFood === 'digital'} onChange={handleWantsFoodChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Jeg deltar digitalt og skal ikke ha mat</span>
-              </label>
-            </div>
-            {showWantsFoodError && (
-              <p className="text-red-600 text-sm mt-1 font-medium px-1">
-                Vennligst svar på om du ønsker mat
-              </p>
-            )}
-          </div>
+          <FoodPreferencesSection 
+            wantsFood={wantsFood}
+            setWantsFood={setWantsFood}
+            showWantsFoodError={showWantsFoodError}
+            setShowWantsFoodError={setShowWantsFoodError}
+            dietaryNeeds={dietaryNeeds}
+            setDietaryNeeds={setDietaryNeeds}
+            annetText={annetText}
+            setAnnetText={setAnnetText}
+          />
 
-          {wantsFood === 'yes' && (
-            <div className="w-full">
-              <label className="mb-3 block text-md font-bold">Dietthensyn (valgfritt)</label>
-              <div className="flex flex-col space-y-3">
-                <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
-                  <div className="relative w-5 h-5">
-                    <input
-                      type="checkbox"
-                      value="Vegetarisk"
-                      checked={dietaryNeeds.includes('Vegetarisk')}
-                      onChange={handleDietaryNeedsChange}
-                      className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
-                    />
-                    {dietaryNeeds.includes('Vegetarisk') && (
-                      <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <span>
-                    Vegetarisk
-                  </span>
-                </label>
-                <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
-                  <div className="relative w-5 h-5">
-                    <input
-                      type="checkbox"
-                      value="Vegansk"
-                      checked={dietaryNeeds.includes('Vegansk')}
-                      onChange={handleDietaryNeedsChange}
-                      className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
-                    />
-                    {dietaryNeeds.includes('Vegansk') && (
-                      <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <span>Vegansk</span>
-                </label>
-                <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
-                  <div className="relative w-5 h-5">
-                    <input
-                      type="checkbox"
-                      value="Glutenfritt"
-                      checked={dietaryNeeds.includes('Glutenfritt')}
-                      onChange={handleDietaryNeedsChange}
-                      className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
-                    />
-                    {dietaryNeeds.includes('Glutenfritt') && (
-                      <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <span>Glutenfritt</span>
-                </label>
-                <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
-                  <div className="relative w-5 h-5">
-                    <input
-                      type="checkbox"
-                      value="Melkefritt"
-                      checked={dietaryNeeds.includes('Melkefritt')}
-                      onChange={handleDietaryNeedsChange}
-                      className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
-                    />
-                    {dietaryNeeds.includes('Melkefritt') && (
-                      <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <span>Melkefritt</span>
-                </label>
-                <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit">
-                  <div className="relative w-5 h-5">
-                    <input
-                      type="checkbox"
-                      value="Laktosefritt"
-                      checked={dietaryNeeds.includes('Laktosefritt')}
-                      onChange={handleDietaryNeedsChange}
-                      className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
-                    />
-                    {dietaryNeeds.includes('Laktosefritt') && (
-                      <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <span>Laktosefritt</span>
-                </label>
-                <label className="inline-flex items-center space-x-2 cursor-pointer max-w-fit flex-shrink-0">
-                  <div className="relative w-5 h-5">
-                    <input
-                      id="diet-other"
-                      type="checkbox"
-                      value="Annet"
-                      checked={dietaryNeeds.includes('Annet')}
-                      onChange={handleDietaryNeedsChange}
-                      className="appearance-none w-full h-full border-2 border-black rounded-sm cursor-pointer"
-                    />
-                    {dietaryNeeds.includes('Annet') && (
-                      <span className="absolute inset-0 flex items-center justify-center text-black pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <span>Annet</span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {wantsFood === 'yes' && dietaryNeeds.includes('Annet') && (
-            <div className="w-full mt-3">
-              <PixelInput>
-                <input
-                  id="diet-other-text"
-                  type="text"
-                  placeholder="Spesifiser"
-                  maxLength={75}
-                  className="w-full p-3 bg-white focus:outline-none"
-                  value={annetText}
-                  onChange={(e) => setAnnetText(e.target.value)}
-                  autoComplete="off"
-                />
-              </PixelInput>
-            </div>
-          )}
-
-          <div>
-            <label className="mb-3 block text-md font-bold">Ønsker du å delta på fest etter det faglige programmet?</label>
-            <div className="space-y-3">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="attendsParty" value="yes" checked={attendsParty === 'yes'} onChange={handleAttendsPartyChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Ja, jeg er med på det sosiale</span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="radio" name="attendsParty" value="no" checked={attendsParty === 'no'} onChange={handleAttendsPartyChange} className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer" />
-                <span>Nei, jeg kan dessverre ikke</span>
-              </label>
-            </div>
-            {showAttendsPartyError && (
-              <p className="text-red-600 text-sm mt-1 font-medium px-1">
-                Vennligst svar på om du vil delta på festen
-              </p>
-            )}
-          </div>
+          <PartyAttendanceSection 
+            attendsParty={attendsParty}
+            setAttendsParty={setAttendsParty}
+            showAttendsPartyError={showAttendsPartyError}
+            setShowAttendsPartyError={setShowAttendsPartyError}
+          />
 
           <div className="pt-3 flex justify-start">
             <button

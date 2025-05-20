@@ -4,6 +4,9 @@ import { AccountInfo } from "@azure/msal-browser";
 export interface User {
   name: string;
   email: string;
+  phoneNumber?: string;
+  department?: string;
+  officeLocation?: string;
 }
 
 export interface UserContextType {

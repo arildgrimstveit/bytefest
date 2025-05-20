@@ -17,7 +17,7 @@ const msalConfig: Configuration = {
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_MSAL_AUTHORITY_TOKEN}`,
     redirectUri,
     postLogoutRedirectUri: redirectUri,
-    navigateToLoginRequestUrl: false
+    navigateToLoginRequestUrl: true
   },
   cache: {
     cacheLocation: "sessionStorage",
@@ -52,19 +52,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeMsal = async () => {
       try {
         await pca.initialize();
-        const response = await pca.handleRedirectPromise(); // Handle potential redirect response
+        const response = await pca.handleRedirectPromise();
 
         if (response?.account) {
           pca.setActiveAccount(response.account);
-          const shouldRedirectToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
-          localStorage.removeItem('returnToFormAfterLogin'); // Clear the flag after checking it
-          window.dispatchEvent(new Event('msal:login:complete')); // Notify app
+          window.dispatchEvent(new Event('msal:login:complete')); // Notify UserContext early
 
-          if (window.location.pathname === '/login' && !shouldRedirectToForm) { // only redirect from /login if not intending to go to form
+          const shouldReturnToForm = localStorage.getItem('returnToFormAfterLogin') === 'true';
+          
+          if (shouldReturnToForm) {
+            localStorage.removeItem('returnToFormAfterLogin');
+            // If not already on /paamelding (e.g., MSAL redirected to default redirectUri like homepage)
+            // or if login was initiated from a generic /login page with the flag set.
+            if (window.location.pathname !== '/paamelding') {
+              window.location.href = '/paamelding'; // Use window.location.href for full page redirect after MSAL init
+              return; // Stop further processing in this effect if redirecting
+            }
+          } else if (window.location.pathname === '/login') {
+            // If not returning to form and currently on /login page, redirect to homepage.
+            // This handles cases where user directly visits /login and logs in without specific intent.
             window.location.href = '/';
+            return; // Stop further processing
           }
+          // If navigateToLoginRequestUrl: true is doing its job and we were on /paamelding, we should be there.
+          // If we were on another page, we should be there.
+          // If we were on /login and the flag wasn't set, we are now at '/'.
         } else {
-          const accounts = pca.getAllAccounts(); // Check for existing accounts
+          const accounts = pca.getAllAccounts();
           if (accounts.length > 0) {
             pca.setActiveAccount(accounts[0]);
           }

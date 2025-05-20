@@ -7,5 +7,6 @@ export interface RegistrationSubmitData {
   attendeeName: string;
   attendeeEmail: string;
   localFavoriteSlugs?: string[];
+  phoneNumber?: string;
   // Add any other fields that are part of the submission data being validated
 } 

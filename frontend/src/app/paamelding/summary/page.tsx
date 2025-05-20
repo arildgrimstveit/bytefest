@@ -190,7 +190,7 @@ export default function PaameldingSummary() {
             {/* Deregister Button / Loading State */}
             <div className="flex items-center w-full sm:w-auto">
               {isDeleting ? (
-                <span className="iceland text-xl h-[59px] flex items-center justify-center">Melder av...</span>
+                <span className="iceland text-xl h-[59px] flex items-center justify-center w-[269px] text-center">Melder av...</span>
               ) : (
                 <button
                   onClick={handleDeregister}
