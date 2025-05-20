@@ -1,46 +1,101 @@
-import React, {useCallback} from 'react'
-import {Box, Flex, Select} from '@sanity/ui'
-import {set} from 'sanity'
-import {StringInputProps} from 'sanity'
+import React, { useCallback, useMemo } from 'react';
+import { Box, Flex, Select } from '@sanity/ui';
+import { set, StringInputProps, StringSchemaType, FormSetPatch, PatchEvent, FormPatch } from 'sanity';
 
-const hours = Array.from({length: 4}, (_, i) => String(i + 16).padStart(2, '0'))
-const minutes = Array.from({length: 12}, (_, i) => String(i * 5).padStart(2, '0'))
+export interface TimeInputOptions {
+  baseDateString: string;      // YYYY-MM-DD format, e.g., '2025-06-05'
+  displayMinHour: number;       // Local hour (0-23)
+  displayMaxHour: number;       // Local hour (0-23), if less than displayMinHour, implies crossing midnight
+  minuteInterval: number;     // e.g., 5, 15, 30
+  defaultDisplayHour: number;   // Default local hour for new entries
+  defaultDisplayMinute: number; // Default local minute for new entries
+}
 
-const TimeInput = React.forwardRef<HTMLDivElement, StringInputProps>(function TimeInput(props, ref) {
-  const {value, readOnly, onChange} = props
+// Helper to pad numbers with leading zero if needed
+const pad = (num: number): string => String(num).padStart(2, '0');
 
-  // Parse the ISO string to get hours and minutes
-  const date = value ? new Date(value) : new Date('2025-06-05T14:00:00.000Z') // 14:00 UTC = 16:00 Norwegian time
-  const hour = String(date.getHours()).padStart(2, '0')
-  const minute = String(Math.floor(date.getMinutes() / 5) * 5).padStart(2, '0')
+// TimeInputInternalProps inherits value, onChange, readOnly etc. from StringInputProps
+interface TimeInputInternalProps extends Omit<StringInputProps<StringSchemaType>, 'schemaType' | 'elementProps'> {
+  options: TimeInputOptions; // Custom options, validated by the parent
+}
 
-  const handleHourChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const newHour = event.currentTarget.value
-      if (!newHour || !minute) return
+const TimeInputInternal = React.forwardRef<HTMLDivElement, TimeInputInternalProps>((props, ref) => {
+  const { value, readOnly, onChange, options } = props; // onChange is now the original Sanity patch handler
 
-      // Create date in Norwegian time (UTC+2)
-      const newDate = new Date('2025-06-05T14:00:00.000Z')
-      newDate.setHours(parseInt(newHour, 10))
-      newDate.setMinutes(parseInt(minute, 10))
-      onChange(set(newDate.toISOString()))
-    },
-    [minute, onChange]
-  )
+  const { 
+    baseDateString, 
+    displayMinHour,
+    displayMaxHour,
+    minuteInterval,
+    defaultDisplayHour,
+    defaultDisplayMinute 
+  } = options;
 
-  const handleMinuteChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const newMinute = event.currentTarget.value
-      if (!hour || !newMinute) return
+  const hourOptions = useMemo(() => {
+    const hrs: string[] = [];
+    if (displayMinHour <= displayMaxHour) {
+      for (let i = displayMinHour; i <= displayMaxHour; i++) {
+        hrs.push(pad(i));
+      }
+    } else {
+      // Crosses midnight
+      for (let i = displayMinHour; i <= 23; i++) {
+        hrs.push(pad(i));
+      }
+      for (let i = 0; i <= displayMaxHour; i++) {
+        hrs.push(pad(i));
+      }
+    }
+    return hrs;
+  }, [displayMinHour, displayMaxHour]);
 
-      // Create date in Norwegian time (UTC+2)
-      const newDate = new Date('2025-06-05T14:00:00.000Z')
-      newDate.setHours(parseInt(hour, 10))
-      newDate.setMinutes(parseInt(newMinute, 10))
-      onChange(set(newDate.toISOString()))
-    },
-    [hour, onChange]
-  )
+  const minuteOptions = useMemo(() => {
+    const mins: string[] = [];
+    for (let i = 0; i < 60; i += minuteInterval) {
+      mins.push(pad(i));
+    }
+    return mins;
+  }, [minuteInterval]);
+
+  const getDefaultDate = useCallback(() => {
+    const initialDate = new Date(`${baseDateString}T${pad(defaultDisplayHour)}:${pad(defaultDisplayMinute)}:00`);
+    return new Date(initialDate.toISOString());
+  }, [baseDateString, defaultDisplayHour, defaultDisplayMinute]);
+
+  const currentDate = useMemo(() => (value ? new Date(value) : getDefaultDate()), [value, getDefaultDate]);
+  
+  const currentDisplayHour = pad(currentDate.getHours());
+  const currentDisplayMinute = pad(Math.floor(currentDate.getMinutes() / minuteInterval) * minuteInterval);
+
+  const handleChange = useCallback((newHourStr?: string, newMinuteStr?: string) => {
+    const hr = parseInt(newHourStr || currentDisplayHour, 10);
+    const min = parseInt(newMinuteStr || currentDisplayMinute, 10);
+
+    const targetDate = new Date(baseDateString);
+    targetDate.setHours(0,0,0,0);
+
+    if (displayMaxHour < displayMinHour && hr <= displayMaxHour) {
+        if (!(currentDate.getDate() > new Date(baseDateString).getDate() && hr > displayMaxHour) ){
+             targetDate.setDate(targetDate.getDate() + 1);
+        }
+    }
+
+    targetDate.setHours(hr);
+    targetDate.setMinutes(min);
+    targetDate.setSeconds(0);
+    targetDate.setMilliseconds(0);
+    
+    // onChange expects a patch. set() creates a FormSetPatch.
+    onChange(set(targetDate.toISOString()));
+  }, [currentDisplayHour, currentDisplayMinute, onChange, baseDateString, displayMinHour, displayMaxHour, currentDate]);
+
+  const handleHourChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    handleChange(event.currentTarget.value, undefined);
+  };
+
+  const handleMinuteChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    handleChange(undefined, event.currentTarget.value);
+  };
 
   return (
     <Flex gap={2} align="center" ref={ref}>
@@ -48,12 +103,12 @@ const TimeInput = React.forwardRef<HTMLDivElement, StringInputProps>(function Ti
         <Select
           fontSize={2}
           padding={3}
-          value={hour}
+          value={currentDisplayHour}
           onChange={handleHourChange}
           disabled={readOnly}
         >
           <option value="">HH</option>
-          {hours.map(h => <option key={h} value={h}>{h}</option>)}
+          {hourOptions.map(h => <option key={h} value={h}>{h}</option>)}
         </Select>
       </Box>
       <Box>:</Box>
@@ -61,16 +116,35 @@ const TimeInput = React.forwardRef<HTMLDivElement, StringInputProps>(function Ti
         <Select
           fontSize={2}
           padding={3}
-          value={minute}
+          value={currentDisplayMinute}
           onChange={handleMinuteChange}
           disabled={readOnly}
         >
           <option value="">MM</option>
-          {minutes.map(m => <option key={m} value={m}>{m}</option>)}
+          {minuteOptions.map(m => <option key={m} value={m}>{m}</option>)}
         </Select>
       </Box>
     </Flex>
-  )
-})
+  );
+});
 
-export default TimeInput 
+TimeInputInternal.displayName = 'TimeInputInternal';
+
+const TimeInput = React.forwardRef<HTMLDivElement, StringInputProps<StringSchemaType>>((props, ref) => {
+  const { schemaType, ...rest } = props; // Spread rest of the props including onChange, value, readOnly etc.
+  const options = schemaType.options as TimeInputOptions | undefined;
+
+  if (!options || typeof options.baseDateString !== 'string') { 
+    return (
+      <Box padding={3}>
+        <p>TimeInput configuration is missing or invalid in schema options.</p>
+      </Box>
+    );
+  }
+  // Pass all original props (except schemaType which is handled) and the validated custom options
+  return <TimeInputInternal {...rest} options={options} ref={ref} />;
+});
+
+TimeInput.displayName = 'TimeInput';
+
+export default TimeInput; 

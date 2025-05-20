@@ -62,6 +62,14 @@ export const talk = defineType({
       components: {
         input: TimeInput
       },
+      options: {
+        baseDateString: '2025-06-05',
+        displayMinHour: 16,
+        displayMaxHour: 20,
+        minuteInterval: 5,
+        defaultDisplayHour: 16,
+        defaultDisplayMinute: 0,
+      } as any,
     }),
     defineField({
       name: 'duration',

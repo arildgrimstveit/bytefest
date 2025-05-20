@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PixelInput } from "@/components/InputPixelCorners";
 import Image from "next/image";
@@ -344,21 +344,35 @@ function Paamelding() {
     { value: "Andre", label: "Andre" },
   ];
 
-  const mapDepartmentToBu = (adDepartment: string | undefined): string => {
+  // Define participationLocationOptions before it's used in useCallback, and memoize it.
+  const participationLocationOptions = useMemo(() => [
+    { value: "Bergen", label: "Bergen" },
+    { value: "Drammen", label: "Drammen" },
+    { value: "Fredrikstad", label: "Fredrikstad" },
+    { value: "Hamar", label: "Hamar" },
+    { value: "Kristiansand", label: "Kristiansand" },
+    { value: "København", label: "København" },
+    { value: "Oslo", label: "Oslo" },
+    { value: "Stavanger", label: "Stavanger" },
+    { value: "Tromsø", label: "Tromsø" },
+    { value: "Trondheim", label: "Trondheim" },
+    { value: "Digitalt", label: "Digitalt" },
+  ], []);
+
+  const mapDepartmentToBu = useCallback((adDepartment: string | undefined): string => {
     if (!adDepartment) return "";
     if (adDepartment.includes("Application services")) return "Applications";
     if (adDepartment.includes("DPS Consulting")) return "Digital Platform Services";
     if (adDepartment.includes("Advisory")) return "Advisory";
     return "Andre";
-  };
+  }, []);
 
-  const mapOfficeLocationToParticipationLocation = (officeLocation: string | undefined): string => {
+  const mapOfficeLocationToParticipationLocation = useCallback((officeLocation: string | undefined): string => {
     if (!officeLocation) return "";
-    const city = officeLocation.split(" ")[0]; // Assuming city is the first word
-    // Find a match in participationLocationOptions, case-insensitive for robustness
+    const city = officeLocation.split(" ")[0];
     const matchedOption = participationLocationOptions.find(opt => opt.value.toLowerCase() === city.toLowerCase());
-    return matchedOption ? matchedOption.value : ""; // Return the matched value or empty if no match
-  };
+    return matchedOption ? matchedOption.value : "";
+  }, [participationLocationOptions]);
 
   // Effect 1: Handle MSAL redirect and initial authentication status
   useEffect(() => {
@@ -447,7 +461,7 @@ function Paamelding() {
     };
 
     loadRegistrationData();
-  }, [pageStatus, isAuthenticated, user?.email, user?.department, user?.officeLocation, searchParams, router, instance, mapDepartmentToBu]); // mapDepartmentToBu is stable
+  }, [pageStatus, isAuthenticated, user?.email, user?.department, user?.officeLocation, searchParams, router, instance, mapDepartmentToBu, mapOfficeLocationToParticipationLocation]);
 
   // Effect for dropdown clicks (no change)
   useEffect(() => {
@@ -591,20 +605,6 @@ function Paamelding() {
   };
 
   const buOptions = buOptionsList; // Use the defined list for rendering
-
-  const participationLocationOptions = [
-    { value: "Bergen", label: "Bergen" },
-    { value: "Drammen", label: "Drammen" },
-    { value: "Fredrikstad", label: "Fredrikstad" },
-    { value: "Hamar", label: "Hamar" },
-    { value: "Kristiansand", label: "Kristiansand" },
-    { value: "København", label: "København" },
-    { value: "Oslo", label: "Oslo" },
-    { value: "Stavanger", label: "Stavanger" },
-    { value: "Tromsø", label: "Tromsø" },
-    { value: "Trondheim", label: "Trondheim" },
-    { value: "Digitalt", label: "Digitalt" },
-  ];
 
   // --- Conditional Rendering based on pageStatus ---
   if (pageStatus === 'loading' || pageStatus === 'authenticating') {

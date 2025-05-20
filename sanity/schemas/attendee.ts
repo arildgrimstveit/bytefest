@@ -52,6 +52,11 @@ export const attendee = defineType({
       validation: (Rule) => Rule.required().email(),
     }),
     defineField({
+      name: 'phoneNumber',
+      title: 'Phone Number',
+      type: 'string',
+    }),
+    defineField({
       name: 'bu',
       title: 'Business Unit',
       type: 'string',
