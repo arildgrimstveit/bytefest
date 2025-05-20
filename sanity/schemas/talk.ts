@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import TimeInput from '../components/TimeInput'
 
 export const talk = defineType({
   name: 'talk',
@@ -56,7 +57,11 @@ export const talk = defineType({
       name: 'time',
       title: 'Time',
       type: 'datetime',
-      description: 'Time of the talk'
+      description: 'Time of the talk',
+      initialValue: () => new Date('2025-06-05').toISOString(),
+      components: {
+        input: TimeInput
+      },
     }),
     defineField({
       name: 'duration',
