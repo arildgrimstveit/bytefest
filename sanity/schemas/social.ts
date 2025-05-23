@@ -1,6 +1,5 @@
 import {defineField, defineType} from 'sanity'
 import TimeInput from '../components/TimeInput'
-import type { TimeInputOptions } from '../components/TimeInput'; // Import the type for casting
 
 export const social = defineType({
   name: 'social',
@@ -29,7 +28,29 @@ export const social = defineType({
       name: 'location',
       title: 'Location',
       type: 'string',
-      description: 'Where the social event will be held',
+      description: 'Select the city where the social event will be held',
+      options: {
+        list: [
+          {title: 'Bergen', value: 'bergen'},
+          {title: 'Drammen', value: 'drammen'},
+          {title: 'Fredrikstad', value: 'fredrikstad'},
+          {title: 'Hamar', value: 'hamar'},
+          {title: 'Kristiansand', value: 'kristiansand'},
+          {title: 'København', value: 'kobenhavn'},
+          {title: 'Oslo', value: 'oslo'},
+          {title: 'Stavanger', value: 'stavanger'},
+          {title: 'Tromsø', value: 'tromso'},
+          {title: 'Trondheim', value: 'trondheim'},
+          {title: 'Digitalt', value: 'digitalt'},
+        ],
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'roomAddress',
+      title: 'Room/Address',
+      type: 'string',
+      description: 'Specify the room or address for the event',
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -43,13 +64,13 @@ export const social = defineType({
         input: TimeInput,
       },
       options: {
-        baseDateString: '2025-06-05', // Assuming social events align with Bytefest 2025 date
-        displayMinHour: 19, // 7 PM
-        displayMaxHour: 2,  // 2 AM (implies crossing midnight)
+        baseDateString: '2025-06-05',
+        displayMinHour: 19,
+        displayMaxHour: 2,
         minuteInterval: 15,
         defaultDisplayHour: 19,
         defaultDisplayMinute: 0,
-      } as any, // Use 'as any' to bypass strict DatetimeOptions check
+      } as any,
     }),
   ],
 })
