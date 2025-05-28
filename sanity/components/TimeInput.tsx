@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Box, Flex, Select } from '@sanity/ui';
-import { set, StringInputProps, StringSchemaType, FormSetPatch, PatchEvent, FormPatch } from 'sanity';
+import { set, StringInputProps, StringSchemaType } from 'sanity';
 
 export interface TimeInputOptions {
   baseDateString: string;      // YYYY-MM-DD format, e.g., '2025-06-05'

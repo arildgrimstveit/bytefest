@@ -28,7 +28,7 @@ const Header = () => {
     { name: "PÅMELDING", path: "/", disabled: false },
     { name: "OM BYTEFEST", path: "/bytefest", disabled: false },
     { name: "ALLE FOREDRAG", path: "/talks", disabled: false },
-    { name: "PROGRAM", path: "/program", disabled: true },
+    { name: "PROGRAM", path: "/program", disabled: false },
   ], []);
 
   // Renders a single desktop navigation link with active state styling

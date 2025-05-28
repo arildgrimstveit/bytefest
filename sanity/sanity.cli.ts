@@ -5,5 +5,6 @@ export default defineCliConfig({
     projectId: 'twav4yff',
     dataset: 'production',
   },
+  studioHost: 'bytefest',
   autoUpdates: true,
 })

@@ -1,28 +1,34 @@
-import { PortableTextBlock } from "@sanity/types";
+import type { PortableTextBlock } from '@portabletext/types';
+import type { Slug } from '@sanity/types';
 
-interface Speaker {
+export interface Speaker {
   _key?: string;
   name?: string;
   email?: string;
   picture?: {
-    _type?: 'image';
     asset?: {
-      _ref?: string;
-      _type?: 'reference';
-      url?: string; 
+      url?: string;
+      metadata?: {
+        lqip?: string;
+      };
     };
   };
 }
 
 export interface Talk {
+  _type: 'talk';
   _id: string;
-  title: string;
-  slug: { current: string };
-  speakers?: Speaker[]; 
-  publishedAt: string;
+  title?: string;
+  slug: Slug;
+  summary?: PortableTextBlock[];
   description?: PortableTextBlock[];
+  time?: string;
   duration?: string;
   location?: string;
+  track?: '1' | '2' | '3' | '4' | 'other';
+  speakers?: Speaker[];
+  language?: 'norwegian' | 'english';
   tags?: string[];
-  forkunnskap?: string;
+  publishedAt?: string;
+  forkunnskap?: 'none' | 'low' | 'medium' | 'high';
 }

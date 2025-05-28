@@ -1,32 +1,56 @@
-import client from '@/sanityClient'
-import ProgramLocationFilter from '@/components/ProgramLocationFilter';
-import type { Talk } from '@/types/talk';
+import client from '@/sanityClient';
+import ProgramLocationFilter from "@/components/ProgramLocationFilter";
+import type { Talk, SocialEvent } from "@/types";
 import { cookies } from 'next/headers';
 
 export default async function Program() {
   const cookieStore = await cookies();
   const userEmail = cookieStore.get('userEmail')?.value;
 
-  // Fetch talks with location
-  const query = `*[_type == "talk"] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    speakers[]{
-      _key,
-      name,
-      email,
-      picture {
-        asset->{
-          url
-        }
-      }
-    },
-    publishedAt,
-    location
-  }`;
+  // Fetch talks and social events in parallel
+  const [talks, socialEvents] = await Promise.all([
+    client.fetch<Talk[]>(
+      `*[_type == "talk"] | order(time asc) {
+        _id,
+        _type,
+        title,
+        slug,
+        description,
+        time,
+        duration,
+        location,
+        track,
+        speakers[]{
+          _key,
+          name,
+          email,
+          picture {
+            asset->{
+              url,
+              metadata{lqip}
+            }
+          }
+        },
+        tags,
+        publishedAt,
+        forkunnskap
+      }`
+    ),
+    client.fetch<SocialEvent[]>(
+      `*[_type == "social"] | order(time asc) {
+        _id,
+        _type,
+        title,
+        slug,
+        description,
+        location,
+        roomAddress,
+        time,
+      }`
+    )
+  ]);
 
-  const talks: Talk[] = await client.fetch(query);
+  const allProgramEvents: (Talk | SocialEvent)[] = [...talks, ...socialEvents];
 
   // Get user's location if logged in
   let defaultLocation = 'Oslo';
@@ -57,7 +81,7 @@ export default async function Program() {
     <div className="text-white py-12">
       <div className="container mx-auto px-4 max-w-7xl">
         <h1 className="text-5xl argent text-center mb-10">Program</h1>
-        <ProgramLocationFilter talks={talks} defaultLocation={defaultLocation} />
+        <ProgramLocationFilter allProgramEvents={allProgramEvents} defaultLocation={defaultLocation} />
       </div>
     </div>
   );
