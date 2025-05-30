@@ -28,7 +28,7 @@ export const social = defineType({
       name: 'location',
       title: 'Location',
       type: 'string',
-      description: 'Select the city where the social event will be held',
+      description: 'Select the city where the social event will be held.',
       options: {
         list: [
           {title: 'Bergen', value: 'bergen'},
@@ -41,6 +41,7 @@ export const social = defineType({
           {title: 'Stavanger', value: 'stavanger'},
           {title: 'Tromsø', value: 'tromso'},
           {title: 'Trondheim', value: 'trondheim'},
+          {title: 'Oslo + Stream', value: 'oslostream'},
           {title: 'Digitalt', value: 'digitalt'},
         ],
       },
