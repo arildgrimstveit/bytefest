@@ -24,13 +24,17 @@ export function LoginForm({
     try {
       console.log("Starting login process from button click");
       
-      // Check URL params for registration intent before clearing localStorage flags
       const params = new URLSearchParams(window.location.search);
-      if (params.get('intent') === 'paamelding') {
-        localStorage.setItem('returnToFormAfterLogin', 'true');
-        console.log("Setting flag to return to paamelding after login");
+      const intentValue = params.get('intent');
+
+      if (intentValue) {
+        localStorage.setItem('loginRedirectIntent', intentValue);
+        console.log(`Login intent found: ${intentValue}. Stored in localStorage.`);
+        // Clean up old paamelding-specific flag if it exists
+        localStorage.removeItem('returnToFormAfterLogin'); 
       } else {
-        // Ensure flag is cleared if intent is not present or different
+        localStorage.removeItem('loginRedirectIntent');
+        // Also ensure old flag is cleared if no new intent
         localStorage.removeItem('returnToFormAfterLogin');
       }
 

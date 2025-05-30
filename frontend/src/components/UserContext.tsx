@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { EventType, AccountInfo } from "@azure/msal-browser";
 import { User, UserContextType, UserProviderProps } from "@/types/user";
 import { graphConfig } from "@/config/AuthConfig"; // Added for graphMeEndpoint
+import { useRouter } from "next/navigation"; // Import useRouter
 
 // Create the context for user authentication state
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -12,6 +13,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Manages user info, authentication status, and MSAL interactions.
 export const UserProvider = ({ children }: UserProviderProps) => {
     const { instance } = useMsal();
+    const router = useRouter(); // Instantiate useRouter
     const [authState, setAuthState] = useState<{
         isAuthenticated: boolean;
         user: User | null;
@@ -87,6 +89,23 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                         activeAccount
                     }));
                 }
+                // Handle redirect after login
+                const loginIntent = localStorage.getItem('loginRedirectIntent');
+                if (loginIntent) {
+                    console.log(`Found login intent: ${loginIntent}, attempting redirect.`);
+                    localStorage.removeItem('loginRedirectIntent'); // Clear intent after use
+                    // Map intent values to paths
+                    if (loginIntent === 'program') {
+                        router.push('/program');
+                    } else if (loginIntent === 'paamelding') {
+                        router.push('/paamelding'); 
+                    } else {
+                        router.push('/');
+                    }
+                } else if (!currentIsAuth) {
+                     // If it was a new login without a specific intent, redirect to home
+                     router.push('/'); 
+                }
             }
         } else {
             if (currentIsAuth) {
@@ -98,7 +117,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                 });
             }
         }
-    }, [instance, authState.activeAccount, authState.isAuthenticated, fetchUserDetailsFromGraph]);
+    }, [instance, authState.activeAccount, authState.isAuthenticated, fetchUserDetailsFromGraph, router]);
 
     // Effect to initialize auth state and set up MSAL event listeners
     useEffect(() => {
@@ -132,7 +151,13 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
     const logout = useCallback(() => {
         document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
-        instance.logoutRedirect().catch((e) => console.error("Logout failed:", e));
+        // Ensure localStorage is cleaned up on logout as well
+        localStorage.removeItem('loginRedirectIntent');
+        localStorage.removeItem('returnToFormAfterLogin');
+        
+        instance.logoutRedirect({
+            postLogoutRedirectUri: window.location.origin + '/', // Redirect to homepage
+        }).catch((e) => console.error("Logout failed:", e));
     }, [instance]);
 
     const acquireTokenSilent = useCallback(async (scopes: string[]): Promise<string | null> => {
