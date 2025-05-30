@@ -15,25 +15,14 @@ export default async function Program() {
         _type,
         title,
         slug,
-        description,
         time,
         duration,
         location,
         track,
         speakers[]{
           _key,
-          name,
-          email,
-          picture {
-            asset->{
-              url,
-              metadata{lqip}
-            }
-          }
-        },
-        tags,
-        publishedAt,
-        forkunnskap
+          name
+        }
       }`
     ),
     client.fetch<SocialEvent[]>(
@@ -45,12 +34,19 @@ export default async function Program() {
         description,
         location,
         roomAddress,
-        time,
+        time
       }`
     )
   ]);
 
-  const allProgramEvents: (Talk | SocialEvent)[] = [...talks, ...socialEvents];
+  const allProgramEvents: (Talk | SocialEvent)[] = [...talks, ...socialEvents].sort((a, b) => {
+    const timeA = a.time ? new Date(a.time).getTime() : 0;
+    const timeB = b.time ? new Date(b.time).getTime() : 0;
+    if (!timeA && !timeB) return 0;
+    if (!timeA) return 1;
+    if (!timeB) return -1;
+    return timeA - timeB;
+  });
 
   // Get user's location if logged in
   let defaultLocation = 'Oslo';
@@ -65,12 +61,12 @@ export default async function Program() {
   }
 
   // Check if talks array is empty and render a message if so
-  if (!talks || talks.length === 0) {
+  if (!allProgramEvents || allProgramEvents.length === 0) {
     return (
       <div className="text-white py-10">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl argent text-center mb-10">Program</h1>
-          <p>Ingen foredrag funnet.</p>
+          <p>Ingen programposter funnet.</p>
         </div>
       </div>
     );

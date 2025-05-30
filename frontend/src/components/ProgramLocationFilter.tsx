@@ -98,27 +98,27 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Apply favorites filter if active, but use all talks regardless of selectedLocation for schedule population
-  let eventsToDisplay = allProgramEvents;
+  let eventsToProcess = allProgramEvents;
   if (showOnlyFavorites) {
-    // Favorites only apply to Talks, Social Events don't have favorites
-    eventsToDisplay = allProgramEvents.filter(event => 
-      (event._type === 'talk' && favs.includes((event as Talk).slug.current)) || event._type === 'social'
-    );
+    eventsToProcess = allProgramEvents.filter(event => {
+      if (event._type === 'talk') {
+        return favs.includes((event as Talk).slug.current);
+      }
+      return true; // Keep social events if favorites filter is on, as they don't have favorites
+    });
   }
 
-  // Define the program schedule structure
   interface ProgramSegment {
-    label: string;       
-    title: string;        
-    type: 'talks' | 'event'; 
+    label: string;
+    title: string;
+    type: 'talks' | 'event';
     endTime?: string;
     talksByTrack?: {
       '1': Talk[];
       '2': Talk[];
       '3': Talk[];
       '4': Talk[];
-      'other': Talk[];
+      other: Talk[];
     };
     socialEventsInSlot?: SocialEvent[];
   }
@@ -127,73 +127,59 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
     { label: "16:45", title: "Åpning", type: 'event' },
     { label: "17:00", title: "Faglig 1", type: 'talks' },
     { label: "17:45", title: "Pause", type: 'event' },
-    { label: "18:00", title: "Faglig 2", type: 'talks' },
-    { label: "18:45", title: "Pause", type: 'event' },
-    { label: "19:00", title: "Faglig 3", type: 'talks' },
-    { label: "19:30", title: "Wrap up", type: 'event' },
-    { label: "19:30", title: "Sosialt", type: 'event' }, 
-    { label: "20:45", title: "Sosialt", type: 'event' },
+    { label: "17:55", title: "Faglig 2", type: 'talks' },
+    { label: "18:40", title: "Pause", type: 'event' },
+    { label: "18:50", title: "Faglig 3", type: 'talks' },
+    { label: "19:30", title: "Felles avslutning", type: 'event' },
+    { label: "20:00", title: "Sosialt", type: 'event' },
   ];
 
-  // Enrich the base schedule template with endTime for talk segments
   const enrichedScheduleTemplate = programScheduleTemplate.map((segment, index, allSegments) => {
-    if (segment.type === 'talks') {
-      let calculatedEndTime: string | undefined = undefined;
-      for (let j = index + 1; j < allSegments.length; j++) {
-        calculatedEndTime = allSegments[j].label; // Next segment's start time is this talk block's end time
-        break;
-      }
-      return { ...segment, endTime: calculatedEndTime || "23:59" }; // Default to end of day if no next segment
+    let calculatedEndTime: string | undefined = undefined;
+    for (let j = index + 1; j < allSegments.length; j++) {
+        if (allSegments[j].label > segment.label) {
+            calculatedEndTime = allSegments[j].label;
+            break;
+        }
     }
-    return segment;
+    if (!calculatedEndTime) {
+        if (index === allSegments.length -1 ){
+            calculatedEndTime = "23:59";
+        } else {
+            calculatedEndTime = new Date(new Date(`2000/01/01 ${segment.label}`).getTime() + 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    }
+    return { ...segment, endTime: calculatedEndTime };
   });
 
-  // Prepare the dynamic schedule with talks assigned to time slots and tracks
-  const scheduleWithTalks: ProgramSegment[] = enrichedScheduleTemplate.map(segment => {
-    if (segment.type === 'talks' && typeof segment.endTime === 'string') {
-      const talksInSlotByTrack: Required<ProgramSegment['talksByTrack']> = {
-        '1': [], '2': [], '3': [], '4': [], 'other': [],
-      };
-      const socialEventsForSlot: SocialEvent[] = [];
+  const scheduleWithEvents: ProgramSegment[] = enrichedScheduleTemplate.map(segment => {
+    const talksInSlotByTrack: Required<ProgramSegment['talksByTrack']> = {
+      '1': [], '2': [], '3': [], '4': [], other: [],
+    };
+    const socialEventsForSlot: SocialEvent[] = [];
 
-      const currentSegmentEndTime = segment.endTime; 
-
-      eventsToDisplay.forEach(event => {
-        if (event.time) {
-          const eventTimeDate = new Date(event.time);
-          const eventHHMM = `${String(eventTimeDate.getHours()).padStart(2, '0')}:${String(eventTimeDate.getMinutes()).padStart(2, '0')}`;
-          const conditionMet = eventHHMM >= segment.label && eventHHMM < currentSegmentEndTime;
-          
-          if (conditionMet) {
-            if (event._type === 'talk') {
-              const talk = event as Talk;
-              const trackKey = talk.track && ['1', '2', '3', '4'].includes(talk.track) ? talk.track : 'other';
-              talksInSlotByTrack[trackKey].push(talk);
-            } else if (event._type === 'social') {
-              socialEventsForSlot.push(event as SocialEvent);
-            }
-          }
-        }
-      });
-      return { ...segment, talksByTrack: talksInSlotByTrack, socialEventsInSlot: socialEventsForSlot };
-    }
-    // For non-'talks' segments (like 'event'), also gather matching social events
-    if (segment.type === 'event' && typeof segment.endTime === 'string') {
-        const socialEventsForSlot: SocialEvent[] = [];
-        const currentSegmentEndTime = segment.endTime;
-
-        eventsToDisplay.forEach(event => {
-            if (event._type === 'social' && event.time) {
+    if (typeof segment.endTime === 'string') {
+        eventsToProcess.forEach(event => {
+            if (event.time && event.slug?.current) {
                 const eventTimeDate = new Date(event.time);
                 const eventHHMM = `${String(eventTimeDate.getHours()).padStart(2, '0')}:${String(eventTimeDate.getMinutes()).padStart(2, '0')}`;
-                if (eventHHMM >= segment.label && eventHHMM < currentSegmentEndTime) {
-                    socialEventsForSlot.push(event as SocialEvent);
+                
+                if (eventHHMM >= segment.label && eventHHMM < segment.endTime) {
+                    if (event._type === 'talk') {
+                        const talk = event as Talk;
+                        const trackKey = talk.track && ['1', '2', '3', '4'].includes(talk.track) ? talk.track : 'other';
+                        talksInSlotByTrack[trackKey].push(talk);
+                    } else if (event._type === 'social') {
+                        socialEventsForSlot.push(event as SocialEvent);
+                    }
                 }
             }
         });
-        return { ...segment, socialEventsInSlot: socialEventsForSlot };
     }
-    return segment; 
+    if (segment.type === 'talks') {
+        return { ...segment, talksByTrack: talksInSlotByTrack, socialEventsInSlot: socialEventsForSlot };
+    }
+    return { ...segment, socialEventsInSlot: socialEventsForSlot, talksByTrack: talksInSlotByTrack }; 
   });
 
   const trackFilterOptions = [
@@ -332,7 +318,6 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
               <span className="text-white text-lg">{room.name}</span>
             </div>
           ))}
-          {/* Fallback for locations not in roomLegends or if no rooms are defined (and not Digitalt) */}
           {(!roomLegends[selectedLocation] || roomLegends[selectedLocation].length === 0) && (
               <div className="flex items-center gap-2">
                   <div className="w-6 h-6 bg-[#DAD2E5]" />
@@ -342,98 +327,130 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
         </div>
       )}
 
-      {/* Dynamically generated schedule based on programScheduleTemplate */}
+      {/* Dynamically generated schedule */}
       <div className="mb-8 text-white text-xl space-y-5">
-        {scheduleWithTalks.map((segment, segmentIndex) => (
-          <div key={`${segment.label}-${segment.title}-${segmentIndex}`}>
-            <div>
-              <span className="font-bold">{segment.label}</span> {segment.title}
-            </div>
+        {scheduleWithEvents.map((segment, segmentIndex) => {
+          const isFagligSegment = segment.type === 'talks' && (segment.title === "Faglig 1" || segment.title === "Faglig 2" || segment.title === "Faglig 3");
 
-            {segment.type === 'talks' && segment.talksByTrack && (
-              <>
-                <br />
-                <div className="flex flex-col space-y-4 mb-8"> {/* Container for rows of cards */}
-                  {(() => {
-                    const tracksToConsiderForMaxRows = segment.talksByTrack || { '1': [], '2': [], '3': [], '4': []};
-                    const numRowsToRender = [1, 2, 3, 4].reduce((max, trackNum) => {
-                        const trackKey = String(trackNum) as '1'|'2'|'3'|'4';
-                        return Math.max(max, (tracksToConsiderForMaxRows[trackKey] || []).length);
-                    }, 0);
+          const hasTalksInNumberedTracks = segment.type === 'talks' && segment.talksByTrack && 
+                                       Object.entries(segment.talksByTrack)
+                                       .filter(([key]) => key !== 'other')
+                                       .some(([, trackTalks]) => trackTalks.length > 0);
+          
+          const hasTalksInOtherTrack = segment.type === 'talks' && segment.talksByTrack && segment.talksByTrack.other.length > 0;
+          
+          const socialEventsInSegment = segment.socialEventsInSlot?.filter(socialEvent => {
+            if (!socialEvent.location) return false;
+            const eventLocationLower = socialEvent.location.toLowerCase();
+            const selectedLocationLower = selectedLocation.toLowerCase();
 
-                    if (numRowsToRender === 0) return null; // No talks in tracks 1-4 for this segment
+            if (eventLocationLower === 'oslostream') {
+              return true;
+            }
+            return eventLocationLower === selectedLocationLower;
+          }) || [];
+          const hasVisibleSocialEvents = socialEventsInSegment.length > 0;
 
-                    return Array.from({ length: numRowsToRender }).map((_, rowIndex) => (
-                      <div key={`card-row-${segment.label}-${rowIndex}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map(trackNumber => {
-                          const currentTrackStr = String(trackNumber) as '1'|'2'|'3'|'4';
-                          const talk = ((segment.talksByTrack ? segment.talksByTrack[currentTrackStr] : []) || [])[rowIndex];
-
-                          if (talk && (selectedTracks.length === 0 || selectedTracks.includes(currentTrackStr))) {
-                            return (
-                              <ProgramTalkCard
-                                key={talk.slug.current}
-                                talk={talk}
-                                track={trackNumber as 1 | 2 | 3 | 4}
-                                isFavorite={favs.includes(talk.slug.current)}
-                                onToggleFavorite={toggleFavorite}
-                                isLoadingGlobalFavs={isLoadingFavs}
-                                isStoreReady={isStoreInitialized}
-                                globalFavsError={errorFavs}
-                                viewingLocation={selectedLocation}
-                              />
-                            );
-                          } else {
-                            // Render placeholder if no talk OR if a specific track is selected and this isn't it
-                            return <div key={`placeholder-${currentTrackStr}-${segment.label}-${rowIndex}`} className="w-full h-full min-h-[1rem]"></div>;
-                          }
-                        })}
-                      </div>
-                    ));
-                  })()}
+          if (segment.type === 'event' || hasTalksInNumberedTracks || hasTalksInOtherTrack || hasVisibleSocialEvents) {
+            return (
+              <div key={`${segment.label}-${segment.title}-${segmentIndex}`}>
+                <div>
+                  <span className="font-bold">{segment.label}</span> {segment.title}
                 </div>
-                {/* Render Social Events for this 'talks' segment */}
-                {segment.socialEventsInSlot && segment.socialEventsInSlot.length > 0 && (
-                  <div className="mt-6 mb-8 space-y-4">
-                    <h3 className="text-lg text-white iceland regular">Andre arrangementer i dette tidsrommet:</h3>
-                    {segment.socialEventsInSlot.map(socialEvent => (
-                      <ProgramSocialEventCard key={socialEvent._id} event={socialEvent} />
-                    ))}
-                  </div>
-                )}
-                {/* 'Other' track talks for this time slot */}
-                {segment.talksByTrack.other.length > 0 && (
+
+                {(hasTalksInNumberedTracks || hasTalksInOtherTrack) && segment.type === 'talks' && segment.talksByTrack && (
                   <>
-                    <div className="mt-4"><span className="font-bold">Andre foredrag</span> (ikke tildelt spor for {segment.label})</div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mt-3 mb-5">
-                      {segment.talksByTrack.other.map((talk) => (
-                        <ProgramTalkCard
-                          key={talk._id}
-                          talk={talk}
-                          track={1} 
-                          isFavorite={favs.includes(talk.slug.current)}
-                          onToggleFavorite={toggleFavorite}
-                          isLoadingGlobalFavs={isLoadingFavs}
-                          isStoreReady={isStoreInitialized}
-                          globalFavsError={errorFavs}
-                          viewingLocation={selectedLocation}
-                        />
-                      ))}
-                    </div>
+                    {hasTalksInNumberedTracks && (
+                      <>
+                      <br />
+                      <div className="flex flex-col space-y-4 mb-8">
+                        {(() => {
+                          const tracksToConsiderForMaxRows = segment.talksByTrack!;
+                          const numRowsToRender = [1, 2, 3, 4].reduce((max, trackNum) => {
+                              const trackKey = String(trackNum) as '1'|'2'|'3'|'4';
+                              return Math.max(max, (tracksToConsiderForMaxRows[trackKey] || []).length);
+                          }, 0);
+
+                          if (numRowsToRender === 0) return null;
+
+                          return Array.from({ length: numRowsToRender }).map((_, rowIndex) => (
+                            <div key={`card-row-${segment.label}-${rowIndex}`} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                              {[1, 2, 3, 4].map(trackNumber => {
+                                const currentTrackStr = String(trackNumber) as '1'|'2'|'3'|'4';
+                                const talk = (tracksToConsiderForMaxRows[currentTrackStr] || [])[rowIndex];
+                                
+                                let roomNameToPass: string | undefined = undefined;
+                                if (isFagligSegment && rowIndex === 0 && selectedLocation !== 'Digitalt' && roomLegends[selectedLocation]) {
+                                  const legend = roomLegends[selectedLocation];
+                                  if (legend && legend[trackNumber - 1]) {
+                                    roomNameToPass = legend[trackNumber - 1].name;
+                                  }
+                                }
+
+                                if (talk && (selectedTracks.length === 0 || selectedTracks.includes(currentTrackStr))) {
+                                  return (
+                                    <ProgramTalkCard
+                                      key={talk.slug.current}
+                                      talk={talk}
+                                      track={trackNumber as 1 | 2 | 3 | 4}
+                                      isFavorite={favs.includes(talk.slug.current)}
+                                      onToggleFavorite={toggleFavorite}
+                                      isLoadingGlobalFavs={isLoadingFavs}
+                                      isStoreReady={isStoreInitialized}
+                                      globalFavsError={errorFavs}
+                                      viewingLocation={selectedLocation}
+                                      roomName={roomNameToPass}
+                                    />
+                                  );
+                                }
+                                return <div key={`placeholder-${currentTrackStr}-${segment.label}-${rowIndex}`} className="w-full h-full min-h-[1rem]"></div>;
+                              })}
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                      </>
+                    )}
+                    {hasTalksInOtherTrack && (
+                        <>
+                            <div className="mt-4 mb-2"><span className="font-bold">Andre foredrag (ikke tildelt spor)</span></div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                                {segment.talksByTrack?.other.filter(talk => {
+                                    if (selectedLocation === 'Digitalt') return talk.location?.toLowerCase() === 'digitalt';
+                                    return talk.location?.toLowerCase() === selectedLocation.toLowerCase();
+                                }).map((talk) => (
+                                    (selectedTracks.length === 0 || selectedTracks.includes('other') || selectedTracks.includes(talk.track || 'other')) && (
+                                        <ProgramTalkCard
+                                            key={talk.slug.current}
+                                            talk={talk}
+                                            track={(parseInt(talk.track || '1') as 1|2|3|4) || 1}
+                                            isFavorite={favs.includes(talk.slug.current)}
+                                            onToggleFavorite={toggleFavorite}
+                                            isLoadingGlobalFavs={isLoadingFavs}
+                                            isStoreReady={isStoreInitialized}
+                                            globalFavsError={errorFavs}
+                                            viewingLocation={selectedLocation} 
+                                        />
+                                    )
+                                ))}
+                            </div>
+                        </>
+                    )}
                   </>
                 )}
-              </>
-            )}
-            {/* Render Social Events for 'event' type segments */}
-            {segment.type === 'event' && segment.socialEventsInSlot && segment.socialEventsInSlot.length > 0 && (
-              <div className="mt-3 mb-5 space-y-4">
-                 {segment.socialEventsInSlot.map(socialEvent => (
-                    <ProgramSocialEventCard key={socialEvent._id} event={socialEvent} />
-                ))}
+
+                {hasVisibleSocialEvents && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4 mb-8">
+                        {socialEventsInSegment.map(socialEvent => (
+                            <ProgramSocialEventCard key={socialEvent._id} event={socialEvent} />
+                        ))}
+                    </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            );
+          }
+          return null;
+        })}
       </div>
     </>
   );

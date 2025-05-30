@@ -15,11 +15,12 @@ interface ProgramTalkCardProps {
     isStoreReady: boolean;
     globalFavsError?: string | null;
     viewingLocation: string;
+    roomName?: string;
 }
 
-const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, onToggleFavorite, isLoadingGlobalFavs, isStoreReady, globalFavsError, viewingLocation }) => {
-    const getTrackColor = (track: number) => {
-        switch (track) {
+const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, onToggleFavorite, isLoadingGlobalFavs, isStoreReady, globalFavsError, viewingLocation, roomName }) => {
+    const getTrackColor = (trackNumber: number) => {
+        switch (trackNumber) {
             case 1:
                 return '#98C649';
             case 2:
@@ -39,19 +40,28 @@ const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, on
         onToggleFavorite(talk.slug.current);
     };
 
+    const trackColor = getTrackColor(track);
+
     return (
         <Link
             href={`/talks/${talk.slug?.current || '#'}`}
-            className="block group pt-2 pl-2 flex flex-col h-full"
+            className="block group pt-2 flex flex-col h-full"
         >
-            <div className="relative h-full flex flex-col">
-                <div className="absolute top-0 left-0 w-full h-full -z-10" style={{ backgroundColor: getTrackColor(track) }}></div>
-                <div className="relative flex flex-col bg-[#F6EBD5] -translate-y-1.5 -translate-x-1.5 transition-transform group-hover:-translate-y-2 group-hover:-translate-x-2 min-h-68 p-6 h-full">
+            {roomName && (
+                <div className="mb-2 ml-[-5] z-10 relative">
+                    <p className="text-sm text-white">
+                        {roomName}
+                    </p>
+                </div>
+            )}
+
+            <div className={`relative flex-grow flex flex-col`}>
+                <div className="absolute top-0 left-0 w-full h-full -z-10" style={{ backgroundColor: trackColor }}></div>
+                <div className={`relative flex flex-col bg-[#F6EBD5] text-black -translate-y-1.5 -translate-x-1.5 transition-transform group-hover:-translate-y-2 group-hover:-translate-x-2 min-h-68 p-6 h-full`}>
                     
-                    {/* Header Block: Title, Favorite Icon, and optional Stream Tag */}
                     <div className="mb-2">
                         <div className="flex justify-between items-start min-w-0">
-                            <h2 className="text-2xl text-black mr-4 break-words iceland leading-none">
+                            <h2 className="text-2xl mr-4 break-words iceland leading-none">
                                 {talk.title || "Ingen tittel"}
                             </h2>
                             <div className="flex-shrink-0 ml-2">
@@ -78,8 +88,7 @@ const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, on
                                 )}
                             </div>
                         </div>
-                        {/* Stream Tag (Conditional) - Part of the header block */}
-                        {talk.location !== viewingLocation && (
+                        {viewingLocation && talk.location && talk.location.toLowerCase() !== viewingLocation.toLowerCase() && talk.location.toLowerCase() !== 'digitalt' && (
                             <div className="pt-1 border-t border-gray-400 mt-2">
                                 <p className="text-base text-black iceland">
                                     Streames fra {talk.location}
@@ -88,10 +97,8 @@ const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, on
                         )}
                     </div>
 
-                    {/* Explicit Spacer Element - Pushes the footer down */}
                     <div className="flex-1 min-h-0"></div>
 
-                    {/* Footer Block: Speaker + Time/Duration */}
                     <div className="pt-2">
                         <div className="flex justify-between items-end">
                             <div className="space-y-0.5">
