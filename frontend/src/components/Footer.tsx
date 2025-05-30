@@ -46,6 +46,9 @@ const Footer = () => {
                 <Link href="/talks" className="text-sm text-gray-300 hover:text-white transition-colors">
                   ALLE FOREDRAG
                 </Link>
+                <Link href="/program" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  PROGRAM
+                </Link>
               </div>
             </div>
             

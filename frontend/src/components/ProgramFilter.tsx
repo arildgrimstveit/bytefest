@@ -17,7 +17,7 @@ const locationOptions = [
   { value: 'Kristiansand', title: 'Kristiansand' },
   { value: 'Oslo', title: 'Oslo' },
   { value: 'Stavanger', title: 'Stavanger' },
-  { value: 'Tromsø', title: 'Tromsø' },
+  { value: 'Tromso', title: 'Tromsø' },
   { value: 'Trondheim', title: 'Trondheim' },
   { value: 'Digitalt', title: 'Digitalt' },
 ];
@@ -44,7 +44,7 @@ const roomLegends: Record<string, { name: string; color: string }[]> = {
     { name: "Storheia", color: "#84CDE3" },
     { name: "Forskjellige lokasjoner", color: "#DAD2E5" },
   ],
-  Tromsø: [
+  Tromso: [
     { name: "Jiehkkevarri", color: "#98C649" },
     { name: "Nallangaisi", color: "#FFAF35" },
     { name: "Imagaisi", color: "#EB6565" },
@@ -210,7 +210,7 @@ export default function ProgramFilter({ allProgramEvents, defaultLocation }: Pro
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className={`px-4 sm:px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer ${selectedLocation !== defaultLocation || defaultLocation !== 'Oslo' ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'}`}
           >
-            <span className="hidden sm:inline">LOKASJON: {selectedLocation.toUpperCase()}</span>
+            <span className="hidden sm:inline">LOKASJON: {(locationOptions.find(opt => opt.value === selectedLocation)?.title || selectedLocation).toUpperCase()}</span>
             <span className="sm:hidden">LOKASJON</span>
             <svg
               width="12"
