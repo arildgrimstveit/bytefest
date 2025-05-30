@@ -7,7 +7,7 @@ import ProgramSocialEventCard from './ProgramSocialEventCard';
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 
-interface ProgramLocationFilterProps {
+interface ProgramFilterProps {
   allProgramEvents: (Talk | SocialEvent)[];
   defaultLocation: string;
 }
@@ -25,9 +25,9 @@ const locationOptions = [
 const roomLegends: Record<string, { name: string; color: string }[]> = {
   Oslo: [
     { name: "22.etg Atriet", color: "#98C649" },
-    { name: "26.etg Hovedområde", color: "#FFAF35" },
+    { name: "23.etg Møteplassen", color: "#FFAF35" },
     { name: "25.etg Munch", color: "#EB6565" },
-    { name: "23.etg Møteplassen", color: "#84CDE3" },
+    { name: "26.etg Hovedområde", color: "#84CDE3" },
     { name: "Forskjellige lokasjoner", color: "#DAD2E5" },
   ],
   Bergen: [
@@ -59,15 +59,15 @@ const roomLegends: Record<string, { name: string; color: string }[]> = {
     { name: "Forskjellige lokasjoner", color: "#DAD2E5" }
   ],
   Stavanger: [
-    { name: "Sosial Sone", color: "#98C649" },
-    { name: "Lysefjorden", color: "#FFAF35" },
+    { name: "Lysefjorden", color: "#98C649" },
+    { name: "Sosial Sone", color: "#FFAF35" },
     { name: "Riskafjorden", color: "#EB6565" },
     { name: "Gandsfjorden", color: "#84CDE3" },
     { name: "Forskjellige lokasjoner", color: "#DAD2E5" },
   ]
 };
 
-export default function ProgramLocationFilter({ allProgramEvents, defaultLocation }: ProgramLocationFilterProps) {
+export default function ProgramFilter({ allProgramEvents, defaultLocation }: ProgramFilterProps) {
   const [selectedLocation, setSelectedLocation] = useState(defaultLocation);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -97,7 +97,7 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
+  
   let eventsToProcess = allProgramEvents;
   if (showOnlyFavorites) {
     eventsToProcess = allProgramEvents.filter(event => {
@@ -202,15 +202,16 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
 
   return (
     <>
-      {/* Top filter buttons */}
-      <div className="flex gap-4 justify-center mb-8">
+      {/* Top filter buttons - these will render immediately */}
+      <div className="flex gap-4 justify-center mb-8 flex-wrap">
         {/* Location Filter */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer bg-[#F6EBD5]"
+            className={`px-4 sm:px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer ${selectedLocation !== defaultLocation || defaultLocation !== 'Oslo' ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'}`}
           >
-            <span>LOKASJON: {selectedLocation.toUpperCase()}</span>
+            <span className="hidden sm:inline">LOKASJON: {selectedLocation.toUpperCase()}</span>
+            <span className="sm:hidden">LOKASJON</span>
             <svg
               width="12"
               height="12"
@@ -249,9 +250,10 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
         <div className="relative" ref={trackDropdownRef}>
           <button
             onClick={() => setIsTrackDropdownOpen(!isTrackDropdownOpen)}
-            className="px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer bg-[#F6EBD5]"
+            className={`px-4 sm:px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer ${selectedTracks.length > 0 ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'}`}
           >
-            <span>{getTrackButtonLabel()}</span>
+            <span className="hidden sm:inline">{getTrackButtonLabel()}</span>
+            <span className="sm:hidden">SPOR</span>
             <svg
               width="12"
               height="12"
@@ -296,7 +298,7 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
         {/* Favorites Filter */}
         <button
           onClick={() => setShowOnlyFavorites(prev => !prev)}
-          className={`px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer ${showOnlyFavorites ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'}`}
+          className={`px-4 sm:px-6 py-2 text-[#2A1449] transition-opacity hover:opacity-80 flex items-center gap-2 cursor-pointer ${showOnlyFavorites ? 'bg-[#F8F5D3]' : 'bg-[#F6EBD5]'}`}
         >
           <span>FAVORITTER</span>
           <Image
@@ -339,16 +341,19 @@ export default function ProgramLocationFilter({ allProgramEvents, defaultLocatio
           
           const hasTalksInOtherTrack = segment.type === 'talks' && segment.talksByTrack && segment.talksByTrack.other.length > 0;
           
-          const socialEventsInSegment = segment.socialEventsInSlot?.filter(socialEvent => {
-            if (!socialEvent.location) return false;
-            const eventLocationLower = socialEvent.location.toLowerCase();
-            const selectedLocationLower = selectedLocation.toLowerCase();
-
-            if (eventLocationLower === 'oslostream') {
-              return true;
-            }
-            return eventLocationLower === selectedLocationLower;
-          }) || [];
+          let socialEventsInSegment: SocialEvent[] = [];
+          if (selectedLocation.toLowerCase() !== 'digitalt') {
+            socialEventsInSegment = segment.socialEventsInSlot?.filter(socialEvent => {
+              if (!socialEvent.location) return false;
+              const eventLocationLower = socialEvent.location.toLowerCase();
+              const currentSelectedLocationLower = selectedLocation.toLowerCase(); 
+              if (eventLocationLower === 'oslostream') {
+                return true; // Show 'oslostream' events for all *physical* locations
+              }
+              // For other events, match the physical location
+              return eventLocationLower === currentSelectedLocationLower;
+            }) || [];
+          }
           const hasVisibleSocialEvents = socialEventsInSegment.length > 0;
 
           if (segment.type === 'event' || hasTalksInNumberedTracks || hasTalksInOtherTrack || hasVisibleSocialEvents) {

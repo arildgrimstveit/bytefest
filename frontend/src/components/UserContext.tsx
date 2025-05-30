@@ -18,10 +18,12 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         isAuthenticated: boolean;
         user: User | null;
         activeAccount: AccountInfo | null;
+        isAuthStatusKnown: boolean;
     }>({
         isAuthenticated: false,
         user: null,
-        activeAccount: null
+        activeAccount: null,
+        isAuthStatusKnown: false,
     });
 
     // Fetches additional user details from Graph API
@@ -61,102 +63,119 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     }, [instance]);
 
     // Updates the authState based on the current MSAL active account
-    const updateAuthState = useCallback(async () => {
-        const activeAccount = instance.getActiveAccount();
-        const currentIsAuth = authState.isAuthenticated;
+    const updateAuthState = useCallback(() => {
+        const msalActiveAccount = instance.getActiveAccount();
 
-        if (activeAccount) {
-            if (authState.activeAccount?.homeAccountId !== activeAccount.homeAccountId || !currentIsAuth) {
-                const userDetails = await fetchUserDetailsFromGraph(activeAccount);
-                if (userDetails) {
-                    document.cookie = `userEmail=${encodeURIComponent(userDetails.email)}; path=/; max-age=86400; SameSite=Lax`;
-                    setAuthState({
-                        isAuthenticated: true,
-                        user: userDetails,
-                        activeAccount
-                    });
-                } else {
-                    setAuthState(prevState => ({
-                        ...prevState,
-                        isAuthenticated: true,
-                        user: {
-                            name: activeAccount.name || "",
-                            email: activeAccount.username,
-                            phoneNumber: "",
-                            department: "",
-                            officeLocation: "",
-                        },
-                        activeAccount
-                    }));
-                }
-                // Handle redirect after login
-                const loginIntent = localStorage.getItem('loginRedirectIntent');
-                if (loginIntent) {
-                    console.log(`Found login intent: ${loginIntent}, attempting redirect.`);
-                    localStorage.removeItem('loginRedirectIntent'); // Clear intent after use
-                    // Map intent values to paths
-                    if (loginIntent === 'program') {
-                        router.push('/program');
-                    } else if (loginIntent === 'paamelding') {
-                        router.push('/paamelding'); 
-                    } else {
-                        router.push('/');
+        setAuthState(currentInternalState => {
+            let newIsAuthenticated = currentInternalState.isAuthenticated;
+            let newUser = currentInternalState.user;
+            let newActiveAccount = currentInternalState.activeAccount;
+            let needsRedirect = false;
+            let redirectPath = "";
+
+            if (msalActiveAccount) {
+                if (!currentInternalState.isAuthenticated || currentInternalState.activeAccount?.homeAccountId !== msalActiveAccount.homeAccountId) {
+                    newIsAuthenticated = true;
+                    newActiveAccount = msalActiveAccount;
+                    // Set basic user info; graph fetch effect will update details if needed
+                    newUser = { name: msalActiveAccount.name || "", email: msalActiveAccount.username, phoneNumber: "", department: "", officeLocation: "" };
+
+                    if (!currentInternalState.isAuthenticated) { // Fresh login
+                        const loginIntent = localStorage.getItem('loginRedirectIntent');
+                        if (loginIntent) {
+                            localStorage.removeItem('loginRedirectIntent');
+                            if (loginIntent === 'program') redirectPath = '/program';
+                            else if (loginIntent === 'paamelding') redirectPath = '/paamelding';
+                            else redirectPath = '/';
+                            needsRedirect = true;
+                        }
                     }
-                } else if (!currentIsAuth) {
-                     // If it was a new login without a specific intent, redirect to home
-                     router.push('/'); 
+                }
+            } else { // No MSAL active account
+                if (currentInternalState.isAuthenticated) {
+                    document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
+                    newIsAuthenticated = false;
+                    newUser = null;
+                    newActiveAccount = null;
                 }
             }
-        } else {
-            if (currentIsAuth) {
-                document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
-                setAuthState({
-                    isAuthenticated: false,
-                    user: null,
-                    activeAccount: null
+
+            const finalState = {
+                isAuthenticated: newIsAuthenticated,
+                user: newUser,
+                activeAccount: newActiveAccount,
+                isAuthStatusKnown: true
+            };
+            
+            if (
+                currentInternalState.isAuthenticated === finalState.isAuthenticated &&
+                currentInternalState.activeAccount?.homeAccountId === finalState.activeAccount?.homeAccountId &&
+                currentInternalState.user?.email === finalState.user?.email && // Basic check
+                currentInternalState.isAuthStatusKnown // If it was already known and other critical parts didn't change
+            ) {
+                return currentInternalState;
+            }
+            
+            if (needsRedirect && redirectPath) {
+                 Promise.resolve().then(() => router.push(redirectPath));
+            }
+            return finalState;
+        });
+    }, [instance, router]);
+
+    // Effect for fetching graph data when activeAccount changes or user details are missing
+    useEffect(() => {
+        const account = authState.activeAccount;
+        if (account && authState.isAuthenticated) {
+            if (!authState.user || authState.user.email !== account.username || !authState.user.department /* check if full details are missing */) {
+                fetchUserDetailsFromGraph(account).then(userDetails => {
+                    if (userDetails) {
+                        document.cookie = `userEmail=${encodeURIComponent(userDetails.email)}; path=/; max-age=86400; SameSite=Lax`;
+                        setAuthState(s => {
+                            // Only update if user is different to prevent loops if graph returns same object by chance
+                            if (s.user?.email !== userDetails.email || s.user?.name !== userDetails.name) {
+                                return { ...s, user: userDetails, isAuthStatusKnown: true };
+                            }
+                            return s; // No actual change in user details from graph needed
+                        });
+                    }
+                }).catch(error => {
+                    console.error("[UserContext] Error in graph fetch useEffect:", error);
                 });
             }
         }
-    }, [instance, authState.activeAccount, authState.isAuthenticated, fetchUserDetailsFromGraph, router]);
+    }, [authState.activeAccount, authState.isAuthenticated, authState.user, fetchUserDetailsFromGraph]);
 
-    // Effect to initialize auth state and set up MSAL event listeners
+    // Main effect to initialize auth state and set up MSAL event listeners
     useEffect(() => {
-        updateAuthState();
+        updateAuthState(); 
 
         const callbackId = instance.addEventCallback(event => {
-            if (
-                event.eventType === EventType.LOGIN_SUCCESS ||
-                event.eventType === EventType.LOGIN_FAILURE ||
-                event.eventType === EventType.LOGOUT_SUCCESS ||
-                event.eventType === EventType.HANDLE_REDIRECT_END // Important for post-login scenarios
-            ) {
+            if (event.eventType === EventType.LOGIN_SUCCESS || event.eventType === EventType.LOGOUT_SUCCESS || event.eventType === EventType.HANDLE_REDIRECT_END) {
                 updateAuthState();
             }
         });
-
-        const handleCustomLoginEvent = () => updateAuthState();
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') updateAuthState();
+        const handleCustomLoginEvent = () => { updateAuthState(); };
+        const handleVisibilityChange = () => { 
+            if (document.visibilityState === 'visible') { 
+                updateAuthState(); 
+            }
         };
-
         window.addEventListener('msal:login:complete', handleCustomLoginEvent);
         document.addEventListener('visibilitychange', handleVisibilityChange);
-
         return () => {
             if (callbackId) instance.removeEventCallback(callbackId);
             window.removeEventListener('msal:login:complete', handleCustomLoginEvent);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [instance, updateAuthState]);
+    }, [instance, updateAuthState]); // updateAuthState is now stable
 
     const logout = useCallback(() => {
         document.cookie = "userEmail=; path=/; max-age=0; SameSite=Lax";
-        // Ensure localStorage is cleaned up on logout as well
         localStorage.removeItem('loginRedirectIntent');
         localStorage.removeItem('returnToFormAfterLogin');
-        
         instance.logoutRedirect({
-            postLogoutRedirectUri: window.location.origin + '/', // Redirect to homepage
+            postLogoutRedirectUri: window.location.origin + '/',
         }).catch((e) => console.error("Logout failed:", e));
     }, [instance]);
 
@@ -179,6 +198,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             user: authState.user,
             isAuthenticated: authState.isAuthenticated,
             activeAccount: authState.activeAccount,
+            isAuthStatusKnown: authState.isAuthStatusKnown,
             logout,
             acquireTokenSilent,
         }}>

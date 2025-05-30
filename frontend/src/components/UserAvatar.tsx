@@ -16,21 +16,63 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
   const { user, isAuthenticated, logout } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [isCachedPhotoBeingLoaded, setIsCachedPhotoBeingLoaded] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(true);
+  const localStorageKey = 'userProfilePhotoDataUrl';
 
-  // Effect to fetch profile photo when authenticated and ready
+  const photoUrlRef = useRef(photoUrl);
+  useEffect(() => {
+    photoUrlRef.current = photoUrl;
+  }, [photoUrl]);
+
+  // Effect to load from localStorage on mount
   useEffect(() => {
     isMounted.current = true;
+    try {
+      const cachedPhoto = localStorage.getItem(localStorageKey);
+      if (cachedPhoto) {
+        console.log("Loaded photo from localStorage");
+        setPhotoUrl(cachedPhoto);
+      }
+    } catch (error) {
+      console.error("Error reading photo from localStorage:", error);
+    }
+    setIsCachedPhotoBeingLoaded(false); // Done trying to load from cache
+
+    // Cleanup function to revoke object URL and update mounted status
+    return () => {
+      isMounted.current = false;
+      // Only revoke if it's an object URL (blob:...). Data URLs don't need revoking.
+      if (photoUrlRef.current && photoUrlRef.current.startsWith('blob:')) {
+        URL.revokeObjectURL(photoUrlRef.current);
+      }
+    };
+  }, []); // Runs once on mount
+
+  // Effect to fetch profile photo when authenticated and ready, or to update cached one
+  useEffect(() => {
+    const activeAccount = accounts && accounts.length > 0 ? accounts[0] : null;
+
+    if (!isAuthenticated || inProgress !== InteractionStatus.None || !activeAccount) {
+      if (!isAuthenticated && photoUrlRef.current) { // Use photoUrlRef.current here
+        setPhotoUrl(null);
+        try {
+          localStorage.removeItem(localStorageKey);
+        } catch (error) {
+          console.error("Error removing photo from localStorage:", error);
+        }
+      }
+      return;
+    }
 
     const photoTokenRequest = {
       scopes: ["User.Read"],
-      account: accounts[0]
+      account: activeAccount
     };
 
-    // Helper to acquire an access token for Graph API silently
     async function getPhotoToken() {
-      if (!accounts[0]) {
+      if (!activeAccount) {
         console.warn("No active account found for photo token request.");
         return null;
       }
@@ -39,18 +81,20 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
         return resp.accessToken;
       } catch (error) {
         console.error("Silent token acquisition failed: ", error);
+        // Potentially handle interactive request here if necessary
         return null;
       }
     }
 
-    // Helper to fetch the profile photo blob from Microsoft Graph
-    async function fetchProfilePhoto() {
-      if (!isMounted.current) return; // Avoid state updates if unmounted
+    async function fetchProfilePhotoAndUpdate() {
+      if (!isMounted.current) return;
 
-      console.log("Attempting to fetch profile photo...");
+      console.log("Attempting to fetch/update profile photo...");
       const token = await getPhotoToken();
       if (!token) {
         console.error("Failed to acquire token for profile photo.");
+        // If token fails, and we have a cached photo, we keep it.
+        // If no cached photo, it will show fallback.
         return;
       }
 
@@ -60,34 +104,53 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
         });
 
         if (!res.ok) {
-          console.error("Photo fetch failed:", res.status, await res.text());
-          throw new Error("Photo fetch failed: " + res.status);
+          console.error("Photo fetch failed:", res.status);
+          if (res.status === 404) { // User has no photo
+            setPhotoUrl(null); // Ensure no old photo is shown
+            localStorage.removeItem(localStorageKey);
+          }
+          // For other errors, we might keep the stale cached photo if available
+          return;
         }
 
         const blob = await res.blob();
-        if (isMounted.current) { // Check mounted status before setting state
-          const url = URL.createObjectURL(blob);
-          console.log("Photo fetched successfully:", url);
-          setPhotoUrl(url);
-        }
+        
+        // Convert blob to Data URL
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          if (isMounted.current) {
+            // Only update if different from current or if current is an old object URL
+            if (photoUrlRef.current !== dataUrl || (photoUrlRef.current && photoUrlRef.current.startsWith('blob:'))) {
+                 // Revoke old object URL if it exists and is a blob URL
+                if (photoUrlRef.current && photoUrlRef.current.startsWith('blob:')) {
+                    URL.revokeObjectURL(photoUrlRef.current);
+                }
+                setPhotoUrl(dataUrl);
+            }
+            try {
+              localStorage.setItem(localStorageKey, dataUrl);
+              console.log("Photo updated and cached in localStorage");
+            } catch (error) {
+              console.error("Error saving photo to localStorage:", error);
+            }
+          }
+        };
+        reader.onerror = () => {
+            console.error("Error converting blob to Data URL");
+        };
+        reader.readAsDataURL(blob);
+
       } catch (error) {
-        console.error("Error fetching profile photo:", error);
+        console.error("Error fetching/processing profile photo:", error);
+        // Keep stale cached photo if an error occurs
       }
     }
 
-    // Trigger photo fetch if conditions met
-    if (isAuthenticated && inProgress === InteractionStatus.None && !photoUrl && accounts.length > 0) {
-      fetchProfilePhoto();
-    }
-
-    // Cleanup function to revoke object URL and update mounted status
-    return () => {
-      isMounted.current = false;
-      if (photoUrl) {
-        URL.revokeObjectURL(photoUrl);
-      }
-    };
-  }, [isAuthenticated, inProgress, accounts, instance, photoUrl]);
+    fetchProfilePhotoAndUpdate();
+    
+    // No direct dependency on photoUrl here to avoid re-fetching if only photoUrl changed by cache
+  }, [isAuthenticated, inProgress, accounts, instance]);
 
   // Effect to handle clicking outside the dropdown to close it
   useEffect(() => {
@@ -128,7 +191,7 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
         {/* Avatar image or initials */}
         <div className="relative z-10 flex items-center">
           <div className="relative rounded-full overflow-hidden flex items-center justify-center">
-            {photoUrl ? (
+            {(photoUrl && !isCachedPhotoBeingLoaded) ? (
               <Image
                 src={photoUrl}
                 alt={user?.name || 'User'}
@@ -137,9 +200,12 @@ const UserAvatar = ({ size = 32 }: UserAvatarProps) => {
                 className="object-cover"
               />
             ) : (
-              // Fallback initials display - THIS ONE IS OKAY (inside expression)
+              // Fallback initials display
+              // Show fallback if:
+              // 1. Still checking cache (isCachedPhotoBeingLoaded is true)
+              // 2. No photoUrl AND finished checking cache
               <div style={{ width: size, height: size }} className="flex items-center justify-center bg-[#2A1449] text-white">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                {(isCachedPhotoBeingLoaded && !photoUrl) ? '' : (user?.name ? user.name.charAt(0).toUpperCase() : 'U')}
               </div>
             )}
           </div>

@@ -45,7 +45,7 @@ const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, on
     return (
         <Link
             href={`/talks/${talk.slug?.current || '#'}`}
-            className="block group pt-2 flex flex-col h-full"
+            className="block group pt-2 flex flex-col h-full mx-3 sm:mx-0"
         >
             {roomName && (
                 <div className="mb-2 ml-[-5] z-10 relative">
@@ -57,7 +57,7 @@ const ProgramTalkCard: FC<ProgramTalkCardProps> = ({ talk, track, isFavorite, on
 
             <div className={`relative flex-grow flex flex-col`}>
                 <div className="absolute top-0 left-0 w-full h-full -z-10" style={{ backgroundColor: trackColor }}></div>
-                <div className={`relative flex flex-col bg-[#F6EBD5] text-black -translate-y-1.5 -translate-x-1.5 transition-transform group-hover:-translate-y-2 group-hover:-translate-x-2 min-h-68 p-6 h-full`}>
+                <div className={`relative flex flex-col bg-[#F6EBD5] text-black -translate-y-1.5 -translate-x-1.5 transition-transform group-hover:-translate-y-2 group-hover:-translate-x-2 min-h-[200px] sm:min-h-68 p-3 sm:p-6 h-full`}>
                     
                     <div className="mb-2">
                         <div className="flex justify-between items-start min-w-0">

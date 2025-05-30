@@ -52,22 +52,6 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
     return true;
   });
 
-  if (!isStoreInitialized || isLoadingFavs) {
-    return (
-      <div className="text-center py-16">
-        <p className="text-gray-300">Laster foredrag...</p>
-      </div>
-    );
-  }
-
-  if (errorFavs) {
-    return (
-      <div className="text-center py-16">
-        <p className="text-red-400">Kunne ikke laste favoritter: {errorFavs}</p>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="flex justify-center flex-wrap gap-4 mb-12">
@@ -129,19 +113,13 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
         </button>
       </div>
 
-      {(!isStoreInitialized || isLoadingFavs) && (
-        <div className="text-center py-16"><p className="text-gray-300">Laster favoritter og foredrag...</p></div>
-      )}
-      {isStoreInitialized && !isLoadingFavs && errorFavs && (
-        <div className="text-center py-16"><p className="text-red-400">Kunne ikke laste favoritter: {errorFavs}</p></div>
-      )}
-      {isStoreInitialized && !isLoadingFavs && filteredTalks.length === 0 && (showOnlyFavorites || selectedDuration) && (
+      {filteredTalks.length === 0 && (showOnlyFavorites || selectedDuration) && (
         <div className="text-center py-16"><p className="text-gray-300">Ingen foredrag funnet som passer filtrene dine.</p></div>
       )}
-      {isStoreInitialized && !isLoadingFavs && filteredTalks.length === 0 && !showOnlyFavorites && !selectedDuration && (
+      {filteredTalks.length === 0 && !showOnlyFavorites && !selectedDuration && (
         <div className="text-center py-16"><p className="text-gray-300">Ingen foredrag tilgjengelig for øyeblikket.</p></div>
       )}
-      {isStoreInitialized && !isLoadingFavs && filteredTalks.length > 0 && (
+      {filteredTalks.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <HelpCard />
           {filteredTalks.map((talk) => (
@@ -156,6 +134,11 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
             />
           ))}
         </div>
+      )}
+      {errorFavs && (
+          <div className="text-center py-4">
+              <p className="text-red-500">Feil ved lasting av favoritter: {errorFavs}. Foredrag vises uten favorittstatus.</p>
+          </div>
       )}
     </>
   );

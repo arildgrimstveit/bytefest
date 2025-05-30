@@ -13,6 +13,7 @@ export interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
   activeAccount: AccountInfo | null;
+  isAuthStatusKnown: boolean;
   logout: () => void;
   acquireTokenSilent: (scopes: string[]) => Promise<string | null>;
 }

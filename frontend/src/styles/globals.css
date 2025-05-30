@@ -8,10 +8,26 @@
     --radius: 0.5rem
   }
   
+  html, body {
+    height: 100%;
+  }
+
   body {
     background-color: #2A1449;
     min-height: 100vh;
     font-family: 'IBMPlexSansVar', sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+
+  body > div:first-child {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  main {
+    flex-grow: 1;
   }
 }
 
