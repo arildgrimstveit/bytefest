@@ -39,7 +39,7 @@ const TalkCard: FC<ExtendedTalkCardProps> = ({
   const fallbackImageUrl = '/images/LitenFisk.svg'; // Your original fallback
   const displayImageUrl = speakerImages.length > 0 ? speakerImages[0].picture!.asset!.url! : fallbackImageUrl;
   const displayImageAlt = speakerImages.length > 0
-    ? (speakerImages[0]?.name ? `Photo of ${speakerImages[0].name}` : talk.title)
+    ? (speakerImages[0]?.name ? `Photo of ${speakerImages[0].name}` : talk.title || "Talk image")
     : talk.title || "Fallback talk image";
 
   return (
