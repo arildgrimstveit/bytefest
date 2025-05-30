@@ -244,7 +244,7 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
                           {similarTalk.speakers && similarTalk.speakers[0]?.picture?.asset?.url ? (
                             <Image
                               src={similarTalk.speakers[0].picture.asset.url}
-                              alt={similarTalk.speakers[0]?.name ? `Photo of ${similarTalk.speakers[0].name}` : similarTalk.title}
+                              alt={similarTalk.speakers[0]?.name ? `Photo of ${similarTalk.speakers[0].name}` : (similarTalk.title || 'Similar talk image')}
                               fill
                               className="object-cover object-center"
                               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
