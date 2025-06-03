@@ -1,11 +1,31 @@
 "use client";
 
-import {useUser} from "@/components/UserContext";
+// import {useUser} from "@/components/UserContext";
+// import {useState} from "react";
+import client from "@/sanityClient";
+import {Counter} from "@/types/sanity";
 
 export default function Bytefest() {
-  const { isAuthenticated } = useUser();
+  // const { isAuthenticated } = useUser();
+  // const paameldingHref = isAuthenticated ? "/paamelding" : "/login?intent=paamelding";
+  // const [pageStatus, setPageStatus] = useState<'loading' | 'authenticating' | 'fetchingData' | 'formReady' | 'loginRequired' | 'error'>('loading');
+  let bergen: Counter = {result:0, ms: 0}
+  let drammen: Counter = {result:0, ms: 0}
 
-  const paameldingHref = isAuthenticated ? "/paamelding" : "/login?intent=paamelding";
+  const fetchData = async () => {
+    try {
+      [bergen, drammen] = await Promise.all([
+        client.fetch<Counter>(`count(*[_type=='attendee' && participationLocation == 'Bergen'])`),
+        client.fetch<Counter>(`count(*[_type=='attendee' && participationLocation == 'Drammen'])`)
+      ]);
+    } catch (error) {
+      console.error("Error fetching program data:", error);
+    }
+  };
+
+  fetchData();
+
+
 
   return (
     <div className="py-10">
@@ -28,11 +48,11 @@ export default function Bytefest() {
                     <tbody>{/* Bergen, Drammen, Fredrikstad, Hamar, Kristiansand, Københaven, Oslo, Stavanger, Tromså, Trondheim, Digitalt */}
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Bergen</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{bergen.result}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Drammen</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{drammen.result}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Fredrikstad</td>

@@ -15,4 +15,9 @@ export interface Attendee {
   willPresent: 'yes' | 'no';
 }
 
+export interface Counter {
+  result?: number;
+  ms?: number;
+}
+
 // You might want to add other types from your Sanity schema here as well 
