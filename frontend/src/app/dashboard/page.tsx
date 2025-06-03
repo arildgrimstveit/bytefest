@@ -1,14 +1,13 @@
 "use client";
 
-// import {useUser} from "@/components/UserContext";
-// import {useState} from "react";
 import client from "@/sanityClient";
 import {useState} from "react";
+import {useRouter} from "next/navigation";
+import {useUser} from "@/components/UserContext";
 
 export default function Bytefest() {
-  // const { isAuthenticated } = useUser();
-  // const paameldingHref = isAuthenticated ? "/paamelding" : "/login?intent=paamelding";
-  // const [pageStatus, setPageStatus] = useState<'loading' | 'authenticating' | 'fetchingData' | 'formReady' | 'loginRequired' | 'error'>('loading');
+  const router = useRouter();
+  const { isAuthenticated } = useUser();
   const [bergen, setBergen] = useState<number>(0);
   const [drammen, setDrammen] = useState<number>(0);
   const [fredrikstad, setFredrikstad ] = useState<number>(0);
@@ -60,9 +59,11 @@ export default function Bytefest() {
     }
   };
 
-  fetchData();
-
-
+  if(isAuthenticated){
+    fetchData();
+  } else {
+    router.push('/');
+  }
 
   return (
     <div className="py-10">

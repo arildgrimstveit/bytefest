@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, LogIn } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { NavItem } from "@/types/navItem";
-import { useUser } from "./UserContext";
+import {LogIn, Menu, X} from "lucide-react";
+import {usePathname, useRouter} from "next/navigation";
+import {NavItem} from "@/types/navItem";
+import {useUser} from "./UserContext";
 import UserAvatar from "./UserAvatar";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { isAuthenticated, logout } = useUser();
 
   // Close mobile menu on window resize to desktop view
@@ -30,6 +31,15 @@ const Header = () => {
     { name: "ALLE FOREDRAG", path: "/talks", disabled: false },
     { name: "PROGRAM", path: "/program", disabled: false },
   ], []);
+
+  // Go to Dashboad if logged inn
+  const toDashboard = useCallback(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    } else {
+      router.push("/");
+    }
+  }, [isAuthenticated]);
 
   // Renders a single desktop navigation link with active state styling
   const renderNavLink = useCallback((item: NavItem) => {
@@ -167,7 +177,7 @@ const Header = () => {
 
         {/* Logo (centered on mobile, left on desktop) */}
         <div className="absolute left-1/2 transform -translate-x-1/2 top-4 z-20 lg:static lg:translate-x-0">
-          <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+          <Link href="/" className="flex items-center" onClick={() => setIsOpen(false)} onDoubleClick={() => toDashboard()}>
             <Image
               src="/images/BytefestLogo.svg"
               alt="Bytefest Logo"
