@@ -41,14 +41,12 @@ export const attendee = defineType({
       name: 'attendeeName',
       title: 'Name',
       type: 'string',
-      readOnly: true, // Set from SSO, should not be edited manually
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'attendeeEmail',
       title: 'Email',
       type: 'string',
-      readOnly: true, // Set from SSO, should not be edited manually
       validation: (Rule) => Rule.required().email(),
     }),
     defineField({
