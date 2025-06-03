@@ -99,6 +99,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
                         router.push('/program');
                     } else if (loginIntent === 'paamelding') {
                         router.push('/paamelding'); 
+                    } else if (loginIntent === 'dashboard') {
+                        router.push('/dashboard');
                     } else {
                         router.push('/');
                     }
