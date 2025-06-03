@@ -3,21 +3,58 @@
 // import {useUser} from "@/components/UserContext";
 // import {useState} from "react";
 import client from "@/sanityClient";
-import {Counter} from "@/types/sanity";
+import {useState} from "react";
 
 export default function Bytefest() {
   // const { isAuthenticated } = useUser();
   // const paameldingHref = isAuthenticated ? "/paamelding" : "/login?intent=paamelding";
   // const [pageStatus, setPageStatus] = useState<'loading' | 'authenticating' | 'fetchingData' | 'formReady' | 'loginRequired' | 'error'>('loading');
-  let bergen: Counter = {result:0, ms: 0}
-  let drammen: Counter = {result:0, ms: 0}
+  const [bergen, setBergen] = useState<number>(0);
+  const [drammen, setDrammen] = useState<number>(0);
+  const [fredrikstad, setFredrikstad ] = useState<number>(0);
+  const [hamar, setHamar ] = useState<number>(0);
+  const [kristiansand, setKristiansand ] = useState<number>(0);
+  const [kobenhaven, setKobenhaven ] = useState<number>(0);
+  const [oslo, setOslo ] = useState<number>(0);
+  const [stavanger, setStavanger ] = useState<number>(0);
+  const [tromso, setTromso ] = useState<number>(0);
+  const [trondheim, setTrondheim ] = useState<number>(0);
+  const [digitalt, setDigitalt ] = useState<number>(0);
 
   const fetchData = async () => {
     try {
-      [bergen, drammen] = await Promise.all([
-        client.fetch<Counter>(`count(*[_type=='attendee' && participationLocation == 'Bergen'])`),
-        client.fetch<Counter>(`count(*[_type=='attendee' && participationLocation == 'Drammen'])`)
+      const [bergen, drammen, fredrikstad, hamar ] = await Promise.all([
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Bergen'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Drammen'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Fredrikstad'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Hamar'])`),
       ]);
+
+      const [kristiansand, kobenhaven, oslo, stavanger] = await Promise.all([
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Kristiansand'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'København'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Oslo'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Stavanger'])`)
+      ]);
+
+      const [tromso, trondheim, digitalt ] = await Promise.all([
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Tromsø'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Trondheim'])`),
+        client.fetch<number>(`count(*[_type == 'attendee' && participationLocation == 'Digitalt'])`)
+      ]);
+
+      setBergen(bergen);
+      setDrammen(drammen);
+      setFredrikstad(fredrikstad);
+      setHamar(hamar);
+      setKristiansand(kristiansand);
+      setKobenhaven(kobenhaven);
+      setOslo(oslo);
+      setStavanger(stavanger);
+      setTromso(tromso);
+      setTrondheim(trondheim)
+      setDigitalt(digitalt)
+
     } catch (error) {
       console.error("Error fetching program data:", error);
     }
@@ -45,54 +82,56 @@ export default function Bytefest() {
                       <th className="px-4 py-2 border-b border-gray-300">Påmeldinger</th>
                     </tr>
                     </thead>
-                    <tbody>{/* Bergen, Drammen, Fredrikstad, Hamar, Kristiansand, Københaven, Oslo, Stavanger, Tromså, Trondheim, Digitalt */}
+                    <tbody>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Bergen</td>
-                        <td className="px-4 py-2 border-b border-gray-300">{bergen.result}</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{bergen}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Drammen</td>
-                        <td className="px-4 py-2 border-b border-gray-300">{drammen.result}</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{drammen}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Fredrikstad</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{fredrikstad}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Hamar</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{hamar}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Kristiansand</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{kristiansand}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Københaven</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{kobenhaven}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Oslo</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{oslo}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Stavanger</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{stavanger}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Tromså</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{tromso}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Trondheim</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{trondheim}</td>
                       </tr>
                       <tr className="hover:bg-gray-50">
                         <td className="px-4 py-2 border-b border-gray-300">Digitalt</td>
-                        <td className="px-4 py-2 border-b border-gray-300">100</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{digitalt}</td>
                       </tr>
                     <tr className="bg-gray-100">
                       <td className="px-4 py-2 border-a border-gray-300 font-semibold">Totalt</td>
-                      <td className="px-4 py-2 border-b border-gray-300 font-semibold">100</td>
+                      <td className="px-4 py-2 border-b border-gray-300 font-semibold">
+                        { bergen+drammen+fredrikstad+hamar+kristiansand+kobenhaven+oslo+stavanger+tromso+trondheim+digitalt }
+                      </td>
                     </tr>
                     </tbody>
                   </table>
