@@ -308,9 +308,9 @@ export default function FeedbackForm({ talkId, talkTitle: _talkTitle, shareButto
                     <legend className="mb-4 font-medium">
                       Hvor godt likte du foredraget?
                     </legend>
-                    <div className="flex items-center gap-3">
-                      <span>Lav</span>
-                      <div className="flex space-x-4">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3">
+                      <span className="text-sm">Lav</span>
+                      <div className="flex flex-col md:flex-row gap-2 md:gap-4">
                         {[1, 2, 3, 4, 5].map((value) => (
                           <label key={value} className="flex items-center cursor-pointer" htmlFor={`rating-${value}`}>
                             <input
@@ -320,13 +320,13 @@ export default function FeedbackForm({ talkId, talkTitle: _talkTitle, shareButto
                               value={value.toString()}
                               checked={formData.rating === value.toString()}
                               onChange={handleInputChange}
-                              className="w-5 h-5 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
+                              className="w-6 h-6 border-[2px] border-black appearance-none rounded-full checked:bg-white checked:border-[6px] cursor-pointer"
                             />
-                            <span className="ml-2">{value}</span>
+                            <span className="ml-2 text-sm">{value}</span>
                           </label>
                         ))} 
                       </div>
-                      <span>Høy</span>
+                      <span className="text-sm">Høy</span>
                     </div>
                   </fieldset>
                 </div>
