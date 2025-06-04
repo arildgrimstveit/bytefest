@@ -205,7 +205,7 @@ export default function FeedbackForm({ talkId, talkTitle: _talkTitle, shareButto
           className="flex items-center group cursor-pointer"
         >
           <Image
-            src="/images/feedback.svg"
+            src="/images/Feedback.svg"
             alt="Feedback"
             width={24}
             height={24}
@@ -407,7 +407,7 @@ export default function FeedbackForm({ talkId, talkTitle: _talkTitle, shareButto
                     className="group transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <Image
-                      src="/images/sendinn.svg"
+                      src="/images/SendInn.svg"
                       alt={isSubmitting ? 'Sender...' : 'Send inn'}
                       width={240}
                       height={40}

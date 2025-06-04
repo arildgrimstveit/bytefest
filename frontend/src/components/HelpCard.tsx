@@ -28,7 +28,7 @@ const HelpCard = () => {
             <div className="flex justify-center mt-auto">
               <div className="p-2 transition-transform active:scale-95 cursor-pointer hover:opacity-75">
                 <Image
-                  src="/images/feedback.svg"
+                  src="/images/Feedback.svg"
                   alt="Gi tilbakemelding"
                   width={200}
                   height={30}

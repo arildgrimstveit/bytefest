@@ -501,7 +501,7 @@ function BytefestFeedback() {
                               className="group transition-transform active:scale-95 cursor-pointer"
                             >
                               <Image
-                                src="/images/neste.svg"
+                                src="/images/Neste.svg"
                                 alt="Neste"
                                 width={180}
                                 height={60}
