@@ -59,6 +59,9 @@ const Footer = () => {
                 <Link href="/privacy-policy" className="text-sm text-gray-300 hover:text-white transition-colors">
                   PERSONVERNERKLÆRING
                 </Link>
+                <Link href="/feedback" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  TILBAKEMELDING
+                </Link>
                 <a href="mailto:bytefest@soprasteria.com" className="text-sm text-gray-300 hover:text-white transition-colors">
                   EPOST
                 </a>

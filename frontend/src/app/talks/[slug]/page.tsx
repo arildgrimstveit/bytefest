@@ -5,6 +5,7 @@ import { PortableText } from "@portabletext/react";
 import type { Talk } from '@/types/talk';
 import FavoriteButtonWrapper from './favorite-button-wrapper';
 import ShareButton from './ShareButton';
+import FeedbackForm from '@/components/FeedbackForm';
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
@@ -72,10 +73,10 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
     }
   };
 
-  // Fetch similar talks based on tags
+  // Fetch similar talks based on tags  
   let similarTalks: Talk[] = [];
   if (talk.tags && talk.tags.length > 0) {
-    const similarQuery = `*[_type == "talk" && _id != $talkId && count((tags)[@ in $tags]) > 0] | order(count((tags)[@ in $tags]) desc)[0...6]{
+    const similarQuery = `*[_type == "talk" && _id != $talkId && count((tags)[@ in $tags]) > 0] | order(count((tags)[@ in $tags]) desc)[0...3]{
       _id,
       title,
       slug,
@@ -87,15 +88,10 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
       tags
     }`;
 
-    const allSimilarTalks = await client.fetch(similarQuery, {
+    similarTalks = await client.fetch(similarQuery, {
       talkId: talk._id,
       tags: talk.tags
     });
-
-    // Filter out talks with titles starting with "IKKE MED:"
-    similarTalks = allSimilarTalks.filter((similarTalk: Talk) =>
-      !similarTalk.title || !similarTalk.title.trim().startsWith('IKKE MED:')
-    ).slice(0, 3); // Limit to 3 talks after filtering
   }
 
   return (
@@ -217,9 +213,13 @@ export default async function TalkDetail({ params: paramsProxy, searchParams: se
               </div>
             )}
 
-            {/* Social sharing */}
-            <div className="flex justify-end gap-4 mt-8">
-              <ShareButton />
+            {/* Feedback Form */}
+            <div className="mt-8 pt-8">
+              <FeedbackForm 
+                talkId={talk._id} 
+                talkTitle={talk.title || 'Ukjent foredrag'} 
+                shareButton={<ShareButton />}
+              />
             </div>
           </div>
         </div>

@@ -12,7 +12,6 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
   const [selectedDuration, setSelectedDuration] = useState<string | null>(null);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
-  const hideIkkeMed = true;
   const durationRef = useRef<HTMLDivElement>(null);
   const {
     favs,
@@ -40,9 +39,6 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
   ];
 
   const filteredTalks = talks.filter((talk) => {
-    if (hideIkkeMed && talk.title && talk.title.trim().startsWith('IKKE MED:')) {
-      return false;
-    }
     if (selectedDuration && talk.duration !== selectedDuration) {
       return false;
     }
@@ -138,7 +134,7 @@ export default function ClientTalkFilters({ talks }: ClientTalkFiltersProps) {
       {errorFavs && (
           <div className="text-center py-4">
               <p className="text-red-500">Feil ved lasting av favoritter: {errorFavs}. Foredrag vises uten favorittstatus.</p>
-          </div>
+        </div>
       )}
     </>
   );

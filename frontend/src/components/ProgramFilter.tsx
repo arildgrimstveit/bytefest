@@ -124,6 +124,7 @@ export default function ProgramFilter({ allProgramEvents, defaultLocation }: Pro
   }
 
   const programScheduleTemplate: Omit<ProgramSegment, 'talksByTrack' | 'socialEventsInSlot'>[] = [
+    { label: "16:00", title: "Mat", type: 'event' },
     { label: "16:45", title: "Åpning", type: 'event' },
     { label: "17:00", title: "Faglig 1", type: 'talks' },
     { label: "17:45", title: "Pause", type: 'event' },

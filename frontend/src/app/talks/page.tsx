@@ -38,10 +38,6 @@ export default async function TalksPage() {
           Her er det noe for enhver, enten du vil dykke dypere i ditt eget felt, 
           eller få en innføring i noe du ikke kan så godt fra før.
           </p>
-          <br />
-          <p>
-          Fullstendig program med tid og sted, kommer nærmere arrangementet.
-          </p>
         </div>
 
         <TalkFilters 

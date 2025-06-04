@@ -110,6 +110,13 @@ html {
   position: relative;
   background-color: white;
   border: 4px solid #161E38;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   clip-path: polygon(
     0px calc(100% - var(--corner-size)),
     var(--pixel-size) calc(100% - var(--corner-size)),
@@ -140,24 +147,41 @@ html {
   height: var(--pixel-size);
   background-color: #161E38;
   z-index: 2;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  left: calc(var(--left, 0) * 1px);
+  top: calc(var(--top, 0) * 1px);
 }
 
 .pixel-corner.tl {
+  --left: 0;
+  --top: 0;
   top: 0;
   left: 0;
 }
 
 .pixel-corner.tr {
+  --left: calc(100% - var(--pixel-size));
+  --top: 0;
   top: 0;
   right: 0;
 }
 
 .pixel-corner.bl {
+  --left: 0;
+  --top: calc(100% - var(--pixel-size));
   bottom: 0;
   left: 0;
 }
 
 .pixel-corner.br {
+  --left: calc(100% - var(--pixel-size));
+  --top: calc(100% - var(--pixel-size));
   bottom: 0;
   right: 0;
 }
@@ -171,4 +195,6 @@ html {
   height: 100%;
   display: block;
   box-sizing: border-box;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
 }

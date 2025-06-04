@@ -82,11 +82,22 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
                     if (!currentInternalState.isAuthenticated) { // Fresh login
                         const loginIntent = localStorage.getItem('loginRedirectIntent');
+                        const redirectTo = localStorage.getItem('loginRedirectTo');
+                        
                         if (loginIntent) {
                             localStorage.removeItem('loginRedirectIntent');
-                            if (loginIntent === 'program') redirectPath = '/program';
-                            else if (loginIntent === 'paamelding') redirectPath = '/paamelding';
-                            else redirectPath = '/';
+                            if (redirectTo) {
+                                localStorage.removeItem('loginRedirectTo');
+                                redirectPath = redirectTo;
+                            } else if (loginIntent === 'program') {
+                                redirectPath = '/program';
+                            } else if (loginIntent === 'paamelding') {
+                                redirectPath = '/paamelding';
+                            } else if (loginIntent === 'talkFeedback') {
+                                redirectPath = '/'; // Fallback if no redirectTo
+                            } else {
+                                redirectPath = '/';
+                            }
                             needsRedirect = true;
                         }
                     }

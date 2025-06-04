@@ -1,26 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const HelpCard = () => {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  useEffect(() => {
-    // Check if the help card is marked as favorite in localStorage
-    const helpCardFavorite = localStorage.getItem('helpCardFavorite') === 'true';
-    setIsFavorite(helpCardFavorite);
-  }, []);
-
-  const toggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent link navigation
-    const newState = !isFavorite;
-    localStorage.setItem('helpCardFavorite', newState.toString());
-    setIsFavorite(newState);
-  };
-
   return (
-    <div className="block h-full pt-2 pl-2">
+    <Link href="/feedback/bytefest" className="block h-full pt-2 pl-2">
       {/* Main card with orange backdrop effect */}
       <div className="relative h-full">
         {/* Orange backdrop */}
@@ -32,33 +17,30 @@ const HelpCard = () => {
           {/* Content Area - Full height */}
           <div className="p-5 flex flex-col h-full">
             <h3 className="text-2xl iceland text-[#2A1449] leading-tight mb-4 mt-10">
-              Hjelp oss i planleggingen
+              Tilbakemelding på Bytefest
             </h3>
 
             <p className="text-[#2A1449] mb-6 flex-grow">
-              Klikk på sjøstjerna for de foredragene du har mest lyst til å få med deg.
-              Vi bruker markeringene deres til å planlegge hvilke rom vi skal bruke til hvilke foredrag.
+              Ønsker du å gi tilbakemelding på Bytefest som helhet? Klikk her for å gi tilbakemelding på hele arrangementet, eller klikk på et av foredragene for å gi tilbakemelding på et bestemt foredrag.
             </p>
 
-            {/* Star icon centered at bottom */}
+            {/* Feedback icon centered at bottom */}
             <div className="flex justify-center mt-auto">
-              <button
-                onClick={toggleFavorite}
-                className="p-2 transition-transform active:scale-95 cursor-pointer hover:opacity-75"
-              >
+              <div className="p-2 transition-transform active:scale-95 cursor-pointer hover:opacity-75">
                 <Image
-                  src={isFavorite ? '/images/SeaStarFilled.svg' : '/images/SeaStar.svg'}
-                  alt={isFavorite ? 'Favoritt' : 'Legg til som favoritt'}
-                  width={40}
-                  height={40}
-                  className="w-15 h-15 mb-15"
+                  src="/images/feedback.svg"
+                  alt="Gi tilbakemelding"
+                  width={200}
+                  height={30}
+                  style={{ height: "auto" }}
+                  className="mb-2 transition-transform active:scale-95 cursor-pointer hover:opacity-75"
                 />
-              </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
