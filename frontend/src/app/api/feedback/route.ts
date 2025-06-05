@@ -36,7 +36,7 @@ interface GeneralFeedbackData {
   informationSourceFeedback?: string;
   informationCommentsFeedback?: string;
   overallImpressionRating?: string;
-  overallCommentRating?: string;
+  overallCommentFeedback?: string;
   recommendationRating?: string;
 }
 

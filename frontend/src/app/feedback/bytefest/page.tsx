@@ -57,7 +57,7 @@ const digitalSections: Section[] = [
     title: 'Helhetsinntrykk',
     questions: [
       { type: 'rating', question: 'Hva var helhets-inntrykket ditt av Bytefest?', field: 'overallImpressionRating' },
-      { type: 'text', question: 'Har du kommentarer til Bytefest som arrangement?', field: 'overallCommentRating' },
+      { type: 'text', question: 'Har du kommentarer til Bytefest som arrangement?', field: 'overallCommentFeedback' },
       { type: 'rating', question: 'Hvor sannsynlig er det at du vil anbefale en kollega å delta på Bytefest på samme måte som deg?', field: 'recommendationRating' }
     ]
   }
@@ -107,7 +107,7 @@ const physicalSections: Section[] = [
     title: 'Helhetsinntrykk',
     questions: [
       { type: 'rating', question: 'Hva var helhets-inntrykket ditt av Bytefest?', field: 'overallImpressionRating' },
-      { type: 'text', question: 'Har du kommentarer til Bytefest som arrangement?', field: 'overallCommentRating' },
+      { type: 'text', question: 'Har du kommentarer til Bytefest som arrangement?', field: 'overallCommentFeedback' },
       { type: 'rating', question: 'Hvor sannsynlig er det at du vil anbefale en kollega å delta på Bytefest på samme måte som deg?', field: 'recommendationRating' }
     ]
   }
@@ -133,7 +133,7 @@ function BytefestFeedback() {
   const router = useRouter();
   const { user, isAuthenticated } = useUser();
   const { instance, inProgress } = useMsal();
-  
+
   const [formData, setFormData] = useState({
     digitalParticipationRating: '',
     digitalImplementationFeedback: '',
@@ -155,7 +155,7 @@ function BytefestFeedback() {
     informationSourceFeedback: '',
     informationCommentsFeedback: '',
     overallImpressionRating: '',
-    overallCommentRating: '',
+    overallCommentFeedback: '',
     recommendationRating: ''
   });
 
@@ -237,19 +237,19 @@ function BytefestFeedback() {
     const currentSectionIndex = sections.findIndex(section => section.id === currentSectionId);
     if (currentSectionIndex < sections.length - 1) {
       const nextSection = sections[currentSectionIndex + 1];
-      
+
       // Expand the next section if it's not already expanded
       if (!expandedSections.includes(nextSection.id)) {
         setExpandedSections(prev => [...prev, nextSection.id]);
       }
-      
+
       // Always scroll to the next section (whether it was already expanded or just opened)
       setTimeout(() => {
         const nextSectionElement = document.getElementById(`section-${nextSection.id}`);
         if (nextSectionElement) {
-          nextSectionElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          nextSectionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
         }
       }, 150);
@@ -258,9 +258,9 @@ function BytefestFeedback() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch('/api/feedback', {
         method: 'POST',
@@ -281,7 +281,7 @@ function BytefestFeedback() {
       const result = await response.json();
       console.log('Feedback submitted successfully:', result);
       console.log('Submitted from location:', participationLocation);
-      
+
       // Check for pending talk feedback and submit it
       const pendingTalkFeedback = localStorage.getItem('pendingTalkFeedback');
       if (pendingTalkFeedback) {
@@ -300,7 +300,7 @@ function BytefestFeedback() {
                 message: parsed.formData.speakerFeedback,
               }),
             });
-            
+
             if (talkResponse.ok) {
               console.log('Pending talk feedback also submitted successfully');
               localStorage.removeItem('pendingTalkFeedback');
@@ -313,10 +313,10 @@ function BytefestFeedback() {
           localStorage.removeItem('pendingTalkFeedback');
         }
       }
-      
+
       // Redirect to confirmation page
       router.push('/feedback/takk');
-      
+
     } catch (error) {
       console.error('Error submitting feedback:', error);
       alert(error instanceof Error ? error.message : 'Det oppstod en feil ved innsending av tilbakemelding.');
@@ -326,8 +326,8 @@ function BytefestFeedback() {
   };
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
         ? prev.filter(id => id !== sectionId)
         : [...prev, sectionId]
     );
@@ -404,7 +404,7 @@ function BytefestFeedback() {
       <div className="w-full max-w-4xl mx-auto my-8">
         <div className="relative bg-white p-8 shadow-lg px-6 sm:px-10 md:px-20">
           <div className="absolute -z-10 top-0 left-0 w-full h-full bg-[#FFAB5F] translate-x-1 translate-y-1"></div>
-          
+
           <div className="text-center mb-8">
             <h1 className="text-3xl sm:text-4xl md:text-5xl argent text-center mb-2">Tilbakemelding</h1>
             <p className="text-gray-600">Vi setter pris på din tilbakemelding</p>
@@ -420,27 +420,25 @@ function BytefestFeedback() {
                 >
                   {/* Hover background that aligns with borders */}
                   <div className="absolute inset-y-0 left-2 right-2 bg-[#fdf2e5] opacity-0 group-hover:opacity-100 transition-opacity rounded-lg -z-0"></div>
-                  
+
                   <svg
                     width="24"
                     height="24"
                     viewBox="0 0 20 20"
                     fill="none"
-                    className={`transition-transform duration-200 mr-3 relative z-10 ${
-                      expandedSections.includes(section.id) ? 'rotate-180' : ''
-                    }`}
+                    className={`transition-transform duration-200 mr-3 relative z-10 ${expandedSections.includes(section.id) ? 'rotate-180' : ''
+                      }`}
                   >
-                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="iceland text-2xl relative z-10">{section.title}</span>
                   {/* Bottom border that extends beyond title */}
                   <div className="absolute bottom-0 left-2 right-2 h-[2px] bg-black z-10"></div>
                 </button>
 
-                <div 
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                    expandedSections.includes(section.id) ? 'max-h-[4000px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedSections.includes(section.id) ? 'max-h-[4000px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
                 >
                   {expandedSections.includes(section.id) && (
                     <div className="p-6 bg-white">
@@ -484,7 +482,7 @@ function BytefestFeedback() {
                                 <p className="text-xs text-gray-500 text-right mt-1 mb-[-10] flex items-center justify-end gap-1">
                                   Dra for å utvide
                                   <svg width="12" height="12" viewBox="0 0 12 12" className="text-gray-400">
-                                    <path d="M1 1L11 11M11 11L7 11M11 11L11 7M1 1L5 1M1 1L1 5" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round"/>
+                                    <path d="M1 1L11 11M11 11L7 11M11 11L11 7M1 1L5 1M1 1L1 5" stroke="currentColor" strokeWidth="1" fill="none" strokeLinecap="round" />
                                   </svg>
                                 </p>
                               </div>

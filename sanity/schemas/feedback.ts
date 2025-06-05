@@ -228,7 +228,7 @@ export const feedback = defineType({
       hidden: ({document}) => document?.feedbackCategory !== 'general',
     }),
     defineField({
-      name: 'overallCommentRating',
+      name: 'overallCommentFeedback',
       title: 'Har du kommentarer til Bytefest som arrangement?',
       type: 'text',
       hidden: ({document}) => document?.feedbackCategory !== 'general',
