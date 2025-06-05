@@ -25,7 +25,15 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
-          <PaameldingButton />
+          <Link href="https://soprasteria.workplace.com/groups/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer" target="_blank" rel="noopener noreferrer">
+            <Image
+              src="/images/DeltaDigitalt.svg"
+              alt="Delta digitalt"
+              width={263}
+              height={55}
+              style={{ height: 'auto' }}
+            />
+          </Link>
           <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
             <Image
               src="/images/LesMer.svg"
