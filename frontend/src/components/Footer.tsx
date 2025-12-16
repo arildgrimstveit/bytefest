@@ -38,16 +38,16 @@ const Footer = () => {
               <h3 className="text-xl font-medium mb-6">Navigasjon</h3>
               <div className="flex flex-col space-y-3">
                 <Link href="/" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  PÅMELDING
+                  SEND INN FOREDRAG 2026
                 </Link>
                 <Link href="/bytefest" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  OM BYTEFEST
+                  OM BYTEFEST 2025
                 </Link>
                 <Link href="/talks" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  ALLE FOREDRAG
+                  ALLE FOREDRAG 2025
                 </Link>
                 <Link href="/program" className="text-sm text-gray-300 hover:text-white transition-colors">
-                  PROGRAM
+                  PROGRAM 2025
                 </Link>
               </div>
             </div>

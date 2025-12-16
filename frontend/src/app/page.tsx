@@ -28,8 +28,8 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
           <Link href="https://sessionize.com/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer" target="_blank" rel="noopener noreferrer">
             <Image
-              src="/images/sendInn.svg"
-              alt="Delta digitalt"
+              src="/images/SendInn.svg"
+              alt="Send inn foredrag"
               width={263}
               height={55}
               style={{ height: 'auto' }}
@@ -38,7 +38,7 @@ export default function Home() {
 
         </div>
         <div className="text-left argent text-white pt-20 text-xl sm:text-2xl">
-          <a>Ny side med nytt desing er på vei, enn så lenge kan du jo ta en titt på fjorårets foredrag, tabben ALLE FOREDRAG </a>
+          <a>Ny side med NYTT DESIGN er på vei! For inspirasjon til eget foredrag, ta en titt på fjorårets: <Link href="/talks" className="underline hover:cursor-pointer">ALLE FOREDRAG 2025</Link> </a>
         </div>
         <div className="flex items-end lg:mt-[-100] mt-20 gap-x-[clamp(300px,calc(300px+((100vw-768px)*400)/512),800px)]">
           <Image
