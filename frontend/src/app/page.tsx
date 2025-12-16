@@ -15,33 +15,30 @@ export default function Home() {
             style={{ width: '940px', height: 'auto' }}
           />
         </div>
-        <div className="text-left argent text-white pt-10 text-2xl sm:text-4xl">
-          <a>Minikonferansen som dypdykker i systemutvikling</a>
-        </div>
-        <div className="text-left iceland text-white pt-10">
-          <a className="text-2xl md:text-4xl lg:text-5xl">5. juni 2025</a>
-          <a className="text-xl md:text-2xl pl-5 sm:pl-10 md:pl-15">16.00 - 23.00</a>
-        </div>
 
+        <div className="text-left argent text-white pt-20 text-xl sm:text-7xl">
+          <a>Bytefest med venner</a>
+        </div>
+        <div className="text-left iceland text-yellow-500 pt-10 text-2xl sm:text-4xl">
+          <a className="text-2xl md:text-4xl lg:text-7xl">19. Mars 2026</a>
+        </div>
+        <div className="text-left argent text-white pt-10 text-2xl sm:text-7xl">
+          <a>Vi søker foredragsholdere!</a>
+        </div>
         <div className="flex flex-col sm:flex-row gap-y-3 sm:gap-y-6 sm:gap-x-15 pt-10 sm:pt-10">
-          <Link href="https://soprasteria.workplace.com/groups/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer" target="_blank" rel="noopener noreferrer">
+          <Link href="https://sessionize.com/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer" target="_blank" rel="noopener noreferrer">
             <Image
-              src="/images/DeltaDigitalt.svg"
+              src="/images/sendInn.svg"
               alt="Delta digitalt"
               width={263}
               height={55}
               style={{ height: 'auto' }}
             />
           </Link>
-          <Link href="/bytefest" className="transition-transform active:scale-95 hover:opacity-80 cursor-pointer">
-            <Image
-              src="/images/LesMer.svg"
-              alt="LesMer"
-              width={178}
-              height={55}
-              style={{ height: 'auto' }}
-            />
-          </Link>
+
+        </div>
+        <div className="text-left argent text-white pt-20 text-xl sm:text-2xl">
+          <a>Ny side med nytt desing er på vei, enn så lenge kan du jo ta en titt på fjorårets foredrag, tabben ALLE FOREDRAG </a>
         </div>
         <div className="flex items-end lg:mt-[-100] mt-20 gap-x-[clamp(300px,calc(300px+((100vw-768px)*400)/512),800px)]">
           <Image
